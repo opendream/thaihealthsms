@@ -31,10 +31,10 @@
 		<li>
 			<h3>{{object.object.name}}</h3>
 			
-			{% ifequal object.comment.object_name 'activity' %}<div class="links"><a href="/activity/{{object.object.id}}/comments/">ดูความคิดเห็นทั้งหมด</a></div>{% endifequal %}
-			{% ifequal object.comment.object_name 'program' %}<div class="links"><a href="/program/{{object.object.id}}/comments/">ดูความคิดเห็นทั้งหมด</a></div>{% endifequal %}
-			{% ifequal object.comment.object_name 'project' %}<div class="links"><a href="/project/{{object.object.id}}/comments/">ดูความคิดเห็นทั้งหมด</a></div>{% endifequal %}
-			{% ifequal object.comment.object_name 'report' %}<div class="links"><a href="/report/{{object.object.id}}/comments/">ดูความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'activity' %}<div class="links"><a href="/activity/{{object.object.id}}/comments/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'program' %}<div class="links"><a href="/program/{{object.object.id}}/comments/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'project' %}<div class="links"><a href="/project/{{object.object.id}}/comments/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'report' %}<div class="links"><a href="/report/{{object.object.id}}/comments/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
 			
 			<ul class="comments">
 				{% for comment in object.comments %}

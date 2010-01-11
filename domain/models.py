@@ -15,6 +15,7 @@ class UserAccount(models.Model):
 	last_name = models.CharField(max_length=300, null=True)
 	projects = models.ManyToManyField('Project')
 
+
 #
 # Organization
 #
@@ -22,6 +23,11 @@ class Sector(models.Model):
 	ref_no = models.CharField(max_length=64, unique=True)
 	name = models.CharField(max_length=512)
 	manager = models.ForeignKey('UserAccount', null=True, related_name="sector_manager")
+
+# TODO enable this feature later
+#class SectorManager(models.Model):
+#	sector = models.ForeignKey('Sector')
+#	manager = models.ForeignKey('UserAccount')
 
 class MasterPlan(models.Model):
 	sector = models.ForeignKey('Sector')
@@ -82,22 +88,25 @@ class Activity(models.Model):
 #
 # KPI
 #
-class KPI(models.Model):
+class MasterPlanKPI(models.Model):
 	ref_no = models.CharField(max_length=64)
 	name = models.CharField(max_length=512)
 	category = models.IntegerField() # Finance, Operation, Teamwork, Partner
-	full_score = models.IntegerField()
-	unit_type = models.IntegerField(default=0) # quantitative, expectation etc.
-	unit_name = models.CharField(max_length=256)
+	master_plan = models.ForeignKey('MasterPlan')
 
-class ProjectKPI(models.Model):
+class KPISubmission(models.Model):
 	kpi = models.ForeignKey('KPI')
 	project = models.ForeignKey('Project')
-	expect_date = models.DateField()
-	expect_score = models.IntegerField()
-	score = models.IntegerField()
-
-
+	target_score = models.IntegerField()
+	submit_score = models.IntegerField()
+	start_date = models.DateField()
+	end_date = models.DateField()
+	last_update = models.DateTimeField(auto_now=True)
+	
+class KPISubmissionRevision(models.Model):
+	submission = models.ForeignKey('KPISubmission')
+	submitted_on = models.DateTimeField(auto_now_add=True)
+	submitted_by = models.ForeignKey('UserAccount')
 
 
 #

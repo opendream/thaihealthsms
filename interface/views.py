@@ -74,7 +74,7 @@ def view_dashboard_projects(request):
 def view_dashboard_comments(request):
 	user_account = request.user.get_profile()
 	
-	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile()).order_by("-sent_on")
+	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), is_read=False).order_by("-sent_on")
 	
 	object_list = list()
 	object_dict = dict()
@@ -258,6 +258,12 @@ def view_program_reports_send(request, program_id):
 	
 	
 	return render_response(request, "project_reports_send.html", {'project':program, 'reports':reports, 'REPORT_SUBMIT_FILE_URL':settings.REPORT_SUBMIT_FILE_URL})
+
+@login_required
+def view_program_kpi(request, program_id):
+	program = get_object_or_404(Project, pk=program_id)
+	
+	return render_response(request, "project_kpi.html", {'project':program, })
 
 @login_required
 def view_program_comments(request, program_id):
