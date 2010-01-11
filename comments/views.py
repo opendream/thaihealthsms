@@ -9,7 +9,7 @@ from comments.models import *
 from domain.models import Activity, UserAccount, Project
 from report.models import ReportSchedule
 
-from sms.helper.utilities import format_abbr_date
+from thaihealthsms.helper.utilities import format_abbr_date
 
 @login_required
 def ajax_post_user_comment(request, user_id):

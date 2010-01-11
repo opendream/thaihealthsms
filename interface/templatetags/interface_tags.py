@@ -4,7 +4,7 @@ from django import template
 
 from domain.constants import PROJECT_TYPE_TEXT
 from domain.models import Project, UserAccount
-from sms.helper.utilities import format_date
+from thaihealthsms.helper.utilities import format_date
 from comments.models import CommentReceiver
 
 register = template.Library()

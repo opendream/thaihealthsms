@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 
-from sms.shortcuts import render_response
+from thaihealthsms.shortcuts import render_response
 
 from comments.models import *
 from domain.models import *

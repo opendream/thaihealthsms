@@ -1,7 +1,7 @@
 from django import template
 from django.template.defaultfilters import stringfilter
 
-from sms.helper.utilities import format_abbr_datetime, format_datetime, format_abbr_date, format_date, format_month_year
+from thaihealthsms.helper.utilities import format_abbr_datetime, format_datetime, format_abbr_date, format_date, format_month_year
 
 register = template.Library()
 

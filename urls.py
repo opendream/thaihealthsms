@@ -10,10 +10,10 @@ admin.autodiscover()
 from interface.views import view_frontpage
 
 urlpatterns = patterns('',
-	(r'^', include('sms.interface.urls')),
-	#(r'^', include('sms.domain.urls')),
-	(r'^', include('sms.report.urls')),
-	(r'^', include('sms.comments.urls')),
+	(r'^', include('thaihealthsms.interface.urls')),
+	#(r'^', include('thaihealthsms.domain.urls')),
+	(r'^', include('thaihealthsms.report.urls')),
+	(r'^', include('thaihealthsms.comments.urls')),
 	
 	(r'^accounts/', include('registration.backends.default.urls')),
 	

@@ -34,7 +34,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 "django.core.context_processors.debug",
 "django.core.context_processors.i18n",
 "django.core.context_processors.media",
-"sms.context_processors.user_account",
+"thaihealthsms.context_processors.user_account",
 )
 
 TEMPLATE_LOADERS = (
@@ -47,10 +47,10 @@ MIDDLEWARE_CLASSES = (
 	'django.middleware.common.CommonMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
-	'sms.middleware.AJAXSimpleExceptionResponse', 
+	'thaihealthsms.middleware.AJAXSimpleExceptionResponse', 
 )
 
-ROOT_URLCONF = 'sms.urls'
+ROOT_URLCONF = 'thaihealthsms.urls'
 
 TEMPLATE_DIRS = (
 	os.path.join(_base, "templates"),
@@ -72,11 +72,11 @@ INSTALLED_APPS = (
 	'django.contrib.sessions',
 	'django.contrib.sites',
 	'registration',
-	'sms.comments',
-	'sms.domain',
-	'sms.helper',
-	'sms.interface',
-	'sms.report',
+	'thaihealthsms.comments',
+	'thaihealthsms.domain',
+	'thaihealthsms.helper',
+	'thaihealthsms.interface',
+	'thaihealthsms.report',
 )
 
 # ===== SMS Settings ===== #
