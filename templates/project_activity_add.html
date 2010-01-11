@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load interface_tags %}
+
+{% block post_comment_ajax_url %}/post-comment/object/project/{{project.id}}/{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block html_head %}
+
+<link href="/media/css/forms.css" type="text/css" rel="stylesheet"></link>
+
+<script type="text/javascript" src="{{ MEDIA_URL }}/scripts/gettext.js" ></script>
+
+<script type="text/javascript" src="/media/js/core.js"></script>
+<script type="text/javascript" src="/media/js/calendar.js"></script>
+<script type="text/javascript" src="/media/js/admin/DateTimeShortcuts.js"></script>
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
+			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
+			<li><a href="{% url view_project_reports project.id %}">รายงานโครงการ</a></li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
+
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<h1 class="title">เพิ่มกิจกรรม</h1>
+{% if form.errors %} 
+	{% if form.name.errors %}
+		<span class="label">"{{form.name.label}}"</span> {{form.name.errors}}
+	{% endif %}
+	{% if form.start_date.errors %}
+		<span class="label">"ระยะเวลา{{form.start_date.label}}"</span> {{form.start_date.errors}}
+	{% endif %}
+	{% if form.end_date.errors %}
+		<span class="label">"ระยะเวลา{{form.end_date.label}}"</span> {{form.end_date.errors}}
+	{% endif %}
+{% endif %}
+{% if message %}
+	<ul class="messagelist">
+		<li>{{message}}</li>
+	</ul>
+{% endif %}
+<div class="yui-skin-sam">
+	<form method="post" action="." class="ss_form">
+		<ul>
+			<li><label for="id_name">{{form.name.label}}</label><div class="input MAX">{{form.name}}</div></li>
+			<li><label for="id_location">{{form.location.label}}</label><div class="input LONG">{{form.location}}</div></li>
+			<li><label>ช่วงเวลา</label><div class="input DATE_PICKER">{{form.start_date}} <span class="to">{{form.end_date.label}}</span> {{form.end_date}}</div></li>
+			
+			<li><label for="id_description">{{form.description.label}}</label><div class="input MAX_MEDIUM">{{form.description}}</div></li>
+			<li><label for="id_result_goal">{{form.result_goal.label}}</label><div class="input MAX_MEDIUM">{{form.result_goal}}</div></li>
+			<li><label for="id_result_real">{{form.result_real.label}}</label><div class="input MAX_MEDIUM">{{form.result_real}}</div></li>
+		</ul>
+		<div class="button_panel"><button>เพิ่มข้อมูล</button></div>
+	</form>
+</div>
+{% endblock %}

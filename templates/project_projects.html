@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load helper %}
+{% load interface_tags %}
+
+{% block post_comment_ajax_url %}/post-comment/object/program/{{project.id}}/{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block html_head %}
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_program_overview project.id %}">ภาพรวม</a></li>
+			<li class="selected">โครงการ</li>
+			<li><a href="{% url view_program_reports project.id %}">รายงานแผนงาน</a></li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">ความคิดเห็น</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="hierarchy_page hierarchy_project_page">
+	<h2>โครงการในปัจจุบัน</h2>
+	{% if current_projects %}
+	<ul>
+		{% for project in current_projects %}
+			<li>
+				<h3><a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a></h3>
+				<div class="item_overview"><span>ช่วงเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span></div>
+			</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีโครงการในปัจจุบัน</div>
+	{% endif %}
+	
+	<h2>โครงการในอนาคต</h2>
+	{% if future_projects %}
+	<ul>
+		{% for project in future_projects %}
+			<li>
+				<h3><a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a></h3>
+				<div class="item_overview"><span>ช่วงเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span></div>
+			</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีโครงการในอนาคต</div>
+	{% endif %}
+	
+	<h2>โครงการในอดีต</h2>
+	{% if past_projects %}
+	<ul>
+		{% for project in past_projects %}
+			<li>
+				<h3><a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a></h3>
+				<div class="item_overview"><span>ช่วงเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span></div>
+			</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีโครงการในอดีต</div>
+	{% endif %}
+</div>
+{% endblock %}

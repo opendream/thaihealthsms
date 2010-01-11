@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load helper %}
+{% load interface_tags %}
+
+{% block post_comment_ajax_url %}{% ifequal project.type 1 %}/post-comment/object/program/{{project.id}}/{% endifequal %}{% ifequal project.type 2 %}/post-comment/object/project/{{project.id}}/{% endifequal %}{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block html_head %}
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			{% ifequal project.type 1 %}
+			<li><a href="{% url view_program_overview project.id %}">ภาพรวม</a></li>
+			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
+			<li class="selected">รายงานแผนงาน</li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">ความคิดเห็น</a></li>
+			{% endifequal %}
+			
+			{% ifequal project.type 2 %}
+			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
+			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
+			<li class="selected">รายงานโครงการ</li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
+			{% endifequal %}
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+<div class="ss_sub_tab_navi">
+	<ul>
+		{% ifequal project.type 1 %}
+		<li class="selected">รายงานแผนงาน</li>
+		<li><a href="{% url view_program_reports_send project.id %}">ส่งรายงาน</a></li>
+		{% endifequal %}
+		
+		{% ifequal project.type 2 %}
+		<li class="selected">รายงานโครงการ</li>
+		<li><a href="{% url view_project_reports_send project.id %}">ส่งรายงาน</a></li>
+		{% endifequal %}
+	</ul>
+	<div class="clear"></div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="report_list_page report_list_project_page">
+	<ul>
+		{% for year in year_list %}
+		<li>
+			<h2>ปี {{year}}</h2>
+			<ul class="schedules">
+				{% for report_schedule in report_schedules %}
+					{% ifequal report_schedule.due_date.year year %}
+					<li><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.report_project.report.name}} งวดวันที่ {{report_schedule.due_date|thai_date}}</a></li>
+					{% endifequal %}
+				{% endfor %}
+			</ul>
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+
+{% endblock %}

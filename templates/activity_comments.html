@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load helper %}
+{% load interface_tags %}
+
+{% block post_comment_ajax_url %}/post-comment/object/activity/{{activity.id}}/{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block html_head %}
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_activity_header activity %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_activity_overview activity.id %}">ภาพรวม</a></li>
+			<li><a href="{% url view_activity_pictures activity.id %}">รูปกิจกรรม</a></li>
+			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />ความคิดเห็น</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="comments_page">
+	{% if comments %}
+	<ul class="comments">
+		{% for comment in comments %}
+		<li>
+			<div class="sender">{{comment.sent_by.first_name}} {{comment.sent_by.last_name}}<div class="metadata">ส่งเมื่อวันที่ {{comment.sent_on|thai_date}} เวลา {{comment.sent_on|date:"H:i"}} น.</div></div>
+			<p>{{comment.message}}</p>
+		</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีความคิดเห็นที่เกี่ยวข้อง</div>
+	{% endif %}
+</div>
+{% endblock %}

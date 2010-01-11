@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load helper %}
+{% load interface_tags %}
+
+{% block post_comment_ajax_url %}{% ifequal project.type 1 %}/post-comment/object/program/{{project.id}}/{% endifequal %}{% ifequal project.type 2 %}/post-comment/object/project/{{project.id}}/{% endifequal %}{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block html_head %}
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li class="selected">ภาพรวม</li>
+			{% ifequal project.type 1 %}
+			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
+			<li><a href="{% url view_program_reports project.id %}">รายงานแผนงาน</a></li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">ความคิดเห็น</a></li>
+			{% endifequal %}
+			
+			{% ifequal project.type 2 %}
+			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
+			<li><a href="{% url view_project_reports project.id %}">รายงานโครงการ</a></li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
+			{% endifequal %}
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_overview">
+	<h2>กิจกรรมที่ดำเนินอยู่</h2>
+	{% if current_activities %}
+	<ul class="department_list">
+		{% for activity in current_activities %}
+		<li>
+			<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
+			<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
+		</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีกิจกรรมในปัจจุบัน</div>
+	{% endif %}
+	
+	<h2>กิจกรรมในอนาคต</h2>
+	{% if future_activities %}
+	<ul class="department_list">
+		{% for activity in future_activities %}
+		<li>
+			<h3><a href="/activity/{{activity.id}}/">{{activity.name}}</a></h3>
+			<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
+		</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีกิจกรรมในอนาคต</div>
+	{% endif %}
+</div>
+{% endblock %}

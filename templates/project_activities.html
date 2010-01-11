@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load helper %}
+{% load interface_tags %}
+
+{% block post_comment_ajax_url %}/post-comment/object/project/{{project.id}}/{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block html_head %}
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
+			<li class="selected">กิจกรรม</li>
+			<li><a href="{% url view_project_reports project.id %}">รายงานโครงการ</a></li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
+
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_control_panel">
+	<ul>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_activity_add project.id %}">เพิ่มกิจกรรม</a></li>
+	</ul>
+	<div class="clear"></div>
+</div>
+
+<div class="hierarchy_page hierarchy_activity_page">
+	<h2>กิจกรรมในอนาคต</h2>
+	{% if future_activities %}
+	<ul>
+		{% for activity in future_activities %}
+			<li>
+				<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
+				<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span></div>
+			</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีกิจกรรมในอนาคต</div>
+	{% endif %}
+	
+	<h2>กิจกรรมที่ดำเนินอยู่</h2>
+	{% if current_activities %}
+	<ul>
+		{% for activity in current_activities %}
+			<li>
+				<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
+				<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
+			</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีกิจกรรมที่ดำเนินอยู่</div>
+	{% endif %}
+	
+	<h2>กิจกรรมที่ผ่านมา</h2>
+	{% if past_activities %}
+	<ul>
+		{% for activity in past_activities %}
+			<li>
+				<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
+				<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
+			</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีกิจกรรมที่ผ่านมา</div>
+	{% endif %}
+</div>
+
+{% endblock %}

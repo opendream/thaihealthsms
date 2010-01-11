@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	<div class="sector"><a href="{% url view_sector_overview master_plan.sector.id %}">{{master_plan.sector.name}}</a></div>
+	<div class="title"><span>แผนหลัก {{master_plan.ref_no}}</span> {{master_plan.name}}</div>
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li class="selected">ภาพรวม</li>
+			<li><a href="{% url view_master_plan_plans master_plan.id %}">แผนงาน/โครงการที่รับผิดชอบ</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="overview_page">
+	<h2>ตัวชี้วัด</h2>
+	<div class="kpi_section">
+		<ul>
+			<li>
+				<h4>การเงิน</h4>
+				<div class="level critical_level">พบปัญหาสำคัญ</div>
+				<ul class="details">
+					<li><a href="#">Program A</a></li>
+					<li><a href="#">Program B</a></li>
+					<li><a href="#">Program C</a></li>
+					<li><a href="#">Program D</a></li>
+				</ul>
+			</li>
+			<li>
+				<h4>การดำเนินงาน</h4>
+				<div class="level normal_level">ปกติ</div>
+			</li>
+			<li>
+				<h4>ทีมงาน การเรียนรู้</h4>
+				<div class="level warning_level">พบปัญหาเล็กน้อย</div>
+				<div class="details">details</div>
+			</li>
+			<li>
+				<h4>ภาคี</h4>
+				<div class="level normal_level">ปกติ</div>
+			</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}

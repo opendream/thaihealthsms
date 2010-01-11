@@ -1,0 +1,114 @@
+.clear {clear:both;margin:0;padding:0;height:0;width:0;}
+
+a:link, a:visited, a:active {color:#369;}
+a:hover {background-color:#369;color:#FFF;}
+.icon {vertical-align:middle;}
+
+html, body {background-color:#F3F3F3;}
+
+.calendarbox {border:1px solid #999;}
+
+/* Login Page */
+.login_page .logo {margin:30px auto;text-align:center;}
+.login_page h1 {text-align:center;font-size:197%;margin:30px 0px 20px;color:#017c54;font-weight:bold;}
+.login_page form {margin:0px auto;width:400px;border:1px solid #CCC;padding:10px 15px;background-color:#FFF;}
+.login_page form ul {}
+.login_page form li {margin:15px;font-size:108%;}
+.login_page form li label {width:80px;float:left;display:block;}
+.login_page form li input {width:250px;}
+.login_page form li.button_panel {padding-left:80px;}
+.login_page form li.button_panel button {padding:3px 15px;}
+
+/* Base Template */
+.body_header {background:url('../images/html_header_bg.gif') #666 repeat-x;border-bottom:1px solid #999;height:40px;}
+.body_header .logo_panel {padding-top:7px;padding-left:10px;}
+.body_header .logo_panel a:link, .body_header .logo_panel a:visited, .body_header .logo_panel a:active {font-size:197%;font-family:serif;font-weight:bold;margin:0px 8px;color:#F3F3F3;text-decoration:none;}
+.body_header .logo_panel a:hover {background:none;}
+.body_header .account_panel {float:right;color:white;font-size:116%;padding:10px 15px 5px;}
+.body_header .account_panel a:link, .body_header .account_panel a:visited, .body_header .account_panel a:active {margin:0px 8px;color:#FFC;}
+.body_header .account_panel .username {}
+.body_header .account_panel a.logout-link:link, .body_header .account_panel a.logout-link:visited, .body_header .account_panel a.logout-link:active {color:#90DAB5;}
+.body_header .account_panel .unread_comments {margin:0px 7px 0px 10px;}
+.body_header .account_panel .unread_comments img {vertical-align:top;}
+.body_header .account_panel .unread_comments a:link, .body_header .account_panel .unread_comments a:visited, .body_header .account_panel .unread_comments a:active {margin:0px;text-decoration:none;}
+.body_header .account_panel .unread_comments a:hover {}
+
+.body_body {background-color:#F3F3F3;border-bottom:1px solid #CCC;}
+.body_content {padding:15px 15px;background-color:#FFF;}
+.body_footer {text-align:center;font-size:108%;margin-top:15px;color:#666;margin-bottom:30px;}
+
+.ss_no_information {font-size:116%;color:#666;margin:10px 0px 20px;}
+
+/* Content Header + Title */
+.ss_header {}
+.ss_header .container {margin:10px 15px 0px;background:url('../images/thaihealth.png') #F3F3F3 right top no-repeat;min-height:60px;}
+.ss_header_border {border-bottom:1px solid #CCC;}
+.ss_header a:hover {background-color:#CCC;}
+.ss_header .sector {color:#666;font-size:108%;padding-top:7px;}
+.ss_header .sector a:link, .ss_header .sector a:visited, .ss_header .sector a:active {color:#666;}
+.ss_header .parent {font-size:108%;padding-top:8px;}
+.ss_header .parent a:link, .ss_header .parent a:visited, .ss_header .parent a:active {color:#069;}
+.ss_header .title {padding-top:8px;padding-bottom:10px;font-weight:bold;color:#ED6912;font-size:153.9%;}
+.ss_header .title span {color:#666;}
+.ss_header .title span.following {margin-left:20px;}
+.ss_header .info {font-size:116%;color:#666;padding-bottom:15px;}
+.ss_header .bottom {padding-bottom:15px;}
+
+.ss_header .info span {margin-right:10px;}
+.ss_header .info a:link, .ss_header .info a:visited, .ss_header .info a:active {background-color:#FFF;font-size:0.9em;padding:2px 5px;text-decoration:none;border-left:1px solid #DDD;border-top:1px solid #DDD;border-right:1px solid #AAA;border-bottom:1px solid #AAA;}
+.ss_header .info a:hover {background:#369;color:#FFF;}
+
+/* Content Main Tab-Navigation */
+
+.ss_tab_navi {background-color:#666;border-top:1px solid #CCC;}
+.ss_tab_navi .tabs {border-top:1px solid #999;padding:10px 15px 0px;}
+.ss_tab_navi .tabs li {color:#ED6912;background-color:#777;font-size:108%;font-weight:bold;padding:5px 15px;display:block;float:left;margin-right:10px;}
+.ss_tab_navi .tabs li.right_item {float:right;margin-right:0px;}
+.ss_tab_navi .tabs li.selected {background-color:#FFF;}
+.ss_tab_navi .tabs li a:link, .ss_tab_navi .tabs li a:visited, .ss_tab_navi .tabs li a:active {color:#FFF;text-decoration:none;}
+.ss_tab_navi .tabs li a:hover {color:#F39659;text-decoration:underline;background:none;}
+.ss_tab_navi .tabs li img {vertical-align:text-bottom;margin-right:8px;}
+
+/* Content Sub Tab-Navigation */
+
+.ss_sub_tab_navi {padding:5px 10px 3px;border-bottom:1px solid #999;background-color:#FFF;}
+.ss_sub_tab_navi ul li {display:block;float:left;border-right:1px solid #CCC;padding:3px 10px 3px;margin-bottom:5px;font-size:108%;}
+.ss_sub_tab_navi ul li.selected {font-weight:bold;color:#ED6912;}
+
+h1.title {font-size:138.5%;font-weight:bold;color:#ED6912;margin-bottom:20px;border-bottom:1px solid #CCC;padding:5px 0px;}
+
+.ss_control_panel {margin:5px 0px 15px;}
+.ss_control_panel ul {border-bottom:1px solid #CCC;background-color:#E5FFE6;}
+.ss_control_panel ul li {font-size:108%;color:#FFF;padding:8px 15px;display:inline-block;display:-moz-inline-stack;*display:inline;list-style:none;zoom:1;}
+.ss_control_panel ul li img {margin-right:5px;}
+
+/* Form Styles */
+.ss_form {}
+.ss_form ul {margin-left:30px;}
+.ss_form li {margin-bottom:15px;}
+.ss_form li label {display:block;margin-bottom:5px;font-size:116%;color:#333;}
+.ss_form li .input {}
+.ss_form .button_panel {margin:20px 0px 20px 30px;}
+
+.ss_form .LONG input {width:500px;}
+.ss_form .MAX input {width:95%;}
+
+.ss_form .MAX_MEDIUM textarea {width:95%;height:100px;}
+
+.ss_form .DATE_PICKER input {width:150px;}
+.ss_form .DATE_PICKER span.to {padding:0px 15px;}
+.ss_form .DATE_PICKER img {vertical-align:middle;cursor:pointer;}
+.ss_form .DATE_PICKER a:link, .ss_form .DATE_PICKER a:visited, .ss_form .DATE_PICKER a:active {}
+.ss_form .DATE_PICKER a:hover {background:none;color:#369;}
+
+/*
+POST COMMENT DIALOG
+*/
+#post-comment-dialog {padding:0px 10px;display:none;}
+#post-comment-dialog label {font-size:108%;margin:10px 0px 5px;color:#555;display:block;margin-bottom:5px;}
+#post-comment-dialog textarea {height:80px;width:98%;}
+#post-comment-dialog .button-panel {margin:10px 0px 40px;}
+#post-comment-dialog .button-panel .loading {margin-left:10px;display:none;}
+#post-comment-dialog .button-panel .loading img {vertical-align:text-bottom;}
+#post-comment-dialog .autosuggest {}
+

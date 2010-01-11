@@ -1,0 +1,88 @@
+{% load interface_tags %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>Strategy Management System</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
+	
+	<script type="text/javascript" src="{{MEDIA_URL}}/scripts/jquery.min.js"></script>
+	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/yui/reset-fonts.css">
+	
+	<link type="text/css" media="screen" rel="stylesheet" href="{{MEDIA_URL}}/colorbox/colorbox.css" /> 
+	<script type="text/javascript" src="{{MEDIA_URL}}/colorbox/jquery.colorbox-min.js"></script>
+	
+	<link type="text/css" media="screen" rel="stylesheet" href="{{MEDIA_URL}}/fcbkcomplete/style.css" /> 
+	<script type="text/javascript" src="{{MEDIA_URL}}/fcbkcomplete/jquery.fcbkcomplete.min.js"></script>
+	
+	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/css/styles.css">
+	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/css/styles.page.css">
+	
+	
+	<script type="text/javascript" src="{{MEDIA_URL}}/scripts/scripts.js"></script>
+	<script type="text/javascript">var MEDIA_URL = '{{MEDIA_URL}}';</script>
+	
+	
+	
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#post-comment-dialog button").click(function(e) {
+		e.preventDefault();
+		var message = $("#post-comment-dialog textarea").val();
+		
+		if(message != "") {
+			$("#post-comment-dialog .loading").show();
+			$.post("{% block post_comment_ajax_url %}{% endblock %}", {'message': message}, function(data) {
+				{% block post_comment_ajax_callback %}{% endblock %}
+				$("#post-comment-dialog .loading").hide();
+				$.fn.colorbox.close();
+			}, "json");
+		}
+	});
+	
+	$(".post-comment").colorbox({width:"50%", scrolling:false, opacity:0.4, inline:true, href:"#post-comment-dialog", 
+		onOpen:function(){
+			$("#post-comment-dialog").css("display", "block");
+			$("#post-comment-dialog textarea").val("");
+			$("#post-comment-dialog .loading").hide();
+			
+			$("#post-comment-receivers_feed").css("width", "auto");
+		},
+		onComplete:function(){ $("#post-comment-dialog textarea").focus(); },
+		onCleanup:function() {
+			$("#post-comment-dialog").css("display", "none");
+		}
+	});
+	
+	$("#post-comment-receivers").fcbkcomplete({json_url:"{% url ajax_query_comment_receivers %}", cache:true, filter_case:false, filter_hide:true, newel:true});
+	
+	
+});
+</script>
+	
+	{% block html_head %}{% endblock %}
+</head>
+<body>
+	<div class="body_header">
+		<div class="account_panel"><span class="username">{{user_account.first_name}} {{user_account.last_name}}</span> <span class="unread_comments">[ <a href="/dashboard/comments/"><img src="{{MEDIA_URL}}/images/icon_unread_comments.png"/> {% get_unread_comments user.get_profile.id %}</a> ]</span> <a href="/dashboard/">หน้าผู้ใช้</a> | <a href="/administer/">จัดการระบบ</a> | <a href="/accounts/logout/" class="logout-link">ออกจากระบบ</a></div>
+		<div class="logo_panel"><a href="/"><img src="{{MEDIA_URL}}/images/logo.png" /></a></div>
+	</div>
+	<div class="body_body">
+		<div class="body_title">{% block body_title %}{% endblock %}</div>
+		<div class="body_content">{% block body_content %}{% endblock %}</div>
+	</div>
+	<div class="body_footer">
+		<div>สำนักงานกองทุนสนับสนุนการสร้างเสริมสุขภาพ (สสส.)</div>
+		<div>979 อาคารเอส เอ็ม ทาวเวอร์ ชั้น 34 ถนนพหลโยธิน แขวงสามเสนใน เขตพญาไท กรุงเทพฯ 10400</div>
+	</div>
+
+<div id="post-comment-dialog">
+<label>ผู้รับเพิ่มเติม (นอกเหนือจากผู้รับผิดชอบ):</label>
+<input type="text" id="post-comment-receivers"/>
+<label>ความคิดเห็น</label>
+<textarea id="post-comment-textarea"></textarea>
+<div class="button-panel"><button>ส่งความคิดเห็น</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" /> กำลังส่งข้อมูล</span></div>
+</div>
+</body>
+</html>

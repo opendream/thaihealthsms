@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load helper %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	<div class="title">Dashboard</div>
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_dashboard %}">หน้าแรก</a></li>
+			<li class="selected">แผนงานและโครงการที่รับผิดชอบ</li>
+			<li><a href="{% url view_dashboard_comments %}">กล่องความคิดเห็น</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<ul class="hierarchy_page hierarchy_dashboard_page">
+	{% if programs %}
+	<li>
+		<h2>แผนงานที่รับผิดชอบ</h2>
+		<ul>
+			{% for program in programs %}
+				<li>
+					<h3><a href="{% url view_program_overview program.id %}">{{program.ref_no}} {{program.name}}</a></h3>
+					<div class="item_overview"><span>ระยะเวลา <em>{{program.start_date|thai_month_year}} - {{program.end_date|thai_month_year}}</em></span> <span>ผู้รับผิดชอบ <em>{{program.manager.first_name}} {{program.manager.last_name}}</em></span></div>
+				</li>
+			{% endfor %}
+		</ul>
+	</li>
+	{% endif %}
+	
+	{% if projects %}
+	<li>
+		<h2>โครงการที่รับผิดชอบ</h2>
+		<ul>
+			{% for project in projects %}
+				<li>
+					<h3><a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a></h3>
+					<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_month_year}} - {{project.end_date|thai_month_year}}</em></span> <span>ผู้รับผิดชอบ <em>{{project.manager.first_name}} {{project.manager.last_name}}</em></span></div>
+				</li>
+			{% endfor %}
+		</ul>
+	</li>
+	{% endif %}
+</ul>
+{% endblock %}

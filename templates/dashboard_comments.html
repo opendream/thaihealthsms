@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load helper %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	<div class="title"><span>หน้าผู้ใช้</span> {{user.get_profile.first_name}} {{user.get_profile.last_name}}</div>
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_dashboard %}">หน้าแรก</a></li>
+			<li><a href="{% url view_dashboard_projects %}">แผนงานและโครงการที่รับผิดชอบ</a></li>
+			<li class="selected">กล่องความคิดเห็น</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="comment_inbox_page">
+	{% if objects %}
+	<ul class="objects">
+		{% for object in objects %}
+		<li>
+			<h3>{{object.object.name}}</h3>
+			
+			{% ifequal object.comment.object_name 'activity' %}<div class="links"><a href="/activity/{{object.object.id}}/comments/">ดูความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'program' %}<div class="links"><a href="/program/{{object.object.id}}/comments/">ดูความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'project' %}<div class="links"><a href="/project/{{object.object.id}}/comments/">ดูความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'report' %}<div class="links"><a href="/report/{{object.object.id}}/comments/">ดูความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			
+			<ul class="comments">
+				{% for comment in object.comments %}
+				<li>
+					<div class="sender">{{comment.comment.sent_by.first_name}} {{comment.comment.sent_by.last_name}}<div class="metadata">ส่งเมื่อวันที่ {{comment.sent_on|thai_date}} เวลา {{comment.sent_on|date:"H:i"}} น.</div></div>
+					<p>{{comment.comment.message}}</p>
+				</li>
+				{% endfor %}
+			</ul>
+		</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีความคิดเห็นใหม่</div>
+	{% endif %}
+</div>
+{% endblock %}

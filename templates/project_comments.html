@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load helper %}
+{% load interface_tags %}
+
+{% block post_comment_ajax_url %}{% ifequal project.type 1 %}/post-comment/object/program/{{project.id}}/{% endifequal %}{% ifequal project.type 2 %}/post-comment/object/project/{{project.id}}/{% endifequal %}{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block html_head %}
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			{% ifequal project.type 1 %}
+			<li><a href="{% url view_program_overview project.id %}">ภาพรวม</a></li>
+			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
+			<li><a href="{% url view_program_reports project.id %}">รายงานแผนงาน</a></li>
+			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />ความคิดเห็น</li>
+			{% endifequal %}
+			
+			{% ifequal project.type 2 %}
+			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
+			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
+			<li><a href="{% url view_project_reports project.id %}">รายงานโครงการ</a></li>
+			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />ความคิดเห็น</li>
+			{% endifequal %}
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="comments_page">
+	{% if comments %}
+	<ul class="comments">
+		{% for comment in comments %}
+		<li {% if comment.already_read %}class="read"{% endif %}>
+			<div class="sender">{{comment.comment.sent_by.first_name}} {{comment.comment.sent_by.last_name}}<div class="metadata">ส่งเมื่อวันที่ {{comment.sent_on|thai_date}} เวลา {{comment.sent_on|date:"H:i"}} น.</div></div>
+			<p>{{comment.comment.message}}</p>
+			<div class="receivers">
+				<h4>ส่งถึง:</h4>
+				<ul>
+					{% for receiver in comment.receivers %}
+					<li>{{receiver.receiver.first_name}} {{receiver.receiver.last_name}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีความคิดเห็นที่เกี่ยวข้อง</div>
+	{% endif %}
+</div>
+{% endblock %}
