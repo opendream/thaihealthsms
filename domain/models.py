@@ -66,8 +66,8 @@ class Project(models.Model): # Program, Project
 	ref_no = models.CharField(max_length=64, null=True)
 	name = models.CharField(max_length=512)
 	description = models.TextField(null=True)
-	start_date = models.DateField()
-	end_date = models.DateField()
+	start_date = models.DateField(null=True)
+	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0) # Not use yet
 	manager = models.ForeignKey('UserAccount', null=True)
 	budget = models.IntegerField(default=0)
@@ -76,8 +76,8 @@ class Activity(models.Model):
 	project = models.ForeignKey('Project')
 	name = models.CharField(max_length=512)
 	description = models.TextField(null=True)
-	start_date = models.DateField()
-	end_date = models.DateField()
+	start_date = models.DateField(null=True)
+	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0)
 	manager = models.ForeignKey('UserAccount', null=True)
 	

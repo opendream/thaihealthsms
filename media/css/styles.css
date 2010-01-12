@@ -112,3 +112,5 @@ POST COMMENT DIALOG
 #post-comment-dialog .button-panel .loading img {vertical-align:text-bottom;}
 #post-comment-dialog .autosuggest {}
 
+/* Activity Calendar */
+.yui-skin-sam {overflow:hidden}
