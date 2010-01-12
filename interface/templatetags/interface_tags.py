@@ -64,3 +64,13 @@ def print_report_header(report_schedule):
 	html += unicode('<div class="info"><span>รอบกำหนดส่ง ', "utf-8") + format_date(report_schedule.due_date) + unicode('</span> <a href="#" class="post-comment">ความคิดเห็น &#187; รายงาน</a></div>', "utf-8")
 	
 	return html
+
+#
+# KPI
+#
+@register.simple_tag
+def kpi_range_name(value):
+	if value < 50: return "lowest"
+	elif value < 100: return "low"
+	elif value == 100: return "expect"
+	else: return "above"

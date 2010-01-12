@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 
@@ -18,6 +19,7 @@ from report.models import *
 
 from interface.forms import *
 
+from domain import functions as domain_functions
 from report import functions as report_functions
 
 def view_frontpage(request):
@@ -104,8 +106,6 @@ def view_dashboard_comments(request):
 	for object_hash in object_list:
 		objects.append(object_dict[object_hash])
 	
-	print objects
-	
 	return render_response(request, "dashboard_comments.html", {'objects':objects})
 
 #
@@ -164,8 +164,21 @@ def view_sectors_overview(request):
 @login_required
 def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	current_date = date.today()
 	
-	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan})
+	finance_result = FinanceKPISubmission.objects.filter(project__master_plan=master_plan, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("budget"), Sum("spent_budget"))
+	finance_percentage = int(float(finance_result["spent_budget__sum"]) / float(finance_result["budget__sum"]) * 100)
+	
+	operation_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.OPERATION_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
+	operation_percentage = int(float(operation_result["result_score__sum"]) / float(operation_result["target_score__sum"]) * 100)
+	
+	teamwork_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.OPERATION_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
+	teamwork_percentage = int(float(teamwork_result["result_score__sum"]) / float(teamwork_result["target_score__sum"]) * 100)
+	
+	partner_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.OPERATION_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
+	partner_percentage = int(float(partner_result["result_score__sum"]) / float(partner_result["target_score__sum"]) * 100)
+	
+	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, 'finance_percentage':finance_percentage, 'operation_percentage':operation_percentage, 'teamwork_percentage':teamwork_percentage, 'partner_percentage':partner_percentage})
 
 @login_required
 def view_master_plan_plans(request, master_plan_id):
@@ -180,6 +193,49 @@ def view_master_plan_plans(request, master_plan_id):
 		plan.past_projects = Project.objects.filter(plan=plan, end_date__lt=current_date)
 	
 	return render_response(request, "master_plan_plans.html", {'master_plan':master_plan, 'plans':plans})
+
+@login_required
+def view_master_plan_kpi(request, master_plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	current_date = date.today()
+	
+	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan)
+	
+	for kpi in kpis:
+		kpi.target_projects = KPITargetProject.objects.filter(kpi=kpi)
+		
+		for target_project in kpi.target_projects:
+			result = KPISubmission.objects.filter(target=target_project, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
+			
+			target_project.target_score = result["target_score__sum"]
+			target_project.result_score = result["result_score__sum"]
+			
+			target_project.percentage = int((float(target_project.result_score) / float(target_project.target_score)) * 100)
+			
+			if target_project.percentage < 50: target_project.range = "lowest"
+			elif target_project.percentage < 100: target_project.range = "low"
+			elif target_project.percentage == 100: target_project.range = "expect"
+			else: target_project.range = "above"
+	
+	# Finance KPI
+	projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
+	
+	for project in projects:
+		result = FinanceKPISubmission.objects.filter(project=project, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("budget"), Sum("spent_budget"))
+		
+		project.budget = result["budget__sum"]
+		if not project.budget: project.budget = "100"
+		project.spent_budget = result["spent_budget__sum"]
+		if not project.spent_budget: project.spent_budget = "0"
+		
+		project.percentage = int((float(project.spent_budget) / float(project.budget)) * 100)
+		
+		if project.percentage < 50: project.range = "lowest"
+		elif project.percentage < 100: project.range = "low"
+		elif project.percentage == 100: project.range = "expect"
+		else: project.range = "above"
+	
+	return render_response(request, "master_plan_kpi.html", {'master_plan':master_plan, 'kpis':kpis, 'projects':projects})
 
 #
 # PROGRAM
@@ -262,8 +318,24 @@ def view_program_reports_send(request, program_id):
 @login_required
 def view_program_kpi(request, program_id):
 	program = get_object_or_404(Project, pk=program_id)
+	current_date = date.today()
 	
-	return render_response(request, "project_kpi.html", {'project':program, })
+	kpi_targets = KPITargetProject.objects.filter(project=program)
+	
+	for kpi_target in kpi_targets:
+		kpi_target.current_submission = KPISubmission.objects.filter(target=kpi_target, start_date__lte=current_date, end_date__gte=current_date).order_by("-end_date")
+		for submission_item in kpi_target.current_submission: submission_item.revisions = KPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
+		
+		kpi_target.last_submission = KPISubmission.objects.filter(target=kpi_target, end_date__lt=current_date).order_by("-end_date")
+		for submission_item in kpi_target.last_submission: submission_item.revisions = KPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
+	
+	current_finance_submission = FinanceKPISubmission.objects.filter(project=program, start_date__lte=current_date, end_date__gte=current_date).order_by("-end_date")
+	for submission_item in current_finance_submission: submission_item.revisions = FinanceKPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
+	
+	last_finance_submission = FinanceKPISubmission.objects.filter(project=program, end_date__lt=current_date).order_by("-end_date")
+	for submission_item in last_finance_submission: submission_item.revisions = FinanceKPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
+	
+	return render_response(request, "project_kpi.html", {'project':program, 'kpi_targets':kpi_targets, 'current_finance_submission':current_finance_submission, 'last_finance_submission':last_finance_submission})
 
 @login_required
 def view_program_comments(request, program_id):

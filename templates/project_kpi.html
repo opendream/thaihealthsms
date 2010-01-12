@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load helper %}
+{% load interface_tags %}
+
+{% block post_comment_ajax_url %}{% ifequal project.type 1 %}/post-comment/object/program/{{project.id}}/{% endifequal %}{% ifequal project.type 2 %}/post-comment/object/project/{{project.id}}/{% endifequal %}{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block html_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$(".update-finance-submission").click(function(e) {
+		e.preventDefault();
+		
+		trObject = $(this).closest("tr");
+		
+		submission_id = trObject.attr("rel");
+		budget = trObject.find("input[name='budget']").val();
+		spent = trObject.find("input[name='spent_budget']").val();
+		
+		$.post("/ajax/update-finance-kpi-submission/", {'submission': submission_id, 'budget':budget, 'spent':spent}, function(data) {
+			
+			trObject.after('<tr class="revision"><td class="head"></td><td class="input">' + data.budget + ' บาท</td><td class="input">' + data.spent_budget + ' บาท</td><td colspan="2">แก้ไขเมื่อวันที่ ' + data.submitted_on + '</td></tr>');
+			
+		}, "json");
+	});
+	
+	$(".update-submission").click(function(e) {
+		e.preventDefault();
+		
+		submission_id = $(this).attr("rel");
+		target = $(this).closest("tr").find("input[name='target_score']").val();
+		result = $(this).closest("tr").find("input[name='result_score']").val();
+		
+		$.post("/ajax/update-kpi-submission/", {'submission': submission_id, 'target':target, 'result':result}, function(data) {
+			
+			trObject.after('<tr class="revision"><td class="head"></td><td class="input">' + data.target_score + ' หน่วย</td><td class="input">' + data.result_score + ' หน่วย</td><td colspan="2">แก้ไขเมื่อวันที่ ' + data.submitted_on + '</td></tr>');
+			
+		}, "json");
+	});
+	
+	$(".show-more-finance").click(function(e) {
+		e.preventDefault();
+		
+		if($(this).hasClass("hiding")) {
+			$(".more-finance").show();
+			$(this).removeClass("hiding").html("ซ่อนช่วงเวลาที่ผ่านมา");
+		} else {
+			$(".more-finance").hide();
+			$(this).addClass("hiding").html("แสดงช่วงเวลาที่ผ่านมาทั้งหมด");
+		}
+	});
+	
+	$(".show-more-kpi").click(function(e) {
+		e.preventDefault();
+		
+		var kpi_id = $(this).attr("rel");
+		
+		if($(this).hasClass("hiding")) {
+			$(".more-" + kpi_id).show();
+			$(this).removeClass("hiding").html("ซ่อนช่วงเวลาที่ผ่านมา");
+		} else {
+			$(".more-" + kpi_id).hide();
+			$(this).addClass("hiding").html("แสดงช่วงเวลาที่ผ่านมาทั้งหมด");
+		}
+	});
+});
+</script>
+
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_program_overview project.id %}">ภาพรวม</a></li>
+			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
+			<li><a href="{% url view_program_reports project.id %}">รายงานแผนงาน</a></li>
+			<li class="selected">ตัวชี้วัดแผนงาน</li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">ความคิดเห็น</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="kpi_page">
+
+<h2>ตัวชี้วัดการเงิน</h2>
+<ul class="kpis">
+	<li>
+		<h3>การเบิกจ่ายงบประมาณ</h3>
+		<table>
+			<tr>
+				<th></th>
+				<th>คาดการณ์</th>
+				<th>เบิกจ่ายจริง</th>
+				<th></th>
+				<th></th>
+			</tr>
+			{% for submission in current_finance_submission %}
+			<tr rel="{{submission.id}}">
+				<td class="head">{{submission.start_date|thai_month_year}} - {{submission.end_date|thai_month_year}}</td>
+				<td class="input"><input type="text" name="budget" value="{{submission.budget}}"/> บาท</td>
+				<td class="input"><input type="text" name="spent_budget" value="{{submission.spent_budget}}"/> บาท</td>
+				<td><button class="update-finance-submission">แก้ไขข้อมูล</button></td>
+			</tr>
+			{% for revision in submission.revisions %}
+			<tr class="revision">
+				<td class="head"></td>
+				<td class="input">{{revision.budget}} บาท</td>
+				<td class="input">{{revision.spent_budget}} บาท</td>
+				<td colspan="2">ถูกแก้ไขเมื่อวันที่ {{revision.submitted_on|thai_display_datetime}}</td>
+			</tr>
+			{% endfor %}
+			{% endfor %}
+			
+			{% for submission in last_finance_submission %}
+			<tr rel="{{submission.id}}" {% ifnotequal forloop.counter 1 %}class="kpi-more more-finance"{% endifnotequal %}>
+				<td class="head">{{submission.start_date|thai_month_year}} - {{submission.end_date|thai_month_year}}</td>
+				<td class="input"><input type="text" name="budget" value="{{submission.budget}}"/> บาท</td>
+				<td class="input"><input type="text" name="spent_budget" value="{{submission.spent_budget}}"/> บาท</td>
+				<td><button class="update-finance-submission">แก้ไขข้อมูล</button></td>
+			</tr>
+			{% for revision in submission.revisions %}
+			<tr class="revision" {% ifnotequal forloop.counter 1 %}class="kpi-more more-finance"{% endifnotequal %}>
+				<td class="head"></td>
+				<td class="input">{{revision.budget}} บาท</td>
+				<td class="input">{{revision.spent_budget}} บาท</td>
+				<td colspan="2">ถูกแก้ไขเมื่อวันที่ {{revision.submitted_on|thai_display_datetime}}</td>
+			</tr>
+			{% endfor %}
+			{% endfor %}
+			
+			<tr>
+				<td colspan="3"><a href="#" class="show-more-finance hiding">แสดงช่วงเวลาที่ผ่านมาทั้งหมด</a></td>
+			</tr>
+		</table>
+	</li>
+</ul>
+
+<h2>ตัวชี้วัดการดำเนินงาน</h2>
+<ul class="kpis">
+	{% for kpi in kpi_targets %}
+	{% ifequal kpi.kpi.category 1 %}
+	<li>
+		<h3>{{kpi.kpi.name}}</h3>
+		<table>
+			<tr>
+				<th></th>
+				<th>คาดการณ์</th>
+				<th>ผลที่เกิดขึ้น</th>
+				<th></th>
+				<th></th>
+			</tr>
+			{% for submission in kpi.current_submission %}
+			<tr rel="{{submission.id}}">
+				<td class="head">{{submission.start_date|thai_month_year}} - {{submission.end_date|thai_month_year}}</td>
+				<td class="input"><input type="text" name="target_score" value="{{submission.target_score}}"/> หน่วย</td>
+				<td class="input"><input type="text" name="result_score" value="{{submission.result_score}}"/> หน่วย</td>
+				<td><button class="update-submission">แก้ไขข้อมูล</button></td>
+			</tr>
+			{% for revision in submission.revisions %}
+			<tr class="revision">
+				<td class="head"></td>
+				<td class="input">{{revision.target_score}} หน่วย</td>
+				<td class="input">{{revision.result_score}} หน่วย</td>
+				<td colspan="2">ถูกแก้ไขเมื่อวันที่ {{revision.submitted_on|thai_display_datetime}}</td>
+			</tr>
+			{% endfor %}
+			{% endfor %}
+			{% for submission in kpi.last_submission %}
+			<tr rel="{{submission.id}}" {% ifnotequal forloop.counter 1 %}class="kpi-more more-{{kpi.kpi.id}}"{% endifnotequal %}>
+				<td class="head">{{submission.start_date|thai_month_year}} - {{submission.end_date|thai_month_year}}</td>
+				<td class="input"><input type="text" name="target_score" value="{{submission.target_score}}"/> หน่วย</td>
+				<td class="input"><input type="text" name="result_score" value="{{submission.result_score}}"/> หน่วย</td>
+				<td><button class="update-submission">แก้ไขข้อมูล</button></td>
+			</tr>
+			{% for revision in submission.revisions %}
+			<tr class="revision" {% ifnotequal forloop.counter 1 %}class="kpi-more more-{{kpi.kpi.id}}"{% endifnotequal %}>
+				<td class="head"></td>
+				<td class="input">{{revision.target_score}} หน่วย</td>
+				<td class="input">{{revision.result_score}} หน่วย</td>
+				<td colspan="2">ถูกแก้ไขเมื่อวันที่ {{revision.submitted_on|thai_display_datetime}}</td>
+			</tr>
+			{% endfor %}
+			{% endfor %}
+			<tr>
+				<td colspan="3"><a href="#" class="show-more-kpi hiding" rel="{{kpi.kpi.id}}">แสดงช่วงเวลาที่ผ่านมาทั้งหมด</a></td>
+			</tr>
+		</table>
+	</li>
+	{% endifequal %}
+	{% endfor %}
+</ul>
+
+</div>
+{% endblock %}

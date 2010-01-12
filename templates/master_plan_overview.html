@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load interface_tags %}
 
 {% block html_head %}
 
@@ -16,6 +17,7 @@
 		<ul>
 			<li class="selected">ภาพรวม</li>
 			<li><a href="{% url view_master_plan_plans master_plan.id %}">แผนงาน/โครงการที่รับผิดชอบ</a></li>
+			<li><a href="{% url view_master_plan_kpi master_plan.id %}">ผลลัพธ์จากตัวชี้วัด</a></li>
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -24,31 +26,36 @@
 
 {% block body_content %}
 <div class="overview_page">
-	<h2>ตัวชี้วัด</h2>
+	<h2>ผลลัพธ์จากตัวชี้วัด</h2>
 	<div class="kpi_section">
 		<ul>
 			<li>
 				<h4>การเงิน</h4>
-				<div class="level critical_level">พบปัญหาสำคัญ</div>
-				<ul class="details">
-					<li><a href="#">Program A</a></li>
-					<li><a href="#">Program B</a></li>
-					<li><a href="#">Program C</a></li>
-					<li><a href="#">Program D</a></li>
-				</ul>
+				<div class="percentage {% kpi_range_name finance_percentage %}-percentage">{{finance_percentage}}%</div>
+				<div class="bar-graph-container">
+					<div class="bar-graph {% kpi_range_name finance_percentage %}-bar-graph" style="width:{{finance_percentage}}%;"></div>
+				</div>
 			</li>
 			<li>
 				<h4>การดำเนินงาน</h4>
-				<div class="level normal_level">ปกติ</div>
+				<div class="percentage {% kpi_range_name operation_percentage %}-percentage">{{operation_percentage}}%</div>
+				<div class="bar-graph-container">
+					<div class="bar-graph {% kpi_range_name operation_percentage %}-bar-graph" style="width:{{operation_percentage}}%;"></div>
+				</div>
 			</li>
 			<li>
-				<h4>ทีมงาน การเรียนรู้</h4>
-				<div class="level warning_level">พบปัญหาเล็กน้อย</div>
-				<div class="details">details</div>
+				<h4>ทีมงาน</h4>
+				<div class="percentage {% kpi_range_name teamwork_percentage %}-percentage">{{teamwork_percentage}}%</div>
+				<div class="bar-graph-container">
+					<div class="bar-graph {% kpi_range_name teamwork_percentage %}-bar-graph" style="width:{{teamwork_percentage}}%;"></div>
+				</div>
 			</li>
 			<li>
 				<h4>ภาคี</h4>
-				<div class="level normal_level">ปกติ</div>
+				<div class="percentage {% kpi_range_name partner_percentage %}-percentage">{{partner_percentage}}%</div>
+				<div class="bar-graph-container">
+					<div class="bar-graph {% kpi_range_name partner_percentage %}-bar-graph" style="width:{{partner_percentage}}%;"></div>
+				</div>
 			</li>
 		</ul>
 		<div class="clear"></div>

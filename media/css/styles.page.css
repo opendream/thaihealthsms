@@ -24,14 +24,23 @@ OVERVIEW PAGE
 .overview_page .side_bar {width:270px;float:right;}
 .overview_page h2 {font-size:138.5%;margin:5px 0px 10px;color:#FFF;padding:8px 10px 4px;background-color:#399;border-bottom:3px solid #9CC;}
 
-.overview_page .kpi_section h3 {font-size:131%;color:#333;margin:5px 0px 10px;}
-.overview_page .kpi_section li {border:1px solid #CCC;float:left;margin-right:15px;padding:10px 15px;margin-bottom:15px;}
-.overview_page .kpi_section h4 {font-size:123.1%;color:#333;font-weight:bold;}
-.overview_page .kpi_section .level {width:200px;color:white;padding:5px 10px;font-size:116%;margin:8px 0px;}
-.overview_page .kpi_section .normal_level {background-color:#393;}
-.overview_page .kpi_section .warning_level {background-color:#C93;}
-.overview_page .kpi_section .critical_level {background-color:#C33;}
-.overview_page .kpi_section .details li {float:none;border:none;padding:0px;margin:0px 0px 10px 0px;}
+.overview_page .kpi_section h4 {font-size:131%;color:#333;}
+.overview_page .kpi_section .interval {font-size:131%;color:#666;margin:5px 0px 10px;}
+.overview_page .kpi_section li {width:230px;border:1px solid #CCC;float:left;margin-right:15px;padding:10px 15px;margin-bottom:15px;}
+
+.overview_page .kpi_section .bar-graph-container {margin:2px 0px 15px;width:200px;height:20px;background-color:#999;}
+.overview_page .kpi_section .bar-graph {height:20px;border-right:2px solid #FFF;}
+
+.overview_page .kpi_section .percentage {font-size:153.9%;padding:5px 0px 2px;}
+.overview_page .kpi_section .lowest-percentage {color:#C33;}
+.overview_page .kpi_section .low-percentage {color:#C90;}
+.overview_page .kpi_section .expect-percentage {color:#090;}
+.overview_page .kpi_section .above-percentage {color:#090;}
+
+.overview_page .kpi_section .lowest-bar-graph {background-color:#C33;}
+.overview_page .kpi_section .low-bar-graph {background-color:#C90;}
+.overview_page .kpi_section .expect-bar-graph {background-color:#090;}
+.overview_page .kpi_section .above-bar-graph {background-color:#090;}
 
 .overview_page .sectors h2 a:link, .overview_page .sectors h2 a:visited, .overview_page .sectors h2 a:active {color:#FFF;text-decoration:none;}
 .overview_page .sectors h2 a:hover {color:#FFC;}
@@ -167,4 +176,45 @@ ACTIVITY PAGE
 .activity_page .content h3 {font-size:138.5%;margin:20px 0px 10px;color:#333;padding:0px 10px 5px 0px;border-bottom:3px solid #9CC;}
 .activity_page .content .description {font-size:108%;}
 .activity_page .content .description span.no_information {color:#666;font-style:italic;}
+
+/*
+KPI PAGE
+*/
+.kpi_page h2 {font-size:138.5%;margin:5px 0px 10px;color:#FFF;padding:8px 10px 4px;background-color:#399;border-bottom:3px solid #9CC;}
+.kpi_page .kpis {margin-left:15px;}
+.kpi_page .kpis h3 {font-size:123.1%;font-weight:bold;color:#2D8659;padding-bottom:5px;border-bottom:2px solid #999;}
+.kpi_page table {margin-bottom:20px;}
+.kpi_page table th {font-size:116%;border-bottom:1px solid #999;padding:8px 10px 8px 0px;}
+.kpi_page table td {padding:8px 30px 8px 0px;}
+.kpi_page table td.head {font-size:116%;padding-right:60px;}
+.kpi_page table td.head {padding-right:40px;}
+.kpi_page table td input {width:80px;margin-right:10px;}
+.kpi_page table td img {vertical-align:middle;}
+.kpi_page table .revision {color:#666;}
+.kpi_page table td .update-submission {margin-right:150px;}
+.kpi_page table .kpi-more {display:none;}
+
+/*
+KPI SUMMARY PAGE
+*/
+.kpi_summary_page h2 {font-size:138.5%;margin:5px 0px 10px;color:#FFF;padding:8px 10px 4px;background-color:#399;border-bottom:3px solid #9CC;}
+.kpi_summary_page li {margin-left:10px;}
+.kpi_summary_page h3 {font-size:123.1%;font-weight:bold;color:#2D8659;padding-bottom:5px;border-bottom:2px solid #999;}
+.kpi_summary_page .interval {font-size:123.1%;color:#666;margin:8px 0px 4px;}
+.kpi_summary_page table {margin-bottom:15px;}
+.kpi_summary_page table td.program {padding:8px 10px;font-size:108%;}
+
+.kpi_summary_page table td.percentage {font-size:108%;padding:8px 5px;font-weight:bold;}
+.kpi_summary_page table td.lowest-percentage {color:#C33;}
+.kpi_summary_page table td.low-percentage {color:#C90;}
+.kpi_summary_page table td.expect-percentage {color:#393;}
+.kpi_summary_page table td.above-percentage {color:#393;}
+
+.kpi_summary_page table td.graph .bar-graph-container {width:200px;height:20px;background-color:#999;}
+.kpi_summary_page table td.graph .bar-graph {height:20px;border-right:2px solid #FFF;}
+
+.kpi_summary_page table td.graph .lowest-bar-graph {background-color:#C33;}
+.kpi_summary_page table td.graph .low-bar-graph {background-color:#C90;}
+.kpi_summary_page table td.graph .expect-bar-graph {background-color:#090;}
+.kpi_summary_page table td.graph .above-bar-graph {background-color:#090;}
 

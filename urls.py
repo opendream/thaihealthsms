@@ -11,7 +11,7 @@ from interface.views import view_frontpage
 
 urlpatterns = patterns('',
 	(r'^', include('thaihealthsms.interface.urls')),
-	#(r'^', include('thaihealthsms.domain.urls')),
+	(r'^', include('thaihealthsms.domain.urls')),
 	(r'^', include('thaihealthsms.report.urls')),
 	(r'^', include('thaihealthsms.comments.urls')),
 	

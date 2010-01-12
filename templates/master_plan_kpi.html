@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load interface_tags %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	<div class="sector"><a href="{% url view_sector_overview master_plan.sector.id %}">{{master_plan.sector.name}}</a></div>
+	<div class="title"><span>แผนหลัก {{master_plan.ref_no}}</span> {{master_plan.name}}</div>
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_master_plan_overview master_plan.id %}">ภาพรวม</a></li>
+			<li><a href="{% url view_master_plan_plans master_plan.id %}">แผนงาน/โครงการที่รับผิดชอบ</a></li>
+			<li class="selected">ผลลัพธ์จากตัวชี้วัด</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="kpi_summary_page">
+
+<h2>ตัวชี้วัดการเงิน</h2>
+<ul class="kpis">
+	<li>
+		<h3>การเบิกจ่ายงบประมาณ</h3>
+		<table>
+			{% for project in projects %}
+			<tr>
+				<td class="program">{{project.name}}</td>
+				<td class="percentage {% kpi_range_name project.percentage %}-percentage">{{project.percentage}}%</td>
+				<td class="graph">
+					<div class="bar-graph-container">
+						<div class="bar-graph {% kpi_range_name project.percentage %}-bar-graph" style="width:{{project.percentage}}%;"></div>
+					</div>
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</li>
+</ul>
+
+<h2>ตัวชี้วัดการดำเนินงาน</h2>
+<ul class="kpis">
+	{% for kpi in kpis %}
+	{% ifequal kpi.category 1 %}
+	<li>
+		<h3>{{kpi.name}}</h3>
+		<table>
+			{% for target_project in kpi.target_projects %}
+			<tr>
+				<td class="program">{{target_project.project.name}}</td>
+				<td class="percentage {% kpi_range_name target_project.percentage %}-percentage">{{target_project.percentage}}%</td>
+				<td class="graph">
+					<div class="bar-graph-container">
+						<div class="bar-graph {% kpi_range_name target_project.percentage %}-bar-graph" style="width:{{target_project.percentage}}%;"></div>
+					</div>
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</li>
+	{% endifequal %}
+	{% endfor %}
+</ul>
+
+<h2>ตัวชี้วัดทีมงาน</h2>
+<ul class="kpis">
+	{% for kpi in kpis %}
+	{% ifequal kpi.category 2 %}
+	<li>
+		<h3>{{kpi.name}}</h3>
+		<table>
+			{% for target_project in kpi.target_projects %}
+			<tr>
+				<td class="program">{{target_project.project.name}}</td>
+				<td class="percentage {% kpi_range_name target_project.percentage %}-percentage">{{target_project.percentage}}%</td>
+				<td class="graph">
+					<div class="bar-graph-container">
+						<div class="bar-graph {% kpi_range_name target_project.percentage %}-bar-graph" style="width:{{target_project.percentage}}%;"></div>
+					</div>
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</li>
+	{% endifequal %}
+	{% endfor %}
+</ul>
+
+<h2>ตัวชี้วัดภาคี</h2>
+<ul class="kpis">
+	{% for kpi in kpis %}
+	{% ifequal kpi.category 3 %}
+	<li>
+		<h3>{{kpi.name}}</h3>
+		<table>
+			{% for target_project in kpi.target_projects %}
+			<tr>
+				<td class="program">{{target_project.project.name}}</td>
+				<td class="percentage {% kpi_range_name target_project.percentage %}-percentage">{{target_project.percentage}}%</td>
+				<td class="graph">
+					<div class="bar-graph-container">
+						<div class="bar-graph {% kpi_range_name target_project.percentage %}-bar-graph" style="width:{{target_project.percentage}}%;"></div>
+					</div>
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</li>
+	{% endifequal %}
+	{% endfor %}
+</ul>
+
+
+</div>
+{% endblock %}

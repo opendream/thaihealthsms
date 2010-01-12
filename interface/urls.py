@@ -16,6 +16,7 @@ urlpatterns = patterns('interface.views',
 	# Master Plan
 	url(r'^master_plan/(?P<master_plan_id>\d+)/$', 'view_master_plan_overview', name="view_master_plan_overview"),
 	url(r'^master_plan/(?P<master_plan_id>\d+)/plans/$', 'view_master_plan_plans', name="view_master_plan_plans"),
+	url(r'^master_plan/(?P<master_plan_id>\d+)/kpi/$', 'view_master_plan_kpi', name="view_master_plan_kpi"),
 	
 	# Project
 	url(r'^program/(?P<program_id>\d+)/$', 'view_program_overview', name="view_program_overview"),
