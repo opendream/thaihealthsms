@@ -169,20 +169,20 @@ def after_syncdb(sender, **kwargs):
 		# Schedule for Program
 		ReportSchedule.objects.create(report_project=report_program11, due_date=date(2010, 02, 15))
 		ReportSchedule.objects.create(report_project=report_program11, due_date=date(2010, 01, 15))
-		ReportSchedule.objects.create(report_project=report_program11, due_date=date(2009, 12, 15), is_submitted=True, submitted=datetime.now())
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date(2009, 12, 15), is_submitted=True, last_submitted=datetime.now())
 		
 		ReportSchedule.objects.create(report_project=report_program12, due_date=date(2010, 02, 15))
-		ReportSchedule.objects.create(report_project=report_program12, due_date=date(2010, 01, 15), is_submitted=True, submitted=datetime.now())
-		ReportSchedule.objects.create(report_project=report_program12, due_date=date(2009, 12, 15), is_submitted=True, submitted=datetime.now())
+		ReportSchedule.objects.create(report_project=report_program12, due_date=date(2010, 01, 15), is_submitted=True, last_submitted=datetime.now())
+		ReportSchedule.objects.create(report_project=report_program12, due_date=date(2009, 12, 15), is_submitted=True, last_submitted=datetime.now())
 		
 		# Schedule for Project
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date(2009, 12, 15), is_submitted=True, submitted=datetime.now())
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date(2009, 11, 15), is_submitted=True, submitted=datetime.now())
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date(2009, 10, 15), is_submitted=True, submitted=datetime.now())
+		ReportSchedule.objects.create(report_project=report_project11, due_date=date(2009, 12, 15), is_submitted=True, last_submitted=datetime.now())
+		ReportSchedule.objects.create(report_project=report_project11, due_date=date(2009, 11, 15), is_submitted=True, last_submitted=datetime.now())
+		ReportSchedule.objects.create(report_project=report_project11, due_date=date(2009, 10, 15), is_submitted=True, last_submitted=datetime.now())
 		
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date(2009, 12, 15), is_submitted=True, submitted=datetime.now())
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date(2009, 11, 15), is_submitted=True, submitted=datetime.now())
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date(2009, 12, 15), is_submitted=True, submitted=datetime.now())
+		ReportSchedule.objects.create(report_project=report_project12, due_date=date(2009, 12, 15), is_submitted=True, last_submitted=datetime.now())
+		ReportSchedule.objects.create(report_project=report_project12, due_date=date(2009, 11, 15), is_submitted=True, last_submitted=datetime.now())
+		ReportSchedule.objects.create(report_project=report_project12, due_date=date(2009, 12, 15), is_submitted=True, last_submitted=datetime.now())
 		
 		ReportSchedule.objects.create(report_project=report_project21, due_date=date(2010,  3, 15))
 		ReportSchedule.objects.create(report_project=report_project21, due_date=date(2010,  2, 15))
@@ -190,7 +190,7 @@ def after_syncdb(sender, **kwargs):
 		
 		ReportSchedule.objects.create(report_project=report_project22, due_date=date(2010,  3, 15))
 		ReportSchedule.objects.create(report_project=report_project22, due_date=date(2010,  2, 15))
-		ReportSchedule.objects.create(report_project=report_project22, due_date=date(2010,  1, 15), is_submitted=True, submitted=datetime.now())
+		ReportSchedule.objects.create(report_project=report_project22, due_date=date(2010,  1, 15), is_submitted=True, last_submitted=datetime.now())
 
 		# KPI
 		
