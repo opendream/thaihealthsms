@@ -32,7 +32,9 @@
 		{% for plan in master_plan.plans %}
 		<li>
 			<h3>{{plan.ref_no}} {{plan.name}}</h3>
-			{% if plan.current_projects and plan.future_projects and plan.past_projects %}
+			{% if not plan.current_projects and not plan.future_projects and not plan.past_projects %}
+				<div class="ss_no_information">ไม่มีแผนงาน/โครงการ</div>
+			{% else %}
 				{% if plan.current_projects %}
 				<h4 class="em">แผนงาน/โครงการในปัจจุบัน</h4>
 				<ul>
@@ -66,8 +68,6 @@
 					{% endfor %}
 				</ul>
 				{% endif %}
-			{% else %}
-				<div class="ss_no_information">ไม่มีแผนงาน/โครงการ</div>
 			{% endif %}
 		</li>
 		{% endfor %}

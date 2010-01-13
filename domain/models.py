@@ -1,9 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-class GlobalSettings(models.Model):
-	working_annual = models.IntegerField()
-
 #
 # User and Role
 #

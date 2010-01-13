@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load interface_tags %}
 
 {% block html_head %}
 
@@ -27,35 +28,40 @@
 <div class="overview_page">
 	<h2>ตัวชี้วัด</h2>
 	<div class="kpi_section">
-	{% for master_plan in master_plans %}
-		<h3>แผนหลัก {{master_plan.ref_no}} {{master_plan.name}}</h3>
-		<ul>
-			<li>
-				<h4>การเงิน</h4>
-				<div class="level critical_level">พบปัญหาสำคัญ</div>
-				<ul class="details">
-					<li><a href="#">Program A</a></li>
-					<li><a href="#">Program B</a></li>
-					<li><a href="#">Program C</a></li>
-					<li><a href="#">Program D</a></li>
-				</ul>
-			</li>
-			<li>
-				<h4>การดำเนินงาน</h4>
-				<div class="level normal_level">ปกติ</div>
-			</li>
-			<li>
-				<h4>ทีมงาน การเรียนรู้</h4>
-				<div class="level warning_level">พบปัญหาเล็กน้อย</div>
-				<div class="details">details</div>
-			</li>
-			<li>
-				<h4>ภาคี</h4>
-				<div class="level normal_level">ปกติ</div>
-			</li>
-		</ul>
-		<div class="clear"></div>
-	{% endfor %}
+		{% for master_plan in master_plans %}
+			<h3><a href="{% url view_master_plan_overview master_plan.id %}">แผนหลัก {{master_plan.ref_no}} {{master_plan.name}}</a></h3>
+			<ul>
+				<li>
+					<h4>การเงิน</h4>
+					<div class="percentage {% kpi_range_name master_plan.finance_percentage %}-percentage">{{master_plan.finance_percentage}}%</div>
+					<div class="bar-graph-container">
+						<div class="bar-graph {% kpi_range_name master_plan.finance_percentage %}-bar-graph" style="width:{{master_plan.finance_percentage}}%;"></div>
+					</div>
+				</li>
+				<li>
+					<h4>การดำเนินงาน</h4>
+					<div class="percentage {% kpi_range_name master_plan.operation_percentage %}-percentage">{{master_plan.operation_percentage}}%</div>
+					<div class="bar-graph-container">
+						<div class="bar-graph {% kpi_range_name master_plan.operation_percentage %}-bar-graph" style="width:{{master_plan.operation_percentage}}%;"></div>
+					</div>
+				</li>
+				<li>
+					<h4>ทีมงาน</h4>
+					<div class="percentage {% kpi_range_name master_plan.teamwork_percentage %}-percentage">{{master_plan.teamwork_percentage}}%</div>
+					<div class="bar-graph-container">
+						<div class="bar-graph {% kpi_range_name master_plan.teamwork_percentage %}-bar-graph" style="width:{{master_plan.teamwork_percentage}}%;"></div>
+					</div>
+				</li>
+				<li>
+					<h4>ภาคี</h4>
+					<div class="percentage {% kpi_range_name master_plan.partner_percentage %}-percentage">{{master_plan.partner_percentage}}%</div>
+					<div class="bar-graph-container">
+						<div class="bar-graph {% kpi_range_name master_plan.partner_percentage %}-bar-graph" style="width:{{master_plan.partner_percentage}}%;"></div>
+					</div>
+				</li>
+			</ul>
+			<div class="clear"></div>
+		{% endfor %}
 	</div>
 </div>
 {% endblock %}

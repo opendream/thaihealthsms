@@ -28,7 +28,9 @@
 <div class="hierarchy_page hierarchy_master_plan_page">
 	{% for plan in plans %}
 		<h2>{{plan.ref_no}} {{plan.name}}</h2>
-		{% if plan.current_projects and plan.future_projects and plan.past_projects %}
+		{% if not plan.current_projects and not plan.future_projects and not plan.past_projects %}
+			<div class="ss_no_information">ไม่มีแผนงาน/โครงการ</div>
+		{% else %}
 			{% if plan.current_projects %}
 			<h3 class="em">แผนงาน/โครงการในปัจจุบัน</h3>
 			<ul>
@@ -62,8 +64,6 @@
 				{% endfor %}
 			</ul>
 			{% endif %}
-		{% else %}
-			<div class="ss_no_information">ไม่มีแผนงาน/โครงการ</div>
 		{% endif %}
 	{% endfor %}
 </div>

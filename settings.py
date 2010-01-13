@@ -67,6 +67,7 @@ EMAIL_HOST_PASSWORD = 'opendream'
 EMAIL_PORT = 587
 
 INSTALLED_APPS = (
+	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
 	'django.contrib.sessions',

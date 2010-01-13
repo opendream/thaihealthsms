@@ -47,10 +47,10 @@ def _view_assistant_frontpage(request, user_account):
 
 	return render_response(request, "dashboard_assistant.html", {'user_projects':user_projects})
 
-def _view_program_manager_dashboard(request, user_account):
+def _view_program_manager_frontpage(request, user_account):
 	return redirect("/program/%d/" % user_account.projects.all()[0].id)
 
-def _view_project_manager_dashboard(request, user_account):
+def _view_project_manager_frontpage(request, user_account):
 	return redirect("/project/%d/" % user_account.projects.all()[0].id)
 
 @login_required
@@ -125,9 +125,22 @@ def view_administer(request):
 def view_sector_overview(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
 	current_date = date.today()
-
+	
 	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True)
-
+	
+	for master_plan in master_plans:
+		finance_result = FinanceKPISubmission.objects.filter(project__master_plan=master_plan, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("budget"), Sum("spent_budget"))
+		master_plan.finance_percentage = int(float(finance_result["spent_budget__sum"] if finance_result["spent_budget__sum"] else "0") / float(finance_result["budget__sum"] if finance_result["budget__sum"] else "100") * 100)
+		
+		operation_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.OPERATION_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
+		master_plan.operation_percentage = int(float(operation_result["result_score__sum"] if operation_result["result_score__sum"] else "0") / float(operation_result["target_score__sum"] if operation_result["target_score__sum"] else "100") * 100)
+		
+		teamwork_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.TEAMWORK_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
+		master_plan.teamwork_percentage = int(float(teamwork_result["result_score__sum"] if teamwork_result["result_score__sum"] else "0") / float(teamwork_result["target_score__sum"] if teamwork_result["target_score__sum"] else "100") * 100)
+		
+		partner_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.PARTNER_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
+		master_plan.partner_percentage = int(float(partner_result["result_score__sum"] if partner_result["result_score__sum"] else "0") / float(partner_result["target_score__sum"] if partner_result["target_score__sum"] else "100") * 100)
+	
 	return render_response(request, "sector_overview.html", {'sector':sector, 'master_plans':master_plans,})
 
 @login_required
@@ -173,10 +186,10 @@ def view_master_plan_overview(request, master_plan_id):
 	operation_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.OPERATION_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
 	operation_percentage = int(float(operation_result["result_score__sum"]) / float(operation_result["target_score__sum"]) * 100)
 	
-	teamwork_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.OPERATION_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
+	teamwork_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.TEAMWORK_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
 	teamwork_percentage = int(float(teamwork_result["result_score__sum"]) / float(teamwork_result["target_score__sum"]) * 100)
 	
-	partner_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.OPERATION_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
+	partner_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.PARTNER_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
 	partner_percentage = int(float(partner_result["result_score__sum"]) / float(partner_result["target_score__sum"]) * 100)
 	
 	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, 'finance_percentage':finance_percentage, 'operation_percentage':operation_percentage, 'teamwork_percentage':teamwork_percentage, 'partner_percentage':partner_percentage})
@@ -185,14 +198,14 @@ def view_master_plan_overview(request, master_plan_id):
 def view_master_plan_plans(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	current_date = date.today()
-
+	
 	plans = Plan.objects.filter(master_plan=master_plan)
-
+	
 	for plan in plans:
 		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
 		plan.future_projects = Project.objects.filter(plan=plan, start_date__gt=current_date)
 		plan.past_projects = Project.objects.filter(plan=plan, end_date__lt=current_date)
-
+		
 	return render_response(request, "master_plan_plans.html", {'master_plan':master_plan, 'plans':plans})
 
 @login_required

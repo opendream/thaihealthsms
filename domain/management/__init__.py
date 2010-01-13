@@ -133,6 +133,7 @@ def after_syncdb(sender, **kwargs):
 		program1202_3 = Project.objects.create(sector=sector7, master_plan=master_plan12, plan=plan1202, type=Project.PROGRAM_TYPE, ref_no="", name="แผนงานสร้างเสริมสุขภาพโดยเครือข่ายสหวิชาชีพด้านสุขภาพ", manager=program_manager_account2)
 		program1202_4 = Project.objects.create(sector=sector7, master_plan=master_plan12, plan=plan1202, type=Project.PROGRAM_TYPE, ref_no="", name="แผนงานพัฒนาองค์ความรู้เพื่อการสร้างเสริมสุขภาพโดยพยาบาลชุมชน", manager=program_manager_account2)
 		
+		program_manager_account1.projects.add(program1204_1)
 		
 		# Project
 		project1204_1_001 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=program1204_1, type=Project.PROJECT_TYPE, ref_no="51-02415-001", name="โครงการทดลองที่ 1", manager=project_manager_account1, start_date=date(2008,12,16), end_date=date(2009,12,1))
@@ -210,6 +211,10 @@ def after_syncdb(sender, **kwargs):
 		op_target2 = KPITargetProject.objects.create(kpi=op_kpi2, project=program1204_1)
 		op_target3 = KPITargetProject.objects.create(kpi=op_kpi3, project=program1204_1)
 		
+		op_target4 = KPITargetProject.objects.create(kpi=op_kpi1, project=program1201_1)
+		op_target5 = KPITargetProject.objects.create(kpi=op_kpi1, project=program1201_1)
+		op_target6 = KPITargetProject.objects.create(kpi=op_kpi1, project=program1201_1)
+		
 		team_target1 = KPITargetProject.objects.create(kpi=team_kpi1, project=program1204_1)
 		team_target2 = KPITargetProject.objects.create(kpi=team_kpi2, project=program1204_1)
 		
@@ -231,6 +236,20 @@ def after_syncdb(sender, **kwargs):
 		submission11 = KPISubmission.objects.create(target=op_target3, target_score=100, result_score= 80, start_date=date(2010,  1,  1), end_date=date(2010,  3,  1))
 		submission12 = KPISubmission.objects.create(target=op_target3, target_score=100, result_score=  0, start_date=date(2010,  4,  1), end_date=date(2010,  6,  1))
 		
+		KPISubmission.objects.create(target=op_target4, target_score=100, result_score=100, start_date=date(2009,  7,  1), end_date=date(2009,  9,  1))
+		KPISubmission.objects.create(target=op_target4, target_score=100, result_score=100, start_date=date(2009, 10,  1), end_date=date(2009, 12,  1))
+		KPISubmission.objects.create(target=op_target4, target_score=100, result_score= 50, start_date=date(2010,  1,  1), end_date=date(2010,  3,  1))
+		KPISubmission.objects.create(target=op_target4, target_score=100, result_score=  0, start_date=date(2010,  4,  1), end_date=date(2010,  6,  1))
+		
+		KPISubmission.objects.create(target=op_target5, target_score=100, result_score=100, start_date=date(2009,  7,  1), end_date=date(2009,  9,  1))
+		KPISubmission.objects.create(target=op_target5, target_score=100, result_score= 90, start_date=date(2009, 10,  1), end_date=date(2009, 12,  1))
+		KPISubmission.objects.create(target=op_target5, target_score=100, result_score= 40, start_date=date(2010,  1,  1), end_date=date(2010,  3,  1))
+		KPISubmission.objects.create(target=op_target5, target_score=100, result_score=  0, start_date=date(2010,  4,  1), end_date=date(2010,  6,  1))
+		
+		KPISubmission.objects.create(target=op_target6, target_score=100, result_score=100, start_date=date(2009,  7,  1), end_date=date(2009,  9,  1))
+		KPISubmission.objects.create(target=op_target6, target_score=100, result_score=120, start_date=date(2009, 10,  1), end_date=date(2009, 12,  1))
+		KPISubmission.objects.create(target=op_target6, target_score=100, result_score= 80, start_date=date(2010,  1,  1), end_date=date(2010,  3,  1))
+		KPISubmission.objects.create(target=op_target6, target_score=100, result_score=  0, start_date=date(2010,  4,  1), end_date=date(2010,  6,  1))
 		
 		
 		submission13 = KPISubmission.objects.create(target=team_target1, target_score=100, result_score=100, start_date=date(2009, 10,  1), end_date=date(2009, 12,  1))

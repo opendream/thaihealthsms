@@ -114,3 +114,7 @@ POST COMMENT DIALOG
 
 /* Activity Calendar */
 .yui-skin-sam {overflow:hidden}
+.yui-calendar .has-event {background-color:#99FF99 !important;}
+
+.qtip-content ul li a:link, .qtip-content ul li a:visited, .qtip-content ul li a:active {color:#FFC;}
+.qtip-content ul li a:hover {background:none;color:#9CF;}
