@@ -6,12 +6,9 @@ from django.db import models
 #
 class UserAccount(models.Model):
 	user = models.ForeignKey(User, unique=True)
-	role = models.CharField(max_length=64, null=True) # assistant, program_manager, project_manager
-	sector = models.ForeignKey('Sector', related_name="user_sector", null=True)
 	first_name = models.CharField(max_length=300, null=True)
 	last_name = models.CharField(max_length=300, null=True)
-	projects = models.ManyToManyField('Project')
-
+	projects = models.ManyToManyField('Project') # Responsible Projects
 
 #
 # Organization
@@ -20,11 +17,6 @@ class Sector(models.Model):
 	ref_no = models.CharField(max_length=64, unique=True)
 	name = models.CharField(max_length=512)
 	manager = models.ForeignKey('UserAccount', null=True, related_name="sector_manager")
-
-# TODO enable this feature later
-#class SectorManager(models.Model):
-#	sector = models.ForeignKey('Sector')
-#	manager = models.ForeignKey('UserAccount')
 
 class MasterPlan(models.Model):
 	sector = models.ForeignKey('Sector')
@@ -39,7 +31,10 @@ class Plan(models.Model):
 	master_plan = models.ForeignKey('MasterPlan')
 	ref_no = models.CharField(max_length=64)
 	name = models.CharField(max_length=512)
-	manager = models.ForeignKey('UserAccount', null=True)
+
+class MasterPlanManager(models.Model):
+	master_plan = models.ForeignKey('MasterPlan')
+	manager = models.ForeignKey('UserAccount')
 
 class Project(models.Model): # Program, Project
 	
@@ -56,9 +51,10 @@ class Project(models.Model): # Program, Project
 	plan = models.ForeignKey('Plan', null=True)
 	parent_project = models.ForeignKey('self', null=True)
 	
-	type = models.IntegerField(default=0)
-	PROGRAM_TYPE = 1
-	PROJECT_TYPE = 2
+	prefix_name = models.IntegerField(default=0)
+	PROJECT_IS_PROGRAM = 1
+	PROJECT_IS_PROJECT = 2
+	PROJECT_IS_SUB_PROJECT = 3
 	
 	ref_no = models.CharField(max_length=64, null=True)
 	name = models.CharField(max_length=512)
@@ -66,8 +62,12 @@ class Project(models.Model): # Program, Project
 	start_date = models.DateField(null=True)
 	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0) # Not use yet
-	manager = models.ForeignKey('UserAccount', null=True)
+	
 	budget = models.IntegerField(default=0)
+
+class ProjectManager(models.Model):
+	project = models.ForeignKey('Project')
+	manager = models.ForeignKey('UserAccount')
 	
 class Activity(models.Model):
 	project = models.ForeignKey('Project')
@@ -76,11 +76,23 @@ class Activity(models.Model):
 	start_date = models.DateField(null=True)
 	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0)
-	manager = models.ForeignKey('UserAccount', null=True)
-	
+
 	location = models.CharField(max_length=512)
 	result_goal = models.TextField()
 	result_real = models.TextField()
+
+class ActivityManager(models.Model):
+	activity = models.ForeignKey('Project')
+	manager = models.ForeignKey('UserAccount')
+
+#
+# Finance
+#	
+class ProjectBudgetSchedule(models.Model):
+	project = models.ForeignKey('Project')
+	scheduled_on = models.DateField()
+	expected_budget = models.IntegerField(default=0)
+	used_budget = models.IntegerField(default=0)
 
 #
 # KPI
@@ -129,16 +141,4 @@ class FinanceKPISubmissionRevision(models.Model):
 	submitted_on = models.DateTimeField(auto_now_add=True)
 	submitted_by = models.ForeignKey('UserAccount')
 	
-	
-
-#
-# Finance
-#	
-class ProjectBudgetSchedule(models.Model):
-	project = models.ForeignKey('Project')
-	scheduled_on = models.DateField()
-	expected_budget = models.IntegerField(default=0)
-	used_budget = models.IntegerField(default=0)
-
-
 
