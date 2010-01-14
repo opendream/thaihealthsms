@@ -65,7 +65,16 @@ $(document).ready(function() {
 </head>
 <body>
 	<div class="body_header">
-		<div class="account_panel"><span class="username">{{user_account.first_name}} {{user_account.last_name}}</span> <span class="unread_comments">[ <a href="/dashboard/comments/"><img src="{{MEDIA_URL}}/images/icon_unread_comments.png"/> {% get_unread_comments user.get_profile.id %}</a> ]</span> <a href="/dashboard/">หน้าผู้ใช้</a> | <a href="/administer/">จัดการระบบ</a> | <a href="/accounts/logout/" class="logout-link">ออกจากระบบ</a></div>
+		<div class="account_panel">
+			<span class="username">{{user_account.first_name}} {{user_account.last_name}}</span>
+			{% if not user.is_superuser %}
+				<span class="unread_comments">[ <a href="/dashboard/comments/"><img src="{{MEDIA_URL}}/images/icon_unread_comments.png"/> {% get_unread_comments user.get_profile.id %}</a> ]</span> <a href="/dashboard/">หน้าผู้ใช้</a> |
+				{% if user.is_staff %}<a href="/administer/">จัดการระบบ</a> |{% endif %}
+			{% else %}
+				<a href="/administer/">จัดการระบบ</a> |
+			{% endif %}
+			<a href="/accounts/logout/" class="logout-link">ออกจากระบบ</a>
+		</div>
 		<div class="logo_panel"><a href="/"><img src="{{MEDIA_URL}}/images/logo.png" /></a></div>
 	</div>
 	<div class="body_body">

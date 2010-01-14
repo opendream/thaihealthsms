@@ -8,7 +8,7 @@ REJECT_ACTIVITY = 3
 class Report(models.Model):
 	name = models.CharField(max_length=256)
 	description = models.CharField(max_length=1024, blank=True)
-	has_schedule = models.BooleanField(default=False)
+	need_checkup = models.BooleanField(default=False) # Need to be sent to assistant to review
 	need_approval = models.BooleanField(default=False)
 	created = models.DateTimeField(auto_now_add=True)
 	created_by = models.ForeignKey('domain.UserAccount')

@@ -8,15 +8,15 @@
 {% block body_title %}
 <div class="ss_header">
 <div class="container">
-	<div class="title"><span>จัดการระบบ</span> หน้าแรก</div>
+	<div class="title"><span>จัดการระบบ</span> ผู้ใช้ระบบ</div>
 </div>
 </div>
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
-			<li class="selected">หน้าแรก</li>
+			<li><a href="{% url view_administer %}">หน้าแรก</a></li>
 			<li><a href="{% url view_administer_organization %}">โครงสร้างองค์กร</a></li>
-			<li><a href="{% url view_administer_users %}">ผู้ใช้ระบบ</a></li>
+			<li class="selected">ผู้ใช้ระบบ</li>
 		</ul>
 		<div class="clear"></div>
 	</div>

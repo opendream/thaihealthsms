@@ -28,17 +28,20 @@ def view_frontpage(request):
 	else: return redirect("/accounts/login/")
 
 #
-# DASHBOARD
+# FRONTPAGE
 #
 @login_required
-def view_dashboard(request):
+def view_frontpage(request):
 	if request.user.is_superuser:
 		return _view_admin_frontpage(request)
 	
 	else:
-		primary_role = request.user.groups.all()[0]
+		primary_role = request.user.groups.all()[0] # Currently support only 1 role per user
 		
-		if primary_role.name == "sector_manager":
+		if primary_role.name == "sector_admin":
+			return _view_admin_frontpage(request)
+		
+		elif primary_role.name == "sector_manager":
 			return _view_sector_manager_frontpage(request)
 			
 		elif primary_role.name == "sector_manager_assistant":
@@ -78,36 +81,6 @@ def _view_project_manager_frontpage(request):
 
 def _view_project_manager_assistant_frontpage(request):
 	return redirect("/sector/%d/" % user_account.sector.id)
-
-
-
-
-def _view_assistant_frontpage(request, user_account):
-	user_projects = user_account.projects.all()
-	for user_project in user_projects:
-		user_project.reports = report_functions.get_submitted_and_overdue_reports(user_project)
-
-	return render_response(request, "dashboard_assistant.html", {'user_projects':user_projects})
-
-
-@login_required
-def view_dashboard_projects(request):
-	user_account = request.user.get_profile()
-
-	if user_account.role == "assistant":
-		user_projects = user_account.projects.all()
-
-		programs = list()
-		projects = list()
-
-		for user_project in user_projects:
-			if user_project.type == Project.PROGRAM_TYPE: programs.append(user_project)
-			if user_project.type == Project.PROJECT_TYPE: projects.append(user_project)
-
-		return render_response(request, "dashboard_assistant_projects.html", {'programs':programs,'projects':projects})
-
-	else:
-		pass
 
 @login_required
 def view_dashboard_comments(request):
@@ -153,6 +126,19 @@ def view_administer(request):
 	user_account = request.user.get_profile()
 
 	return render_response(request, "administer.html", {})
+
+@login_required
+def view_administer_organization(request):
+	user_account = request.user.get_profile()
+
+	return render_response(request, "administer_organization.html", {})
+
+@login_required
+def view_administer_users(request):
+	user_account = request.user.get_profile()
+
+	return render_response(request, "administer_users.html", {})
+
 
 
 #

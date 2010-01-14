@@ -5,6 +5,7 @@ from datetime import datetime, date
 
 from django.conf import settings
 from django.contrib.auth.models import User, Group, Permission
+from django.contrib.contenttypes.models import ContentType
 
 from domain.models import *
 from report.models import *
@@ -19,6 +20,8 @@ def after_syncdb(sender, **kwargs):
 	"""
 	
 	# User Roles ##################
+	sector_admin_role, created = Group.objects.get_or_create(name='sector_admin')
+	
 	sector_manager_role, created = Group.objects.get_or_create(name='sector_manager')
 	sector_manager_assistant_role, created = Group.objects.get_or_create(name='sector_manager_assistant')
 	
@@ -38,7 +41,7 @@ def after_syncdb(sender, **kwargs):
 	project_manager_assistant_role, created = Group.objects.get_or_create(name='project_manager_assistant')
 	
 	# Permission ##################
-	# Permission.objects.get_or_create(name='', content_type='', codename='')
+	Permission.objects.get_or_create(name='View other programs reports', content_type=ContentType.objects.get_for_model(ReportSchedule), codename='view_others_program_report')
 	
 	
 	# Administrator ##################
@@ -51,7 +54,8 @@ def after_syncdb(sender, **kwargs):
 			User.objects.get(username=admin[0])
 			
 		except User.DoesNotExist:
-			random_password = User.objects.make_random_password()
+			#random_password = User.objects.make_random_password()
+			random_password = 'password'
 			admin_user = User.objects.create_user(admin[0], admin[1], random_password)
 			admin_user.is_superuser = True
 			admin_user.is_staff = True
