@@ -31,14 +31,55 @@ def view_frontpage(request):
 #
 @login_required
 def view_dashboard(request):
-	user_account = request.user.get_profile()
-	if user_account.role == "sector_manager": return _view_sector_manager_frontpage(request, user_account)
-	elif user_account.role == "assistant": return _view_assistant_frontpage(request, user_account)
-	elif user_account.role == "program_manager": return _view_program_manager_frontpage(request, user_account)
-	elif user_account.role == "project_manager": return _view_project_manager_frontpage(request, user_account)
+	if request.user.is_superuser:
+		return _view_admin_frontpage(request)
+	
+	else:
+		primary_role = request.user.groups.all()[0]
+		
+		if primary_role.name == "sector_manager":
+			return _view_sector_manager_frontpage(request)
+			
+		elif primary_role.name == "sector_manager_assistant":
+			return _view_sector_manager_assistant_frontpage(request)
+			
+		elif primary_role.name == "program_manager":
+			return _view_program_manager_frontpage(request)
+			
+		elif primary_role.name == "program_manager_assistant":
+			return _view_program_manager_assistant_frontpage(request)
+			
+		elif primary_role.name == "project_manager":
+			return _view_project_manager_frontpage(request)
+			
+		elif primary_role.name == "project_manager_assistant":
+			return _view_project_manager_assistant_frontpage(request)
 
-def _view_sector_manager_frontpage(request, user_account):
+def _view_admin_frontpage(request):
+	return redirect("/administer/")
+
+def _view_sector_manager_frontpage(request):
 	return redirect("/sector/%d/" % user_account.sector.id)
+
+def _view_sector_manager_assistant_frontpage(request):
+	responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile(), role__name="sector_manager_assistant")
+	
+	return render_response(request, "dashboard_assistant.html", {'projects':responsibility.projects.all()})
+
+def _view_program_manager_frontpage(request):
+	return redirect("/sector/%d/" % user_account.sector.id)
+
+def _view_program_manager_assistant_frontpage(request):
+	return redirect("/sector/%d/" % user_account.sector.id)
+
+def _view_project_manager_frontpage(request):
+	return redirect("/sector/%d/" % user_account.sector.id)
+
+def _view_project_manager_assistant_frontpage(request):
+	return redirect("/sector/%d/" % user_account.sector.id)
+
+
+
 
 def _view_assistant_frontpage(request, user_account):
 	user_projects = user_account.projects.all()
@@ -47,11 +88,6 @@ def _view_assistant_frontpage(request, user_account):
 
 	return render_response(request, "dashboard_assistant.html", {'user_projects':user_projects})
 
-def _view_program_manager_frontpage(request, user_account):
-	return redirect("/program/%d/" % user_account.projects.all()[0].id)
-
-def _view_project_manager_frontpage(request, user_account):
-	return redirect("/project/%d/" % user_account.projects.all()[0].id)
 
 @login_required
 def view_dashboard_projects(request):

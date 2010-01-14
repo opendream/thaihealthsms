@@ -29,9 +29,9 @@
 		<div class="sector_link"><a href="{% url view_sector_overview user_account.sector.id %}">สำนัก {{user_account.sector.ref_no}}</a></div>
 		<h2>แผนงานและโครงการที่รับผิดชอบ</h2>
 		<ul>
-			{% for user_project in user_projects %}
-				{% ifequal user_project.type 1 %}<li><a href="{% url view_program_overview user_project.id %}">แผนงาน {{user_project.ref_no}}</a></li>{% endifequal %}
-				{% ifequal user_project.type 2 %}<li><a href="{% url view_project_overview user_project.id %}">โครงการ {{user_project.ref_no}}</a></li>{% endifequal %}
+			{% for project in projects %}
+				{% ifequal project.prefix_name 1 %}<li><a href="{% url view_program_overview project.id %}">แผนงาน {{project.ref_no}}</a></li>{% endifequal %}
+				{% ifequal project.prefix_name 2 %}<li><a href="{% url view_project_overview project.id %}">โครงการ {{project.ref_no}}</a></li>{% endifequal %}
 			{% endfor %}
 		</ul>
 	</div>

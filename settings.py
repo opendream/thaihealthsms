@@ -4,8 +4,11 @@ _base = os.path.dirname(__file__)
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+# ADMINS data will be used to create first group of admin account
+# (every user will have 'Administration' as their firstname, without lastname.
+# This firstname and lastname can be changed later)
 ADMINS = (
-	# ('Your Name', 'your_email@domain.com'),
+	('admin', 'panuta@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -65,6 +68,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'application.testbed@gmail.com'
 EMAIL_HOST_PASSWORD = 'opendream'
 EMAIL_PORT = 587
+
+SYSTEM_NOREPLY_EMAIL = EMAIL_HOST_USER
 
 INSTALLED_APPS = (
 	'django.contrib.admin',

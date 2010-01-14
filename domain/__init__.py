@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 
 # Callback after a user object is saved
 from django.contrib.auth.models import User

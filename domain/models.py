@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import models
 
 #
@@ -6,9 +6,18 @@ from django.db import models
 #
 class UserAccount(models.Model):
 	user = models.ForeignKey(User, unique=True)
+	sector = models.ForeignKey('Sector', null=True)
 	first_name = models.CharField(max_length=300, null=True)
 	last_name = models.CharField(max_length=300, null=True)
-	projects = models.ManyToManyField('Project') # Responsible Projects
+
+class UserRoleResponsibility(models.Model):
+	user = models.ForeignKey(UserAccount)
+	role = models.ForeignKey(Group)
+	sectors = models.ManyToManyField('Sector', null=True)
+	master_plans = models.ManyToManyField('MasterPlan', null=True)
+	plans = models.ManyToManyField('Plan', null=True)
+	projects = models.ManyToManyField('Project', null=True)
+	activities = models.ManyToManyField('Activity', null=True)
 
 #
 # Organization
@@ -16,7 +25,7 @@ class UserAccount(models.Model):
 class Sector(models.Model):
 	ref_no = models.CharField(max_length=64, unique=True)
 	name = models.CharField(max_length=512)
-	manager = models.ForeignKey('UserAccount', null=True, related_name="sector_manager")
+	
 
 class MasterPlan(models.Model):
 	sector = models.ForeignKey('Sector')
@@ -25,16 +34,11 @@ class MasterPlan(models.Model):
 	is_active = models.BooleanField(default=True)
 	start_year = models.IntegerField() # Master plan for ThaiHealth has 3 years-span
 	end_year = models.IntegerField()
-	manager = models.ForeignKey('UserAccount', null=True)
 
 class Plan(models.Model):
 	master_plan = models.ForeignKey('MasterPlan')
 	ref_no = models.CharField(max_length=64)
 	name = models.CharField(max_length=512)
-
-class MasterPlanManager(models.Model):
-	master_plan = models.ForeignKey('MasterPlan')
-	manager = models.ForeignKey('UserAccount')
 
 class Project(models.Model): # Program, Project
 	
@@ -64,10 +68,6 @@ class Project(models.Model): # Program, Project
 	status = models.IntegerField(default=0) # Not use yet
 	
 	budget = models.IntegerField(default=0)
-
-class ProjectManager(models.Model):
-	project = models.ForeignKey('Project')
-	manager = models.ForeignKey('UserAccount')
 	
 class Activity(models.Model):
 	project = models.ForeignKey('Project')
@@ -80,10 +80,6 @@ class Activity(models.Model):
 	location = models.CharField(max_length=512)
 	result_goal = models.TextField()
 	result_real = models.TextField()
-
-class ActivityManager(models.Model):
-	activity = models.ForeignKey('Project')
-	manager = models.ForeignKey('UserAccount')
 
 #
 # Finance
