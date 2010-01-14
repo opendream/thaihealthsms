@@ -18,15 +18,6 @@ def after_syncdb(sender, **kwargs):
 	THIS IS REAL PRODUCTION CODE
 	"""
 	
-	# Sector ##################
-	sector1, created = Sector.objects.get_or_create(ref_no='1', name='สำนักสนับสนุนการสร้างสุขภาวะและลดปัจจัยเสี่ยงหลัก')
-	sector2, created = Sector.objects.get_or_create(ref_no='2', name='สำนักสนับสนุนการสร้างสุขภาวะและลดปัจจัยเสี่ยงรอง')
-	sector3, created = Sector.objects.get_or_create(ref_no='3', name='สำนักสนับสนุนการสร้างสุขภาวะในพื้นที่ชุมชน')
-	sector4, created = Sector.objects.get_or_create(ref_no='4', name='สำนักสนับสนุนการเรียนรู้และสุขภาวะองค์กร')
-	sector5, created = Sector.objects.get_or_create(ref_no='5', name='สำนักรณรงค์สื่อสารสาธารณะและสังคม')
-	sector6, created = Sector.objects.get_or_create(ref_no='6', name='สำนักสนับสนุนโครงการเปิดรับทั่วไป')
-	sector7, created = Sector.objects.get_or_create(ref_no='7', name='สำนักสนับสนุนการพัฒนาระบบสุขภาพและบริการสุขภาพ')
-	
 	# User Roles ##################
 	sector_manager_role, created = Group.objects.get_or_create(name='sector_manager')
 	sector_manager_assistant_role, created = Group.objects.get_or_create(name='sector_manager_assistant')
@@ -83,7 +74,16 @@ def after_syncdb(sender, **kwargs):
 	BELOW CODE IS FOR PROTOTYPE-PURPOSE ONLY
 	"""
 	
-	if not Plan.objects.all():
+	if not Sector.objects.all():
+		
+		# Sector ##################
+		sector1, created = Sector.objects.get_or_create(ref_no='1', name='สำนักสนับสนุนการสร้างสุขภาวะและลดปัจจัยเสี่ยงหลัก')
+		sector2, created = Sector.objects.get_or_create(ref_no='2', name='สำนักสนับสนุนการสร้างสุขภาวะและลดปัจจัยเสี่ยงรอง')
+		sector3, created = Sector.objects.get_or_create(ref_no='3', name='สำนักสนับสนุนการสร้างสุขภาวะในพื้นที่ชุมชน')
+		sector4, created = Sector.objects.get_or_create(ref_no='4', name='สำนักสนับสนุนการเรียนรู้และสุขภาวะองค์กร')
+		sector5, created = Sector.objects.get_or_create(ref_no='5', name='สำนักรณรงค์สื่อสารสาธารณะและสังคม')
+		sector6, created = Sector.objects.get_or_create(ref_no='6', name='สำนักสนับสนุนโครงการเปิดรับทั่วไป')
+		sector7, created = Sector.objects.get_or_create(ref_no='7', name='สำนักสนับสนุนการพัฒนาระบบสุขภาพและบริการสุขภาพ')
 		
 		# Users ##################
 		
