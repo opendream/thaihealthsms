@@ -46,6 +46,10 @@ def after_syncdb(sender, **kwargs):
 	activity_manager_role, created = Group.objects.get_or_create(name='activity_manager')
 	project_manager_assistant_role, created = Group.objects.get_or_create(name='project_manager_assistant')
 	
+	# Permission ##################
+	# Permission.objects.get_or_create(name='', content_type='', codename='')
+	
+	
 	# Administrator ##################
 	admins = settings.ADMINS
 	
@@ -69,6 +73,7 @@ def after_syncdb(sender, **kwargs):
 			admin_account.first_name = "Administration"
 			admin_account.last_name = ""
 			admin_account.save()
+	
 	
 	"""
 	END HERE

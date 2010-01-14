@@ -8,7 +8,7 @@ TEMPLATE_DEBUG = DEBUG
 # (every user will have 'Administration' as their firstname, without lastname.
 # This firstname and lastname can be changed later)
 ADMINS = (
-	('admin', 'panuta@gmail.com'),
+	('admin', 'application.testbed@gmail.com'),
 )
 
 MANAGERS = ADMINS
