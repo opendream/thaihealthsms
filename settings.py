@@ -20,6 +20,12 @@ DATABASE_PASSWORD = 'sms_dev' 		# Not used with sqlite3.
 DATABASE_HOST = '' 			# Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = '' 			# Set to empty string for default. Not used with sqlite3.
 
+ugettext = lambda s: s
+LANGUAGES = (
+	('th', ugettext('Thai')),
+	#('en', ugettext('English')),
+)
+
 TIME_ZONE = 'Asia/Bangkok'
 LANGUAGE_CODE = 'th'
 SITE_ID = 1
@@ -50,6 +56,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
 	'django.middleware.common.CommonMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
+	'django.middleware.locale.LocaleMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'thaihealthsms.middleware.AJAXSimpleExceptionResponse', 
 )
