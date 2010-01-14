@@ -36,6 +36,8 @@ urlpatterns = patterns('interface.views',
 	
 	# Activity
 	url(r'^activity/(?P<activity_id>\d+)/$', 'view_activity_overview', name="view_activity_overview"),
+	url(r'^activity/(?P<activity_id>\d+)/edit/$', 'view_activity_edit', name="view_activity_edit"),
+	url(r'^activity/(?P<activity_id>\d+)/delete/$', 'view_activity_delete', name="view_activity_delete"),
 	url(r'^activity/(?P<activity_id>\d+)/pictures/$', 'view_activity_pictures', name="view_activity_pictures"),
 	url(r'^activity/(?P<activity_id>\d+)/comments/$', 'view_activity_comments', name="view_activity_comments"),
 	

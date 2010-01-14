@@ -21,6 +21,7 @@ from interface.forms import *
 
 from domain import functions as domain_functions
 from report import functions as report_functions
+from helper.utilities import set_message
 
 def view_frontpage(request):
 	if request.user.is_authenticated(): return view_dashboard(request)
@@ -410,9 +411,11 @@ def view_program_comments(request, program_id):
 #
 @login_required
 def view_project_overview(request, project_id):
+	current_date = date.today()
 	project = get_object_or_404(Project, pk=project_id)
-
-	return render_response(request, "project_overview.html", {'project':project, })
+	current_activities = project.activity_set.filter(start_date__lte=current_date, end_date__gte=current_date).order_by('end_date')
+	future_activities = project.activity_set.filter(start_date__gt=current_date).order_by('start_date')
+	return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities})
 
 @login_required
 def view_project_activities(request, project_id):
@@ -462,6 +465,8 @@ def view_activity_add(request, project_id):
 			activity.result_real = form.cleaned_data['result_real']
 			activity.save()
 
+			set_message(request, 'Your activity has been create.')
+			
 			return redirect("/activity/%d/" % activity.id)
 
 	else:
@@ -469,6 +474,40 @@ def view_activity_add(request, project_id):
 
 	return render_response(request, "project_activity_add.html", {'project':project, 'form':form, 'message': message})
 
+@login_required
+def view_activity_edit(request, activity_id):
+	activity = Activity.objects.get(pk=activity_id)
+	project = activity.project
+	
+	if request.method == "POST":
+		form = AddActivityForm(request.POST)
+		if form.is_valid():
+			activity.name        = form.cleaned_data['name']
+			activity.start_date  = form.cleaned_data['start_date']
+			activity.end_date    = form.cleaned_data['end_date']
+			activity.description = form.cleaned_data['description']
+			activity.location    = form.cleaned_data['location']
+			activity.result_goal = form.cleaned_data['result_goal']
+			activity.result_real = form.cleaned_data['result_real']
+			activity.save()
+			
+			set_message(request, 'Your activity has been update.')
+
+			return redirect("/activity/%d/" % activity.id)
+			
+	form = AddActivityForm(activity.__dict__)
+	return render_response(request, "project_activity_edit.html", {'project':project, 'form':form})
+
+@login_required
+def view_activity_delete(request, activity_id):
+	activity = Activity.objects.get(pk=activity_id)
+	project = activity.project
+	activity.delete()
+	
+	set_message(request, 'Your activity has been delete.')
+	
+	return redirect("/project/%d/activities/" % project.id)
+	
 @login_required
 def view_project_comments(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)

@@ -70,7 +70,7 @@ $(document).ready(function() {
 	</div>
 	<div class="body_body">
 		<div class="body_title">{% block body_title %}{% endblock %}</div>
-		<div class="body_content">{% block body_content %}{% endblock %}</div>
+		<div class="body_content">{{messages|safe}}{% block body_content %}{% endblock %}</div>
 	</div>
 	<div class="body_footer">
 		<div>สำนักงานกองทุนสนับสนุนการสร้างเสริมสุขภาพ (สสส.)</div>

@@ -22,3 +22,8 @@ def format_date(datetime):
 
 def format_month_year(datetime):
 	return "%s %d" % (unicode(THAI_MONTH_NAME[datetime.month], "utf-8"), datetime.year + 543)
+
+def set_message(request, text, status='message'):
+	if len(request.session.get('messages', [])) == 0:
+		request.session['messages'] = []
+	request.session['messages'].append({'text': text, 'class': status})

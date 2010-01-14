@@ -38,6 +38,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 "django.core.context_processors.i18n",
 "django.core.context_processors.media",
 "thaihealthsms.context_processors.user_account",
+"thaihealthsms.context_processors.messages",
 )
 
 TEMPLATE_LOADERS = (

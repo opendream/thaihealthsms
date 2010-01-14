@@ -37,7 +37,7 @@
 {% endblock %}
 
 {% block body_content %}
-<h1 class="title">เพิ่มกิจกรรม</h1>
+<h1 class="title">แก้ไขกิจกรรม</h1>
 {% if form.errors %} 
 	{% if form.name.errors %}
 		<span class="label">"{{form.name.label}}"</span> {{form.name.errors}}
@@ -60,7 +60,7 @@
 			<li><label for="id_result_goal">{{form.result_goal.label}}</label><div class="input MAX_MEDIUM">{{form.result_goal}}</div></li>
 			<li><label for="id_result_real">{{form.result_real.label}}</label><div class="input MAX_MEDIUM">{{form.result_real}}</div></li>
 		</ul>
-		<div class="button_panel"><button>เพิ่มข้อมูล</button></div>
+		<div class="button_panel"><button>แก้ไขข้อมูล</button></div>
 	</form>
 </div>
 {% endblock %}

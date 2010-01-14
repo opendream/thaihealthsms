@@ -11,3 +11,15 @@ def user_account(request):
 		user_account = None
 	
 	return {'user_account': user_account}
+
+def messages(request):
+	messages = request.session.get('messages', [])
+	html = ''
+	if len(messages):
+		html = '<ul class="messages">'
+		for msg in messages:
+			html += '<li class="%s">%s</li>' % (msg['class'], msg['text'])
+		html += '</ul>'
+		del(request.session['messages'])
+		
+	return {'messages': html}
