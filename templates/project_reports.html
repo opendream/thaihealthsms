@@ -2,7 +2,7 @@
 {% load helper %}
 {% load interface_tags %}
 
-{% block post_comment_ajax_url %}{% ifequal project.type 1 %}/post-comment/object/program/{{project.id}}/{% endifequal %}{% ifequal project.type 2 %}/post-comment/object/project/{{project.id}}/{% endifequal %}{% endblock %}
+{% block post_comment_ajax_url %}{% if not project.parent_project %}/post-comment/object/program/{{project.id}}/{% else %}/post-comment/object/project/{{project.id}}/{% endif %}{% endblock %}
 {% block post_comment_ajax_callback %}{% endblock %}
 
 {% block html_head %}
@@ -17,35 +17,31 @@
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
-			{% ifequal project.type 1 %}
+			{% if not project.parent_project %}
 			<li><a href="{% url view_program_overview project.id %}">ภาพรวม</a></li>
 			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
 			<li class="selected">รายงานแผนงาน</li>
 			<li><a href="{% url view_program_kpi project.id %}">ตัวชี้วัดแผนงาน</a></li>
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">ความคิดเห็น</a></li>
-			{% endifequal %}
-			
-			{% ifequal project.type 2 %}
+			{% else %}
 			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
 			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
 			<li class="selected">รายงานโครงการ</li>
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
-			{% endifequal %}
+			{% endif %}
 		</ul>
 		<div class="clear"></div>
 	</div>
 </div>
 <div class="ss_sub_tab_navi">
 	<ul>
-		{% ifequal project.type 1 %}
+		{% if not project.parent_project %}
 		<li class="selected">รายงานแผนงาน</li>
 		<li><a href="{% url view_program_reports_send project.id %}">ส่งรายงาน</a></li>
-		{% endifequal %}
-		
-		{% ifequal project.type 2 %}
+		{% else %}
 		<li class="selected">รายงานโครงการ</li>
 		<li><a href="{% url view_project_reports_send project.id %}">ส่งรายงาน</a></li>
-		{% endifequal %}
+		{% endif %}
 	</ul>
 	<div class="clear"></div>
 </div>

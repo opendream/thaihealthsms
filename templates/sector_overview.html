@@ -8,8 +8,7 @@
 {% block body_title %}
 <div class="ss_header">
 <div class="container">
-	<div class="title"><span>สำนัก {{sector.ref_no}}</span> {{sector.name}}</div>
-	<div class="info">รับผิดชอบโดย {{sector.manager.first_name}} {{sector.manager.last_name}}</div>
+	{% print_sector_header sector %}
 </div>
 </div>
 <div class="ss_tab_navi">

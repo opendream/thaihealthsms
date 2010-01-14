@@ -8,8 +8,7 @@
 {% block body_title %}
 <div class="ss_header">
 <div class="container">
-	<div class="sector"><a href="{% url view_sector_overview master_plan.sector.id %}">{{master_plan.sector.name}}</a></div>
-	<div class="title"><span>แผนหลัก {{master_plan.ref_no}}</span> {{master_plan.name}}</div>
+	{% print_master_plan_header master_plan %}
 </div>
 </div>
 <div class="ss_tab_navi">
