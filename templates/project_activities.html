@@ -47,7 +47,7 @@
 	{% for activity in future_activities %}
 		<li>
 			<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
-			<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span></div>
+			<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
 		</li>
 	{% endfor %}
 	</ul>
@@ -93,16 +93,36 @@
 <script type="text/javascript" src="{{MEDIA_URL}}/scripts/yui/calendar/calendar-min.js"></script>
 
 <script type="text/javascript">
+  // Change to calculate by javascript, not the one provided by django.
+  var prev_month = "{{prev_month}}";
+  var next_month = "{{next_month}}";
+
+  var start = "{{start}}";
+  var end = "{{end}}";
   var acts = [
-    {% for activity in all_activities %}
+    {% for activity in recent_activities %}
 	{name:"{{activity.name}}",
 	 start:new Date(Date.parse("{{activity.start_date|date:"Y/m/d"}}")),
 	 end:new Date(Date.parse("{{activity.end_date|date:"Y/m/d"}}")),
-	 link:'/activity/' + {{activity.id}}
+	 link:'/activity/{{activity.id}}'
 	},
-    {% endfor %}
+	{% endfor %}
     null // prevent IE's bug
   ];
+  var cache = {};
+
+  // Render stack
+  var myCustomRenderer = function(workingDate, cell) {
+    YAHOO.util.Dom.addClass(cell, "has-event");
+    // Fix bug, workingDate is the time at 12:00 of the day.
+    // Change to 00:00 to correctly compare with others.
+    date = workingDate.getDate();
+    month = workingDate.getMonth();
+    year = workingDate.getFullYear();
+    new_wd = new Date(year, month, date);
+    YAHOO.util.Dom.setAttribute(cell, 'time', new_wd.getTime());
+    return YAHOO.widget.Calendar.STYLE;
+  }
 
   YAHOO.namespace("activity.calendar");
   YAHOO.activity.calendar.init = function () {
@@ -119,17 +139,21 @@
     YAHOO.activity.calendar.cal1.cfg.setProperty("WEEKDAYS_MEDIUM", ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัส", "ศุกร์", "เสาร์"]);
     YAHOO.activity.calendar.cal1.cfg.setProperty("WEEKDAYS_LONG", ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]);
 
-    // Render stack
+	add_renderers();
 
-    var myCustomRenderer = function(workingDate, cell) {
-      YAHOO.util.Dom.addClass(cell, "has-event");
-      YAHOO.util.Dom.setAttribute(cell, 'time', workingDate.getTime());
+    YAHOO.activity.calendar.cal1.renderEvent.subscribe(init_qtip);
+    YAHOO.activity.calendar.cal1.renderEvent.subscribe(init_loader);
+    //YAHOO.activity.calendar.cal1.beforeRenderEvent.subscribe(remove_renderers);
+    YAHOO.activity.calendar.cal1.render();
+  }
 
-      return YAHOO.widget.Calendar.STYLE;
-    }
+  function remove_renderers() {
+  	YAHOO.activity.calendar.cal1.removeRenderers();
+  }
 
-
-    for (i in acts) {
+  function add_renderers() {
+  	remove_renderers();
+  	for (i in acts) {
       act = acts[i];
       if (act == null) {
         continue;
@@ -145,9 +169,6 @@
       e_str = [e_month, e_date, e_year].join('/');
       YAHOO.activity.calendar.cal1.addRenderer(s_str + '-' + e_str, myCustomRenderer);
     }
-
-    YAHOO.activity.calendar.cal1.renderEvent.subscribe(init_qtip);
-    YAHOO.activity.calendar.cal1.render();
   }
 
   function render_act_list(workingDate) {
@@ -157,8 +178,7 @@
       if (act == null) {
         continue;
       }
-
-      if (act.start <= workingDate & workingDate <= act.end) {
+      if ((act.start <= workingDate) && (workingDate <= act.end)) {
         output += '<li><a href="' + act.link + '">' + act.name + '</a></li>';
       }
     }
@@ -167,8 +187,54 @@
     return output;
   }
 
+  function init_loader() {
+  	$('.calnavright:not([processed])').attr('processed', 'processed').click(function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$(this).attr('processed', 'processed');
+		prev_month_temp = prev_month;
+		next_month_temp = next_month;
+		if (typeof(cache[next_month]) != 'undefined') {
+			acts = cache[next_month][2];
+			prev_month = cache[next_month][0];
+			next_month = cache[next_month][1];
+			add_renderers();
+		}
+		else {
+			$.getJSON(next_month, function (data) {
+				cache[next_month] = data;
+				prev_month = data[0];
+				next_month = data[1];
+				acts = data[2];
+				add_renderers();
+			});
+		}
+	});
+
+	$('.calnavleft:not([processed])').attr('processed', 'processed').click(function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+		if (typeof(cache[prev_month]) != 'undefined') {
+			acts = cache[prev_month][2];
+			next_month = cache[prev_month][1];
+			prev_month = cache[prev_month][0];
+			add_renderers();
+		}
+		else {
+			$.getJSON(prev_month, function (data) {
+				cache[prev_month] = data;
+				prev_month = data[0];
+				next_month = data[1];
+				acts = data[2];
+				add_renderers();
+			});
+		}
+	});
+  }
+
   function init_qtip() {
-  	$('.has-event').each(function (e) {
+
+  	$('.has-event:not([processed])').each(function (e) {
 		$(this).qtip({
 		    content: {
 		    	prerender: false,
@@ -184,6 +250,8 @@
 		    },
 		    style: 'dark'
     	});
+
+    	$(this).attr('processed', 'processed');
 	});
   }
 

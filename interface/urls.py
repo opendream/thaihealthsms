@@ -30,6 +30,7 @@ urlpatterns = patterns('interface.views',
 	
 	url(r'^project/(?P<project_id>\d+)/$', 'view_project_overview', name='view_project_overview'),
 	url(r'^project/(?P<project_id>\d+)/activities/$', 'view_project_activities', name='view_project_activities'),
+	url(r'^project/(?P<project_id>\d+)/activities/(?P<yearmonth>\d{4}\d{2})$', 'view_project_activities_ajax', name="view_project_activities_ajax"),
 	url(r'^project/(?P<project_id>\d+)/reports/$', 'view_project_reports', name='view_project_reports'),
 	url(r'^project/(?P<project_id>\d+)/reports/send/$', 'view_project_reports_send', name='view_project_reports_send'),
 	url(r'^project/(?P<project_id>\d+)/comments/$', 'view_project_comments', name='view_project_comments'),
@@ -42,7 +43,7 @@ urlpatterns = patterns('interface.views',
 	url(r'^activity/(?P<activity_id>\d+)/delete/$', 'view_activity_delete', name="view_activity_delete"),
 	url(r'^activity/(?P<activity_id>\d+)/pictures/$', 'view_activity_pictures', name="view_activity_pictures"),
 	url(r'^activity/(?P<activity_id>\d+)/comments/$', 'view_activity_comments', name="view_activity_comments"),
-	
+
 	# Report
 	url(r'^report/(?P<report_id>\d+)/$', 'view_report_overview', name='view_report_overview'),
 	url(r'^report/(?P<report_id>\d+)/comments/$', 'view_report_comments', name='view_report_comments'),

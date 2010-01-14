@@ -85,9 +85,9 @@ def _view_project_manager_assistant_frontpage(request):
 @login_required
 def view_dashboard_comments(request):
 	user_account = request.user.get_profile()
-	
+
 	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), is_read=False).order_by("-sent_on")
-	
+
 	object_list = list()
 	object_dict = dict()
 
@@ -148,22 +148,22 @@ def view_administer_users(request):
 def view_sector_overview(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
 	current_date = date.today()
-	
+
 	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True)
-	
+
 	for master_plan in master_plans:
 		finance_result = FinanceKPISubmission.objects.filter(project__master_plan=master_plan, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("budget"), Sum("spent_budget"))
 		master_plan.finance_percentage = int(float(finance_result["spent_budget__sum"] if finance_result["spent_budget__sum"] else "0") / float(finance_result["budget__sum"] if finance_result["budget__sum"] else "100") * 100)
-		
+
 		operation_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.OPERATION_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
 		master_plan.operation_percentage = int(float(operation_result["result_score__sum"] if operation_result["result_score__sum"] else "0") / float(operation_result["target_score__sum"] if operation_result["target_score__sum"] else "100") * 100)
-		
+
 		teamwork_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.TEAMWORK_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
 		master_plan.teamwork_percentage = int(float(teamwork_result["result_score__sum"] if teamwork_result["result_score__sum"] else "0") / float(teamwork_result["target_score__sum"] if teamwork_result["target_score__sum"] else "100") * 100)
-		
+
 		partner_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.PARTNER_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
 		master_plan.partner_percentage = int(float(partner_result["result_score__sum"] if partner_result["result_score__sum"] else "0") / float(partner_result["target_score__sum"] if partner_result["target_score__sum"] else "100") * 100)
-	
+
 	return render_response(request, "sector_overview.html", {'sector':sector, 'master_plans':master_plans,})
 
 @login_required
@@ -200,7 +200,7 @@ def view_sectors_overview(request):
 @login_required
 def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
-	
+
 	current_date = date.today()
 	
 	#finance_result = FinanceKPISubmission.objects.filter(project__master_plan=master_plan, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("budget"), Sum("spent_budget"))
@@ -226,57 +226,57 @@ def view_master_plan_overview(request, master_plan_id):
 def view_master_plan_plans(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	current_date = date.today()
-	
+
 	plans = Plan.objects.filter(master_plan=master_plan)
-	
+
 	for plan in plans:
 		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
 		plan.future_projects = Project.objects.filter(plan=plan, start_date__gt=current_date)
 		plan.past_projects = Project.objects.filter(plan=plan, end_date__lt=current_date)
-		
+
 	return render_response(request, "master_plan_plans.html", {'master_plan':master_plan, 'plans':plans})
 
 @login_required
 def view_master_plan_kpi(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	current_date = date.today()
-	
+
 	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan)
-	
+
 	for kpi in kpis:
 		kpi.target_projects = KPITargetProject.objects.filter(kpi=kpi)
-		
+
 		for target_project in kpi.target_projects:
 			result = KPISubmission.objects.filter(target=target_project, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
-			
+
 			target_project.target_score = result["target_score__sum"]
 			target_project.result_score = result["result_score__sum"]
-			
+
 			target_project.percentage = int((float(target_project.result_score) / float(target_project.target_score)) * 100)
-			
+
 			if target_project.percentage < 50: target_project.range = "lowest"
 			elif target_project.percentage < 100: target_project.range = "low"
 			elif target_project.percentage == 100: target_project.range = "expect"
 			else: target_project.range = "above"
-	
+
 	# Finance KPI
 	projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
-	
+
 	for project in projects:
 		result = FinanceKPISubmission.objects.filter(project=project, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("budget"), Sum("spent_budget"))
-		
+
 		project.budget = result["budget__sum"]
 		if not project.budget: project.budget = "100"
 		project.spent_budget = result["spent_budget__sum"]
 		if not project.spent_budget: project.spent_budget = "0"
-		
+
 		project.percentage = int((float(project.spent_budget) / float(project.budget)) * 100)
-		
+
 		if project.percentage < 50: project.range = "lowest"
 		elif project.percentage < 100: project.range = "low"
 		elif project.percentage == 100: project.range = "expect"
 		else: project.range = "above"
-	
+
 	return render_response(request, "master_plan_kpi.html", {'master_plan':master_plan, 'kpis':kpis, 'projects':projects})
 
 #
@@ -360,22 +360,22 @@ def view_program_reports_send(request, program_id):
 def view_program_kpi(request, program_id):
 	program = get_object_or_404(Project, pk=program_id)
 	current_date = date.today()
-	
+
 	kpi_targets = KPITargetProject.objects.filter(project=program)
-	
+
 	for kpi_target in kpi_targets:
 		kpi_target.current_submission = KPISubmission.objects.filter(target=kpi_target, start_date__lte=current_date, end_date__gte=current_date).order_by("-end_date")
 		for submission_item in kpi_target.current_submission: submission_item.revisions = KPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
-		
+
 		kpi_target.last_submission = KPISubmission.objects.filter(target=kpi_target, end_date__lt=current_date).order_by("-end_date")
 		for submission_item in kpi_target.last_submission: submission_item.revisions = KPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
-	
+
 	current_finance_submission = FinanceKPISubmission.objects.filter(project=program, start_date__lte=current_date, end_date__gte=current_date).order_by("-end_date")
 	for submission_item in current_finance_submission: submission_item.revisions = FinanceKPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
-	
+
 	last_finance_submission = FinanceKPISubmission.objects.filter(project=program, end_date__lt=current_date).order_by("-end_date")
 	for submission_item in last_finance_submission: submission_item.revisions = FinanceKPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
-	
+
 	return render_response(request, "project_kpi.html", {'project':program, 'kpi_targets':kpi_targets, 'current_finance_submission':current_finance_submission, 'last_finance_submission':last_finance_submission})
 
 @login_required
@@ -403,6 +403,28 @@ def view_project_overview(request, project_id):
 	future_activities = project.activity_set.filter(start_date__gt=current_date).order_by('start_date')
 	return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities})
 
+# Helper function to find previous and next month.
+def prev_month(year, month, num=1):
+	'''Return (year, month)'''
+	MONTH = range(1, 13)
+	month_index = MONTH.index(month)
+	prev_index = month_index - num
+	if abs(prev_index) > 12:
+		prev_index = 12 % prev_index
+
+	if prev_index < 0:
+		year = year + (prev_index / 12)
+
+	return (year, MONTH[prev_index])
+
+def next_month(year, month, num=1):
+	'''Return (year, month)'''
+	MONTH = range(1, 13)
+	delta = num
+	index = month + num
+
+	return (year + (index / 13), MONTH[index % 12 - 1])
+
 @login_required
 def view_project_activities(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
@@ -411,9 +433,48 @@ def view_project_activities(request, project_id):
 	current_activities = Activity.objects.filter(project=project, start_date__lte=current_date, end_date__gte=current_date)
 	future_activities = Activity.objects.filter(project=project, start_date__gt=current_date)
 	past_activities = Activity.objects.filter(project=project, end_date__lt=current_date)
-	all_activities = Activity.objects.filter(project=project)
 
-	return render_response(request, "project_activities.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities, 'past_activities':past_activities,'all_activities':all_activities})
+	# Find activities in past month, current month and next month.
+	num = 3
+	prev_month_ = prev_month(current_date.year, current_date.month, num)
+	start = date(*prev_month_, day=1)
+	next_month_ = next_month(current_date.year, current_date.month, num)
+	end = date(*next_month_, day=calendar.monthrange(*next_month_)[1])
+
+	prev_month_ = "%04d%02d" % prev_month(current_date.year, current_date.month)
+	next_month_ = "%04d%02d" % next_month(current_date.year, current_date.month)
+
+	recent_activities = Activity.objects.filter(project=project).filter( \
+		Q(start_date__lte=start) & Q(end_date__gte=end) | \
+		Q(start_date__lte=end) & Q(start_date__gte=start) | \
+		Q(end_date__lte=end) & Q(end_date__gte=start))
+
+	return render_response(request, "project_activities.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities, 'past_activities':past_activities,'recent_activities':recent_activities,'prev_month':prev_month_,'next_month':next_month_})
+
+@login_required
+def view_project_activities_ajax(request, project_id, yearmonth):
+	project = get_object_or_404(Project, pk=project_id)
+
+	year = int(yearmonth[:4])
+	month = int(yearmonth[4:])
+
+	# Find activities in past month, current month and future month.
+	num = 3
+	prev_month_ = prev_month(year, month, num)
+	next_month_ = next_month(year, month, num)
+
+	start = date(*prev_month_, day=1)
+	end = date(*next_month_, day=calendar.monthrange(*next_month_)[1])
+
+	prev_month_ = "%04d%02d" % prev_month(year, month)
+	next_month_ = "%04d%02d" % next_month(year, month)
+
+	recent_activities = Activity.objects.filter(project=project).filter( \
+		Q(start_date__lte=start) & Q(end_date__gte=end) | \
+		Q(start_date__lte=end) & Q(start_date__gte=start) | \
+		Q(end_date__lte=end) & Q(end_date__gte=start))
+
+	return render_response(request, "project_activities_ajax.html", {'recent_activities':recent_activities,'prev_month':prev_month_,'next_month':next_month_})
 
 @login_required
 def view_project_reports(request, project_id):
@@ -542,4 +603,3 @@ def view_report_comments(request, report_id):
 	comments = Comment.objects.filter(object_name="report", object_id=report_id).order_by("-sent_on")
 
 	return render_response(request, "report_comments.html", {'report_schedule':report_schedule, 'comments':comments, })
-

@@ -1,0 +1,14 @@
+[
+	"{{prev_month}}",
+	"{{next_month}}",
+	[
+	    {% for activity in recent_activities %}
+		{name:"{{activity.name}}",
+		 start:new Date(Date.parse("{{activity.start_date|date:"Y/m/d"}}")),
+		 end:new Date(Date.parse("{{activity.end_date|date:"Y/m/d"}}")),
+		 link:'/activity/' + {{activity.id}}
+		},
+		{% endfor %}
+	    null
+    ]
+]
