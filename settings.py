@@ -32,7 +32,7 @@ SITE_ID = 1
 USE_I18N = True
 
 MEDIA_ROOT = os.path.join(_base, "media") + "/"
-MEDIA_URL = 'http://localhost:8000/m'
+MEDIA_URL = '/m'
 ADMIN_MEDIA_PREFIX = '/media/'
 
 # Make this unique, and don't share it with anybody.
@@ -58,7 +58,7 @@ MIDDLEWARE_CLASSES = (
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.locale.LocaleMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
-	'thaihealthsms.middleware.AJAXSimpleExceptionResponse', 
+	'thaihealthsms.middleware.AJAXSimpleExceptionResponse',
 )
 
 ROOT_URLCONF = 'thaihealthsms.urls'

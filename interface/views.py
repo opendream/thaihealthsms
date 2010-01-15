@@ -34,28 +34,28 @@ def view_frontpage(request):
 def view_frontpage(request):
 	if request.user.is_superuser:
 		return _view_admin_frontpage(request)
-	
+
 	else:
 		primary_role = request.user.groups.all()[0] # Currently support only 1 role per user
-		
+
 		if primary_role.name == "sector_admin":
 			return _view_admin_frontpage(request)
-		
+
 		elif primary_role.name == "sector_manager":
 			return _view_sector_manager_frontpage(request)
-			
+
 		elif primary_role.name == "sector_manager_assistant":
 			return _view_sector_manager_assistant_frontpage(request)
-			
+
 		elif primary_role.name == "program_manager":
 			return _view_program_manager_frontpage(request)
-			
+
 		elif primary_role.name == "program_manager_assistant":
 			return _view_program_manager_assistant_frontpage(request)
-			
+
 		elif primary_role.name == "project_manager":
 			return _view_project_manager_frontpage(request)
-			
+
 		elif primary_role.name == "project_manager_assistant":
 			return _view_project_manager_assistant_frontpage(request)
 
@@ -67,14 +67,19 @@ def _view_sector_manager_frontpage(request):
 
 def _view_sector_manager_assistant_frontpage(request):
 	responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile(), role__name="sector_manager_assistant")
-	
+
 	return render_response(request, "dashboard_assistant.html", {'projects':responsibility.projects.all()})
 
 def _view_program_manager_frontpage(request):
 	return redirect("/sector/%d/" % user_account.sector.id)
 
 def _view_program_manager_assistant_frontpage(request):
-	return redirect("/sector/%d/" % user_account.sector.id)
+	responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile(), role__name="program_manager_assistant")
+	projects = responsibility.projects.all()
+	for project in projects:
+		project.reports = report_functions.get_all_reports_schedule_by_project(project)
+
+	return render_response(request, "dashboard_program_assistant.html", {'projects':projects})
 
 def _view_project_manager_frontpage(request):
 	return redirect("/sector/%d/" % user_account.sector.id)
@@ -202,24 +207,24 @@ def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
 	current_date = date.today()
-	
+
 	#finance_result = FinanceKPISubmission.objects.filter(project__master_plan=master_plan, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("budget"), Sum("spent_budget"))
 	#finance_percentage = int(float(finance_result["spent_budget__sum"]) / float(finance_result["budget__sum"]) * 100)
-	
+
 	#operation_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.OPERATION_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
 	#operation_percentage = int(float(operation_result["result_score__sum"]) / float(operation_result["target_score__sum"]) * 100)
-	
+
 	#teamwork_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.TEAMWORK_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
 	#teamwork_percentage = int(float(teamwork_result["result_score__sum"]) / float(teamwork_result["target_score__sum"]) * 100)
-	
+
 	#partner_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.PARTNER_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
 	#partner_percentage = int(float(partner_result["result_score__sum"]) / float(partner_result["target_score__sum"]) * 100)
-	
+
 	finance_percentage = 50
 	operation_percentage = 50
 	teamwork_percentage = 50
 	partner_percentage = 50
-	
+
 	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, 'finance_percentage':finance_percentage, 'operation_percentage':operation_percentage, 'teamwork_percentage':teamwork_percentage, 'partner_percentage':partner_percentage})
 
 @login_required
@@ -513,7 +518,7 @@ def view_activity_add(request, project_id):
 			activity.save()
 
 			set_message(request, 'Your activity has been create.')
-			
+
 			return redirect("/activity/%d/" % activity.id)
 
 	else:
@@ -525,7 +530,7 @@ def view_activity_add(request, project_id):
 def view_activity_edit(request, activity_id):
 	activity = Activity.objects.get(pk=activity_id)
 	project = activity.project
-	
+
 	if request.method == "POST":
 		form = AddActivityForm(request.POST)
 		if form.is_valid():
@@ -537,11 +542,11 @@ def view_activity_edit(request, activity_id):
 			activity.result_goal = form.cleaned_data['result_goal']
 			activity.result_real = form.cleaned_data['result_real']
 			activity.save()
-			
+
 			set_message(request, 'Your activity has been update.')
 
 			return redirect("/activity/%d/" % activity.id)
-			
+
 	form = AddActivityForm(activity.__dict__)
 	return render_response(request, "project_activity_edit.html", {'project':project, 'form':form})
 
@@ -550,11 +555,11 @@ def view_activity_delete(request, activity_id):
 	activity = Activity.objects.get(pk=activity_id)
 	project = activity.project
 	activity.delete()
-	
+
 	set_message(request, 'Your activity has been delete.')
-	
+
 	return redirect("/project/%d/activities/" % project.id)
-	
+
 @login_required
 def view_project_comments(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
