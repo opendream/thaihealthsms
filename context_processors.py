@@ -1,5 +1,4 @@
 
-
 def user_account(request):
 	"""
 	Return UserAccount object if user is authenticated

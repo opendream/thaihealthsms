@@ -23,6 +23,18 @@ def format_date(datetime):
 def format_month_year(datetime):
 	return "%s %d" % (unicode(THAI_MONTH_NAME[datetime.month], "utf-8"), datetime.year + 543)
 
+# Roles
+def user_has_role(user, roles):
+	user_groups = user.groups.all()
+	
+	if user_groups:
+		user_roles = set([group.name for group in user_groups])
+		roles = set(roles)
+		
+		if user_roles.intersection(roles): return True
+	
+	return False
+
 def set_message(request, text, status='message'):
 	if len(request.session.get('messages', [])) == 0:
 		request.session['messages'] = []

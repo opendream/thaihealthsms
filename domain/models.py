@@ -25,7 +25,6 @@ class UserRoleResponsibility(models.Model):
 class Sector(models.Model):
 	ref_no = models.CharField(max_length=64, unique=True)
 	name = models.CharField(max_length=512)
-	
 
 class MasterPlan(models.Model):
 	sector = models.ForeignKey('Sector')

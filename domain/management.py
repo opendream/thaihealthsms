@@ -38,7 +38,7 @@ def after_syncdb(sender, **kwargs):
 	project_manager_assistant_role, created = Group.objects.get_or_create(name='project_manager_assistant')
 	
 	activity_manager_role, created = Group.objects.get_or_create(name='activity_manager')
-	project_manager_assistant_role, created = Group.objects.get_or_create(name='project_manager_assistant')
+	activity_manager_assistant_role, created = Group.objects.get_or_create(name='activity_manager_assistant')
 	
 	# Permission ##################
 	Permission.objects.get_or_create(name='View other programs reports', content_type=ContentType.objects.get_for_model(ReportSchedule), codename='view_others_program_report')
