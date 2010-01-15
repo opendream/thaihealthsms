@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import simplejson
 
 from helper.utilities import format_display_datetime
-from domain.models import KPISubmission, KPISubmissionRevision, FinanceKPISubmission, FinanceKPISubmissionRevision
+from domain.models import ProjectBudgetSchedule, ProjectBudgetScheduleRevision, KPISchedule, KPIScheduleRevision
 
 @login_required
 def ajax_update_kpi_submission(request):

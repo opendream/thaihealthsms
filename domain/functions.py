@@ -2,7 +2,7 @@ from datetime import datetime, date, timedelta
 
 from django.db.models import Max
 
-from models import KPISubmission, FinanceKPISubmission
+from models import KPISchedule, ProjectBudgetSchedule
 
 # KPI
 def get_current_and_last_submission(target_project):

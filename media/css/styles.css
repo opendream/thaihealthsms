@@ -118,3 +118,21 @@ POST COMMENT DIALOG
 
 .qtip-content ul li a:link, .qtip-content ul li a:visited, .qtip-content ul li a:active {color:#FFC;}
 .qtip-content ul li a:hover {background:none;color:#9CF;}
+
+/* KPI Color */
+
+/* KPI Graph */
+.kpi-graph-container {margin:2px 0px 15px;width:200px;height:20px;background-color:#999;}
+.kpi-graph-container .kpi-graph {height:20px;border-right:2px solid #FFF;}
+
+.kpi-lowest-percentage {color:#C33;}
+.kpi-low-percentage {color:#C90;}
+.kpi-expect-percentage {color:#090;}
+.kpi-above-percentage {color:#090;}
+
+.kpi-lowest-bar-graph {background-color:#C33;}
+.kpi-low-bar-graph {background-color:#C90;}
+.kpi-expect-bar-graph {background-color:#090;}
+.kpi-above-bar-graph {background-color:#090;}
+
+

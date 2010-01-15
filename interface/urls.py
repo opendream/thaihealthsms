@@ -11,7 +11,7 @@ urlpatterns = patterns('interface.views',
 	
 	# Sector
 	url(r'^sector/(?P<sector_id>\d+)/$', 'view_sector_overview', name='view_sector_overview'),
-	url(r'^sector/(?P<sector_id>\d+)/master_plans/$', 'view_sector_master_plans', name='view_sector_master_plans'),
+	url(r'^sector/(?P<sector_id>\d+)/kpi/$', 'view_sector_kpi', name='view_sector_kpi'),
 	
 	url(r'^sectors/$', 'view_sectors_overview', name='view_sectors_overview'),
 	
