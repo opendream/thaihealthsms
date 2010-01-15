@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-14 17:44+0700\n"
+"POT-Creation-Date: 2010-01-15 16:57+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,14 +15,98 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: settings.py:22
+#: settings.py:25
 msgid "Thai"
 msgstr "ภาษาไทย"
 
-#: templates/report_overview.html:20
+#: templates/base.html:68 templates/base.html.py:70
+msgid "Administer"
+msgstr "จัดการระบบ"
+
+#: templates/base.html:72
+msgid "Sign out"
+msgstr "ออกจากระบบ"
+
+#: templates/base.html:88 templates/report_overview.html:21
+msgid "Comment"
+msgstr "ความคิดเห็น"
+
+#: templates/base.html:90
+msgid "Send a Comment"
+msgstr "ส่งความคิดเห็น"
+
+#: templates/base.html:90
+msgid "Sending..."
+msgstr "กำลังส่ง"
+
+#: templates/dashboard_comments.html:11
+msgid "User Page"
+msgstr "หน้าผู้ใช้"
+
+#: templates/dashboard_comments.html:17
+msgid "Frontpage"
+msgstr "หน้าแรก"
+
+#: templates/dashboard_comments.html:18
+msgid "Comment Box"
+msgstr "กล่องความคิดเห็น"
+
+#: templates/dashboard_comments.html:33 templates/dashboard_comments.html:34
+#: templates/dashboard_comments.html:35 templates/dashboard_comments.html:36
+msgid "Read All Comments"
+msgstr "อ่านความคิดเห็นทั้งหมด"
+
+#: templates/dashboard_comments.html:41
+msgid ""
+"Send at %(comment.sent_on|thai_date)s Time %(comment.sent_on|date:\"H:i\")s "
+"o'clock"
+msgstr ""
+"ส่งเมื่อ %(comment.sent_on|thai_date)s เวลา %(comment.sent_on|date:\"H:i\")s น."
+
+#: templates/dashboard_comments.html:50
+msgid "No New Comment"
+msgstr "ไม่มีความคิดเห็นใหม่"
+
+#: templates/project_overview.html:20 templates/report_overview.html:20
 msgid "Overview"
 msgstr "ภาพรวม"
 
-#: templates/report_overview.html:21
-msgid "Comment"
+#: templates/project_overview.html:22
+msgid "Projects"
+msgstr "โครงการ"
+
+#: templates/project_overview.html:23 templates/project_overview.html.py:28
+msgid "Project Reports"
+msgstr "รายงานโครงการ"
+
+#: templates/project_overview.html:24
+msgid "Project KPIs"
+msgstr "ตัวชี้วัดโครงการ"
+
+#: templates/project_overview.html:25 templates/project_overview.html.py:29
+msgid "Comments"
 msgstr "ความคิดเห็น"
+
+#: templates/project_overview.html:27
+msgid "Activities"
+msgstr "กิจกรรม"
+
+#: templates/project_overview.html:39
+msgid "Current Activities"
+msgstr "กิจกรรมที่กำลังดำเนินการ"
+
+#: templates/project_overview.html:45 templates/project_overview.html.py:59
+msgid "Duration"
+msgstr "ช่วงเวลา"
+
+#: templates/project_overview.html:50
+msgid "No Current Activity"
+msgstr "ไม่มีกิจกรรมที่กำลังดำเนินการ"
+
+#: templates/project_overview.html:53
+msgid "Future Activities"
+msgstr "กิจกรรมในอนาคต"
+
+#: templates/project_overview.html:64
+msgid "No Future Activity"
+msgstr "ไม่มีกิจกรรมในอนาคต"

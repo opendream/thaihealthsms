@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load helper %}
-{% load interface_tags %}
+{% load interface_tags i18n %}
 
 {% block post_comment_ajax_url %}{% if not project.parent_project %}/post-comment/object/program/{{project.id}}/{% else %}/post-comment/object/project/{{project.id}}/{% endif %}{% endblock %}
 {% block post_comment_ajax_callback %}{% endblock %}
@@ -17,16 +17,16 @@
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
-			<li class="selected">ภาพรวม</li>
+			<li class="selected">{% trans 'Overview' %}</li>
 			{% if not project.parent_project %}
-			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
-			<li><a href="{% url view_program_reports project.id %}">รายงานแผนงาน</a></li>
-			<li><a href="{% url view_program_kpi project.id %}">ตัวชี้วัดแผนงาน</a></li>
-			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">ความคิดเห็น</a></li>
+			<li><a href="{% url view_program_projects project.id %}">{% trans 'Projects' %}</a></li>
+			<li><a href="{% url view_program_reports project.id %}">{% trans 'Project Reports' %}</a></li>
+			<li><a href="{% url view_program_kpi project.id %}">{% trans 'Project KPIs' %}</a></li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">{% trans 'Comments' %}</a></li>
 			{% else %}
-			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
-			<li><a href="{% url view_project_reports project.id %}">รายงานโครงการ</a></li>
-			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
+			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
+			<li><a href="{% url view_project_reports project.id %}">{% trans 'Project Reports' %}</a></li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">{% trans 'Comments' %}</a></li>
 			{% endif %}
 		</ul>
 		<div class="clear"></div>
@@ -36,32 +36,32 @@
 
 {% block body_content %}
 <div class="ss_overview">
-	<h2>กิจกรรมที่ดำเนินอยู่</h2>
+	<h2>{% trans 'Current Activities' %}</h2>
 	{% if current_activities %}
 	<ul class="department_list">
 		{% for activity in current_activities %}
 		<li>
 			<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
-			<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
+			<div class="item_overview"><span>{% trans 'Duration' %} <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
 		</li>
 		{% endfor %}
 	</ul>
 	{% else %}
-	<div class="ss_no_information">ไม่มีกิจกรรมในปัจจุบัน</div>
+	<div class="ss_no_information">{% trans 'No Current Activity' %}</div>
 	{% endif %}
 	
-	<h2>กิจกรรมในอนาคต</h2>
+	<h2>{% trans 'Future Activities' %}</h2>
 	{% if future_activities %}
 	<ul class="department_list">
 		{% for activity in future_activities %}
 		<li>
 			<h3><a href="/activity/{{activity.id}}/">{{activity.name}}</a></h3>
-			<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
+			<div class="item_overview"><span>{% trans 'Duration' %} <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
 		</li>
 		{% endfor %}
 	</ul>
 	{% else %}
-	<div class="ss_no_information">ไม่มีกิจกรรมในอนาคต</div>
+	<div class="ss_no_information">{% trans 'No Future Activity' %}</div>
 	{% endif %}
 </div>
 {% endblock %}

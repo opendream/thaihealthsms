@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load helper %}
+{% load helper i18n %}
 
 {% block html_head %}
 
@@ -8,15 +8,14 @@
 {% block body_title %}
 <div class="ss_header">
 <div class="container">
-	<div class="title"><span>หน้าผู้ใช้</span> {{user.get_profile.first_name}} {{user.get_profile.last_name}}</div>
+	<div class="title"><span>{% trans 'User Page' %}</span> {{user.get_profile.first_name}} {{user.get_profile.last_name}}</div>
 </div>
 </div>
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
-			<li><a href="{% url view_dashboard %}">หน้าแรก</a></li>
-			<li><a href="{% url view_dashboard_projects %}">แผนงานและโครงการที่รับผิดชอบ</a></li>
-			<li class="selected">กล่องความคิดเห็น</li>
+			<li><a href="{% url view_frontpage %}">{% trans 'Frontpage' %}</a></li>
+			<li class="selected">{% trans 'Comment Box' %}</li>
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -31,15 +30,15 @@
 		<li>
 			<h3>{{object.object.name}}</h3>
 			
-			{% ifequal object.comment.object_name 'activity' %}<div class="links"><a href="/activity/{{object.object.id}}/comments/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
-			{% ifequal object.comment.object_name 'program' %}<div class="links"><a href="/program/{{object.object.id}}/comments/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
-			{% ifequal object.comment.object_name 'project' %}<div class="links"><a href="/project/{{object.object.id}}/comments/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
-			{% ifequal object.comment.object_name 'report' %}<div class="links"><a href="/report/{{object.object.id}}/comments/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'activity' %}<div class="links"><a href="/activity/{{object.object.id}}/comments/">{% trans 'Read All Comments' %}</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'program' %}<div class="links"><a href="/program/{{object.object.id}}/comments/">{% trans 'Read All Comments' %}</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'project' %}<div class="links"><a href="/project/{{object.object.id}}/comments/">{% trans 'Read All Comments' %}</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'report' %}<div class="links"><a href="/report/{{object.object.id}}/comments/">{% trans 'Read All Comments' %}</a></div>{% endifequal %}
 			
 			<ul class="comments">
 				{% for comment in object.comments %}
 				<li>
-					<div class="sender">{{comment.comment.sent_by.first_name}} {{comment.comment.sent_by.last_name}}<div class="metadata">ส่งเมื่อวันที่ {{comment.sent_on|thai_date}} เวลา {{comment.sent_on|date:"H:i"}} น.</div></div>
+					<div class="sender">{{comment.comment.sent_by.first_name}} {{comment.comment.sent_by.last_name}}<div class="metadata">{% blocktrans %}Send at {{comment.sent_on|thai_date}} Time {{comment.sent_on|date:"H:i"}} o'clock{% endblocktrans %}</div></div>
 					<p>{{comment.comment.message}}</p>
 				</li>
 				{% endfor %}
@@ -48,7 +47,7 @@
 		{% endfor %}
 	</ul>
 	{% else %}
-	<div class="ss_no_information">ไม่มีความคิดเห็นใหม่</div>
+	<div class="ss_no_information">{% trans 'No New Comment' %}</div>
 	{% endif %}
 </div>
 {% endblock %}

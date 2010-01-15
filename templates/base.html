@@ -1,4 +1,4 @@
-{% load interface_tags %}
+{% load interface_tags i18n %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -19,11 +19,8 @@
 	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/css/styles.css">
 	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/css/styles.page.css">
 	
-	
 	<script type="text/javascript" src="{{MEDIA_URL}}/scripts/scripts.js"></script>
 	<script type="text/javascript">var MEDIA_URL = '{{MEDIA_URL}}';</script>
-	
-	
 	
 <script type="text/javascript">
 $(document).ready(function() {
@@ -57,7 +54,6 @@ $(document).ready(function() {
 	
 	$("#post-comment-receivers").fcbkcomplete({json_url:"{% url ajax_query_comment_receivers %}", cache:true, filter_case:false, filter_hide:true, newel:true});
 	
-	
 });
 </script>
 	
@@ -69,11 +65,11 @@ $(document).ready(function() {
 			<span class="username">{{user_account.first_name}} {{user_account.last_name}}</span>
 			{% if not user.is_superuser %}
 				<span class="unread_comments">[ <a href="/dashboard/comments/"><img src="{{MEDIA_URL}}/images/icon_unread_comments.png"/> {% get_unread_comments user.get_profile.id %}</a> ]</span> <a href="/dashboard/">หน้าผู้ใช้</a> |
-				{% if user.is_staff %}<a href="/administer/">จัดการระบบ</a> |{% endif %}
+				{% if user.is_staff %}<a href="/administer/">{% trans 'Administer' %}</a> |{% endif %}
 			{% else %}
-				<a href="/administer/">จัดการระบบ</a> |
+				<a href="/administer/">{% trans 'Administer' %}</a> |
 			{% endif %}
-			<a href="/accounts/logout/" class="logout-link">ออกจากระบบ</a>
+			<a href="/accounts/logout/" class="logout-link">{% trans 'Sign out' %}</a>
 		</div>
 		<div class="logo_panel"><a href="/"><img src="{{MEDIA_URL}}/images/logo.png" /></a></div>
 	</div>
@@ -89,9 +85,9 @@ $(document).ready(function() {
 <div id="post-comment-dialog">
 <label>ผู้รับเพิ่มเติม (นอกเหนือจากผู้รับผิดชอบ):</label>
 <input type="text" id="post-comment-receivers"/>
-<label>ความคิดเห็น</label>
+<label>{% trans 'Comment' %}</label>
 <textarea id="post-comment-textarea"></textarea>
-<div class="button-panel"><button>ส่งความคิดเห็น</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" /> กำลังส่งข้อมูล</span></div>
+<div class="button-panel"><button>{% trans 'Send a Comment' %}</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" />{% trans 'Sending...' %}</span></div>
 </div>
 </body>
 </html>
