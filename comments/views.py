@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.utils import simplejson
 
 from comments.models import *
-from domain.models import Activity, UserAccount, Project
+from domain.models import Activity, UserAccount, Project, UserRoleResponsibility
 from report.models import ReportSchedule
 
 from thaihealthsms.helper.utilities import format_abbr_date
@@ -31,28 +31,31 @@ def ajax_post_user_comment(request, user_id):
 @login_required
 def ajax_post_object_comment(request, object_name, object_id):
 	if request.method == "POST":
+		if object_name not in ('activity', 'project', 'program', 'report'): raise Http404
+
 		message = request.POST['message'].strip()
 		comment = Comment.objects.create(message=message, object_id=object_id, object_name=object_name, sent_by=request.user.get_profile())
 		
 		if object_name == "activity":
 			activity = Activity.objects.get(pk=object_id)
-			if activity.manager: CommentReceiver.objects.create(comment=comment, receiver=activity.manager, sent_on=comment.sent_on)
-			if activity.project.manager: CommentReceiver.objects.create(comment=comment, receiver=activity.project.manager, sent_on=comment.sent_on)
 		
 		elif object_name == "project":
 			project = Project.objects.get(pk=object_id)
-			if project.manager: CommentReceiver.objects.create(comment=comment, receiver=project.manager, sent_on=comment.sent_on)
-		
+
 		elif object_name == "program":
 			project = Project.objects.get(pk=object_id)
-			if project.manager: CommentReceiver.objects.create(comment=comment, receiver=project.manager, sent_on=comment.sent_on)
-		
+
 		elif object_name == "report":
 			report_schedule = ReportSchedule.objects.get(pk=object_id)
-			if report_schedule.project.manager: CommentReceiver.objects.create(comment=comment, receiver=report_schedule.project.manager, sent_on=comment.sent_on)
-		
+
+		comment_receiver_roles = CommentReceiverRole.objects.filter(comment_type=object_name)
+		roles = [r.role for r in comment_receiver_roles]
+		role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(project,))
+		for r in role_resps:
+			CommentReceiver.objects.create(comment=comment, receiver=r.user, sent_on=comment.sent_on)
+
 		# TESTING PURPOSE ONLY!!!!
-		CommentReceiver.objects.create(comment=comment, receiver=request.user.get_profile(), sent_on=comment.sent_on)
+		# CommentReceiver.objects.create(comment=comment, receiver=request.user.get_profile(), sent_on=comment.sent_on)
 		
 		receivers = request.POST.getlist('to')
 		for receiver in receivers: CommentReceiver.objects.create(comment=comment, receiver=UserAccount(id=receiver), sent_on=comment.sent_on)
