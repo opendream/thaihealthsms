@@ -160,10 +160,17 @@ def view_sector_overview(request, sector_id):
 	current_date = date.today()
 	current_year = current_date.year
 	
-	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True)
+	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True, start_year__lte=current_year, end_year__gte=current_year)
 	
 	for master_plan in master_plans:
 		master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
+		
+		plans = Plan.objects.filter(master_plan=master_plan)
+
+		for plan in plans:
+			plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
+		
+		master_plan.plans = plans
 		
 		# Finance KPI
 		projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
@@ -352,7 +359,11 @@ def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
 	current_date = date.today()
-
+	plans = Plan.objects.filter(master_plan=master_plan)
+	for plan in plans:
+		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
+		
+	master_plan.plans = plans
 	#finance_result = FinanceKPISubmission.objects.filter(project__master_plan=master_plan, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("budget"), Sum("spent_budget"))
 	#finance_percentage = int(float(finance_result["spent_budget__sum"]) / float(finance_result["budget__sum"]) * 100)
 
@@ -437,6 +448,11 @@ def view_program_overview(request, program_id):
 	program = get_object_or_404(Project, pk=program_id)
 	current_date = date.today()
 	current_year = current_date.year
+	
+	current_projects = Project.objects.filter(parent_project=program, start_date__lte=current_date, end_date__gte=current_date)
+	
+	report_projects = ReportProject.objects.filter(project=program)
+	report_schedules = ReportSchedule.objects.filter(report_project__in=report_projects, is_submitted=True, last_activity=APPROVE_ACTIVITY).order_by('-due_date')[:5]
 	
 	kpi = dict()
 	
@@ -526,7 +542,7 @@ def view_program_overview(request, program_id):
 	
 	kpi['partner']['year'] = {'percentage':percentage}
 	
-	return render_response(request, "project_overview.html", {'project':program, 'kpi':kpi, 'current_year':current_year})
+	return render_response(request, "project_overview.html", {'project':program, 'kpi':kpi, 'current_year':current_year, 'current_projects':current_projects, 'report_schedules':report_schedules})
 
 @login_required
 def view_program_projects(request, program_id):
@@ -682,9 +698,13 @@ def view_program_comments(request, program_id):
 def view_project_overview(request, project_id):
 	current_date = date.today()
 	project = get_object_or_404(Project, pk=project_id)
+
+	report_projects = ReportProject.objects.filter(project=project)
+	report_schedules = ReportSchedule.objects.filter(report_project__in=report_projects, is_submitted=True, last_activity=APPROVE_ACTIVITY).order_by('-due_date')
+	
 	current_activities = project.activity_set.filter(start_date__lte=current_date, end_date__gte=current_date).order_by('end_date')
 	future_activities = project.activity_set.filter(start_date__gt=current_date).order_by('start_date')
-	return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities})
+	return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities, 'report_schedules':report_schedules})
 
 # Helper function to find previous and next month.
 def prev_month(year, month, num=1):

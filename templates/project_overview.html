@@ -240,35 +240,42 @@
 	</div>
 	{% endif %}
 	
-	
-	
-	
-	<h2>{% trans 'Current Activities' %}</h2>
-	{% if current_activities %}
-	<ul class="department_list">
-		{% for activity in current_activities %}
-		<li>
-			<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
-			<div class="item_overview"><span>{% trans 'Duration' %} <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
-		</li>
-		{% endfor %}
-	</ul>
+	{% if not project.parent_project %}
+	<h2>โครงการภายใต้แผนงาน</h2>
+		{% if current_projects %}
+		<ul>
+			{% for project in current_projects %}
+				<li>
+					<h3><a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a></h3>
+					<div class="item_overview"><span>ช่วงเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span></div>
+				</li>
+			{% endfor %}
+		</ul>
+		{% else %}
+		<div class="ss_no_information">ไม่มีโครงการในปัจจุบัน</div>
+		{% endif %}
 	{% else %}
-	<div class="ss_no_information">{% trans 'No Current Activity' %}</div>
+	<h2>กิจกรรมภายใต้โครงการ</h2>
+		{% if current_activities %}
+		<ul>
+			{% for activity in current_activities %}
+			<li>
+				<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
+				<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
+			</li>
+			{% endfor %}
+		</ul>
+		{% else %}
+		<div class="ss_no_information">ไม่มีกิจกรรมที่ดำเนินอยู่</div>
+		{% endif %}
 	{% endif %}
 	
-	<h2>{% trans 'Future Activities' %}</h2>
-	{% if future_activities %}
-	<ul class="department_list">
-		{% for activity in future_activities %}
-		<li>
-			<h3><a href="/activity/{{activity.id}}/">{{activity.name}}</a></h3>
-			<div class="item_overview"><span>{% trans 'Duration' %} <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
-		</li>
+	<h2>รายงานล่าสุด</h2>
+	<ul class="schedules">
+		{% for report_schedule in report_schedules %}
+		<li><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.report_project.report.name}} งวดวันที่ {{report_schedule.due_date|thai_date}}</a></li>
 		{% endfor %}
 	</ul>
-	{% else %}
-	<div class="ss_no_information">{% trans 'No Future Activity' %}</div>
-	{% endif %}
+	
 </div>
 {% endblock %}
