@@ -22,6 +22,7 @@
 			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
 			<li class="selected">รายงานแผนงาน</li>
 			<li><a href="{% url view_program_kpi project.id %}">ตัวชี้วัดแผนงาน</a></li>
+			<li><a href="{% url view_program_finance project.id %}">แผนการเงิน</a></li>
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">ความคิดเห็น</a></li>
 			{% else %}
 			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>

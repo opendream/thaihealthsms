@@ -39,24 +39,46 @@
 		<ul>
 			<li>
 				<h4>การเงิน</h4>
-				<div class="percentage kpi-{% kpi_range_name master_plan.finance_kpi %}-percentage">{{master_plan.finance_kpi}}%</div>
+				{% if master_plan.finance_kpi %}
 				<div class="kpi-graph-container">
 					<div class="kpi-graph kpi-{% kpi_range_name master_plan.finance_kpi %}-bar-graph" style="width:{{master_plan.finance_kpi}}%;"></div>
 				</div>
+				<div class="percentage kpi-{% kpi_range_name master_plan.finance_kpi %}-percentage">{{master_plan.finance_kpi}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				{% ifequal master_plan.finance_kpi 0 %}
+				<div class="percentage kpi-{% kpi_range_name master_plan.finance_kpi %}-percentage">{{master_plan.finance_kpi}}%</div>
+				{% else %}
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endifequal %}
+				{% endif %}
 				{% if master_plan.finance_projects %}
 				<ul class="marked_projects">
 					{% for project in master_plan.finance_projects %}
-					<li><a href="/program/{{project.project.id}}/">แผนงาน {{project.project.ref_no}}</a> &#187; <span class="kpi-{% kpi_range_name project.percentage %}-percentage">{{project.percentage}}%</span></li>
+					<li><a href="/program/{{project.project.id}}/">แผนงาน {{project.project.ref_no}}</a> &#187; <span class="finance_note">ยังไม่มีการเบิก</span><div class="bottom_note">เลยกำหนดมาแล้ว {{project.schedule.scheduled_on|timesince|truncatewords:2|cut:'.'|cut:','}}</div></li>
 					{% endfor %}
 				</ul>
 				{% endif %}
 			</li>
 			<li>
 				<h4>การดำเนินงาน</h4>
-				<div class="percentage kpi-{% kpi_range_name master_plan.operation_kpi %}-percentage">{{master_plan.operation_kpi}}%</div>
+				{% if master_plan.operation_kpi %}
 				<div class="kpi-graph-container">
 					<div class="kpi-graph kpi-{% kpi_range_name master_plan.operation_kpi %}-bar-graph" style="width:{{master_plan.operation_kpi}}%;"></div>
 				</div>
+				<div class="percentage kpi-{% kpi_range_name master_plan.operation_kpi %}-percentage">{{master_plan.operation_kpi}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				{% ifequal master_plan.operation_kpi 0 %}
+				<div class="percentage kpi-{% kpi_range_name master_plan.operation_kpi %}-percentage">{{master_plan.operation_kpi}}%</div>
+				{% else %}
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endifequal %}
+				{% endif %}
 				{% if master_plan.operation_projects %}
 				<ul class="marked_projects">
 					{% for project in master_plan.operation_projects %}
@@ -67,10 +89,21 @@
 			</li>
 			<li>
 				<h4>ทีมงาน</h4>
-				<div class="percentage kpi-{% kpi_range_name master_plan.teamwork_kpi %}-percentage">{{master_plan.teamwork_kpi}}%</div>
+				{% if master_plan.teamwork_kpi %}
 				<div class="kpi-graph-container">
 					<div class="kpi-graph kpi-{% kpi_range_name master_plan.teamwork_kpi %}-bar-graph" style="width:{{master_plan.teamwork_kpi}}%;"></div>
 				</div>
+				<div class="percentage kpi-{% kpi_range_name master_plan.teamwork_kpi %}-percentage">{{master_plan.teamwork_kpi}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				{% ifequal master_plan.teamwork_kpi 0 %}
+				<div class="percentage kpi-{% kpi_range_name master_plan.teamwork_kpi %}-percentage">{{master_plan.teamwork_kpi}}%</div>
+				{% else %}
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endifequal %}
+				{% endif %}
 				{% if master_plan.teamwork_projects %}
 				<ul class="marked_projects">
 					{% for project in master_plan.teamwork_projects %}
@@ -81,10 +114,21 @@
 			</li>
 			<li>
 				<h4>ภาคี</h4>
-				<div class="percentage kpi-{% kpi_range_name master_plan.partner_kpi %}-percentage">{{master_plan.partner_kpi}}%</div>
+				{% if master_plan.partner_kpi %}
 				<div class="kpi-graph-container">
 					<div class="kpi-graph kpi-{% kpi_range_name master_plan.partner_kpi %}-bar-graph" style="width:{{master_plan.partner_kpi}}%;"></div>
 				</div>
+				<div class="percentage kpi-{% kpi_range_name master_plan.partner_kpi %}-percentage">{{master_plan.partner_kpi}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				{% ifequal master_plan.partner_kpi 0 %}
+				<div class="percentage kpi-{% kpi_range_name master_plan.partner_kpi %}-percentage">{{master_plan.partner_kpi}}%</div>
+				{% else %}
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endifequal %}
+				{% endif %}
 				{% if master_plan.partner_projects %}
 				<ul class="marked_projects">
 					{% for project in master_plan.partner_projects %}

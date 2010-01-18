@@ -301,11 +301,19 @@ def after_syncdb(sender, **kwargs):
 		activity4 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สี่", start_date=date(2010,6,15), end_date=date(2010, 6,16))
 		activity5 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่ห้า", start_date=date(2011,6,14), end_date=date(2011,8,16))
 		
+		# Finance Schedule ##############
+		
+		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=1000000, used_budget=1000000, year=2010, scheduled_on=date(2010, 1, 1), claimed_on=date(2010, 1, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=2000000, used_budget=0, year=2010, scheduled_on=date(2010, 4, 1))
+		
 		# KPI ##################
 		kpi1 = MasterPlanKPI.objects.create(ref_no="R1", name="KPI 1", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
 		kpi2 = MasterPlanKPI.objects.create(ref_no="R2", name="KPI 2", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
 		kpi3 = MasterPlanKPI.objects.create(ref_no="R3", name="KPI 3", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
 		kpi4 = MasterPlanKPI.objects.create(ref_no="R4", name="KPI 4", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		
+		kpi5 = MasterPlanKPI.objects.create(ref_no="R4", name="KPI 4", category=MasterPlanKPI.TEAMWORK_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		KPISchedule.objects.create(kpi=kpi5, project=program1201_1, year=2010, target_score=100, result_score=0, start_date=date(2009,10,1), end_date=date(2009,12,1))
 		
 		
 		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2009, target_score=100, result_score=30, start_date=date(2008,10,1), end_date=date(2008,12,1))

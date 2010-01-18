@@ -18,51 +18,32 @@ DASHBOARD PAGE
 .dashboard_page .report_checkup h4 {font-size:116%;margin:5px 0px 10px 10px;color:#2D8659;}
 
 /*
-OVERVIEW PAGE
-*/
+ * OVERVIEW PAGE
+ */
 .overview_page .left_panel {margin-right:280px;}
 .overview_page .side_bar {width:270px;float:right;}
 .overview_page h2 {font-size:138.5%;margin:5px 0px 10px;color:#FFF;padding:8px 10px 4px;background-color:#399;border-bottom:3px solid #9CC;}
 
+/* Master Plan */
 .overview_page ul.master_plans {margin-bottom:15px;}
 .overview_page ul.master_plans li {padding:3px 0px 10px;}
 .overview_page ul.master_plans a:link, .overview_page ul.master_plans a:visited, .overview_page ul.master_plans a:active {font-size:131%;}
 
+/* KPI Section*/
 .overview_page .kpi_section h3 {font-size:131%;color:#2D8659;margin-bottom:8px;}
 .overview_page .kpi_section h4 {font-size:131%;color:#333;}
 .overview_page .kpi_section .interval {font-size:131%;color:#666;margin:5px 0px 10px;}
 .overview_page .kpi_section li {width:230px;border:1px solid #CCC;float:left;margin-right:15px;padding:10px 15px;margin-bottom:15px;}
 
-.overview_page .kpi_section .percentage {font-size:153.9%;padding:5px 0px 2px;}
+.overview_page .kpi_section .kpi-graph-container {margin-top:5px;}
+.overview_page .kpi_section .percentage {font-size:153.9%;padding:0px 0px 2px;}
+.overview_page .kpi_section .no_percentage {color:#999;font-size:131%;}
 
-.overview_page .kpi_section .marked_projects {}
-.overview_page .kpi_section .marked_projects li {font-size:116%;float:none;border:none;width:auto;margin:5px 0px 8px;padding:0px;}
+.overview_page .kpi_section .marked_projects li {color:#333;font-size:116%;float:none;border:none;width:auto;margin:5px 0px 8px;padding:0px;}
+.overview_page .kpi_section .marked_projects li .finance_note {font-size:0.9em;}
+.overview_page .kpi_section .marked_projects li .bottom_note {margin:4px 0px 6px;font-size:0.9em;color:#555;}
 
-
-
-/*
-.overview_page .kpi_section h3 {font-size:131%;margin-bottom:15px;}
-.overview_page .kpi_section h4 {font-size:131%;color:#2D8659;margin:8px 0px;}
-
-.overview_page .kpi_section .year_header {font-size:123.1%;color:#CCC;padding:5px 0px 5px 10px;background-color:#666;}
-.overview_page .kpi_section .kpi_name {font-size:108%;color:#333;}
-.overview_page .kpi_section .graph_cell {padding:5px 10px 5px 0px;}
-
-.overview_page .kpi_section .percentage {float:right;font-size:131%;}
-.overview_page .kpi_section .lowest-percentage {color:#C33;}
-.overview_page .kpi_section .low-percentage {color:#C90;}
-.overview_page .kpi_section .expect-percentage {color:#090;}
-.overview_page .kpi_section .above-percentage {color:#090;}
-
-.overview_page .kpi_section .bar-graph-container {margin:2px 40px 15px 10px;width:200px;height:20px;background-color:#999;}
-.overview_page .kpi_section .bar-graph {height:20px;border-right:2px solid #FFF;}
-
-.overview_page .kpi_section .lowest-bar-graph {background-color:#C33;}
-.overview_page .kpi_section .low-bar-graph {background-color:#C90;}
-.overview_page .kpi_section .expect-bar-graph {background-color:#090;}
-.overview_page .kpi_section .above-bar-graph {background-color:#090;}
-*/
-
+/**/
 .overview_page .sectors h2 a:link, .overview_page .sectors h2 a:visited, .overview_page .sectors h2 a:active {color:#FFF;text-decoration:none;}
 .overview_page .sectors h2 a:hover {color:#FFC;}
 .overview_page .sectors h3 {margin:5px 0px 10px;}
@@ -112,10 +93,16 @@ KPI PAGE
 .kpi_page .kpi_name {font-size:108%;color:#333;}
 .kpi_page .graph_cell {padding:0px 10px 0px 0px;}
 .kpi_page .graph_cell .percentage {float:right;font-size:131%;}
+.kpi_page .graph_cell .no_percentage {color:#999;}
 .kpi_page .graph_cell .marked_projects {margin-bottom:15px;}
 .kpi_page .graph_cell .marked_projects li {font-size:116%;float:none;border:none;width:auto;margin:5px 0px 8px;padding:0px;}
+.kpi_page .graph_cell .marked_projects li .bottom_note {margin:4px 0px 6px;font-size:0.9em;color:#555;}
+
+.kpi_page table td.no_information {font-size:131%;color:#666;}
 
 .kpi-graph-container {margin:2px 40px 10px 0px;}
+
+
 
 
 
@@ -222,21 +209,36 @@ ACTIVITY PAGE
 
 
 /*
-KPI PAGE
+PROGRAM KPI PAGE
 */
-.kpi_page h2 {font-size:138.5%;margin:5px 0px 10px;color:#FFF;padding:8px 10px 4px;background-color:#399;border-bottom:3px solid #9CC;}
-.kpi_page .kpis {margin-left:15px;}
-.kpi_page .kpis h3 {font-size:123.1%;font-weight:bold;color:#2D8659;padding-bottom:5px;border-bottom:2px solid #999;}
-.kpi_page table {margin-bottom:20px;}
-.kpi_page table th {font-size:116%;border-bottom:1px solid #999;padding:8px 10px 8px 0px;}
-.kpi_page table td {padding:8px 30px 8px 0px;}
-.kpi_page table td.head {font-size:116%;padding-right:60px;}
-.kpi_page table td.head {padding-right:40px;}
-.kpi_page table td input {width:80px;margin-right:10px;}
-.kpi_page table td img {vertical-align:middle;}
-.kpi_page table .revision {color:#666;}
-.kpi_page table td .update-submission {margin-right:150px;}
-.kpi_page table .kpi-more {display:none;}
+.program_kpi_page h2 {font-size:138.5%;margin:5px 0px 10px;color:#FFF;padding:8px 10px 4px;background-color:#399;border-bottom:3px solid #9CC;}
+.program_kpi_page .kpis {margin-left:15px;}
+.program_kpi_page .kpis h3 {font-size:116%;font-weight:bold;color:#2D8659;padding-bottom:5px;border-bottom:2px solid #999;}
+.program_kpi_page table {margin-bottom:20px;}
+.program_kpi_page table th {font-size:116%;border-bottom:1px solid #999;padding:8px 10px 8px 0px;}
+.program_kpi_page table td {padding:8px 30px 8px 0px;}
+.program_kpi_page table td.head {font-size:116%;padding-right:60px;}
+.program_kpi_page table td.head {padding-right:40px;}
+.program_kpi_page table td input {width:80px;margin-right:10px;}
+.program_kpi_page table td img {vertical-align:middle;}
+.program_kpi_page table .revision {color:#666;}
+.program_kpi_page table td .update-kpi {margin-right:150px;}
+.program_kpi_page .no_information {font-size:123.1%;color:#666;margin-left:15px;}
+
+/*
+PROGRAM FINANCE PAGE
+*/
+.program_finance_page .finance_years {margin-left:15px;}
+.program_finance_page .finance_years h3 {font-size:116%;font-weight:bold;color:#2D8659;padding-bottom:5px;border-bottom:2px solid #999;}
+.program_finance_page table {margin-bottom:20px;}
+.program_finance_page table th {font-size:116%;border-bottom:1px solid #999;padding:8px 10px 8px 0px;}
+.program_finance_page table td {padding:8px 30px 8px 0px;}
+.program_finance_page table td.head {font-size:116%;padding-right:60px;}
+.program_finance_page table td.head {padding-right:40px;}
+.program_finance_page table td input {width:80px;margin-right:10px;}
+.program_finance_page table td img {vertical-align:middle;}
+.program_finance_page table .revision {color:#666;}
+.program_finance_page table td .update-finance {margin-right:150px;}
 
 /*
 KPI SUMMARY PAGE

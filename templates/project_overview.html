@@ -21,7 +21,8 @@
 			{% if not project.parent_project %}
 			<li><a href="{% url view_program_projects project.id %}">{% trans 'Projects' %}</a></li>
 			<li><a href="{% url view_program_reports project.id %}">{% trans 'Project Reports' %}</a></li>
-			<li><a href="{% url view_program_kpi project.id %}">{% trans 'Project KPIs' %}</a></li>
+			<li><a href="{% url view_program_kpi project.id %}">ตัวชี้วัดโครงการ</a></li>
+			<li><a href="{% url view_program_finance project.id %}">แผนการเงิน</a></li>
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">{% trans 'Comments' %}</a></li>
 			{% else %}
 			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
@@ -35,7 +36,213 @@
 {% endblock %}
 
 {% block body_content %}
-<div class="ss_overview">
+<div class="overview_page">
+	{% if kpi %}
+	<h2>ตัวชี้วัดองค์กร</h2>
+	<div class="kpi_section">
+		<h3>ช่วงเวลาปัจจุบัน</h3>
+		<ul>
+			<li>
+				<h4>การเงิน</h4>
+				{% if kpi.finance.current.percentage %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name kpi.finance.current.percentage %}-bar-graph" style="width:{{kpi.finance.current.percentage}}%;"></div>
+				</div>
+				<div class="percentage kpi-{% kpi_range_name kpi.finance.current.percentage %}-percentage">{{kpi.finance.current.percentage}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				{% ifequal kpi.finance.current.percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name kpi.finance.current.percentage %}-percentage">{{kpi.finance.current.percentage}}%</div>
+				{% else %}
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endifequal %}
+				{% endif %}
+				{% if kpi.finance.current.schedules %}
+				<ul class="marked_projects">
+					{% for schedule in kpi.finance.current.schedules %}
+					<li>รอบเบิกวันที่ {{schedule.scheduled_on|thai_abbr_date}}<div class="bottom_note">จำนวน {{schedule.expected_budget}}</div></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</li>
+			<li>
+				<h4>การดำเนินงาน</h4>
+				{% if kpi.operation.current.percentage %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name kpi.operation.current.percentage %}-bar-graph" style="width:{{kpi.operation.current.percentage}}%;"></div>
+				</div>
+				<div class="percentage kpi-{% kpi_range_name kpi.operation.current.percentage %}-percentage">{{kpi.operation.current.percentage}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endif %}
+				{% if kpi.operation.current.kpi %}
+				<ul class="marked_projects">
+					{% for kpi in kpi.operation.current.kpi %}
+					<li>ตัวชี้วัด {{kpi.kpi.ref_no}} &#187; <span>{{kpi.result_score}}/{{kpi.target_score}}</span></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</li>
+			<li>
+				<h4>ทีมงาน</h4>
+				{% if kpi.teamwork.current.percentage %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name kpi.teamwork.current.percentage %}-bar-graph" style="width:{{kpi.teamwork.current.percentage}}%;"></div>
+				</div>
+				<div class="percentage kpi-{% kpi_range_name kpi.teamwork.current.percentage %}-percentage">{{kpi.teamwork.current.percentage}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endif %}
+				{% if kpi.teamwork.current.kpi %}
+				<ul class="marked_projects">
+					{% for kpi in kpi.teamwork.current.kpi %}
+					<li>ตัวชี้วัด {{kpi.kpi.ref_no}} &#187; <span>{{kpi.result_score}}/{{kpi.target_score}}</span></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</li>
+			<li>
+				<h4>ภาคี</h4>
+				{% if kpi.partner.current.percentage %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name kpi.partner.current.percentage %}-bar-graph" style="width:{{kpi.partner.current.percentage}}%;"></div>
+				</div>
+				<div class="percentage kpi-{% kpi_range_name kpi.partner.current.percentage %}-percentage">{{kpi.partner.current.percentage}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endif %}
+				{% if kpi.partner.current.kpi %}
+				<ul class="marked_projects">
+					{% for kpi in kpi.partner.current.kpi %}
+					<li>ตัวชี้วัด {{kpi.kpi.ref_no}} &#187; <span>{{kpi.result_score}}/{{kpi.target_score}}</span></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</li>
+		</ul>
+		<div class="clear"></div>
+		
+		<h3>ปี {{current_year|add:'543'}}</h3>
+		<ul>
+			<li>
+				<h4>การเงิน</h4>
+				{% if kpi.finance.year.percentage %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name kpi.finance.year.percentage %}-bar-graph" style="width:{{kpi.finance.year.percentage}}%;"></div>
+				</div>
+				<div class="percentage kpi-{% kpi_range_name kpi.finance.year.percentage %}-percentage">{{kpi.finance.year.percentage}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				{% ifequal kpi.finance.year.percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name kpi.finance.year.percentage %}-percentage">{{kpi.finance.year.percentage}}%</div>
+				{% else %}
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endifequal %}
+				{% endif %}
+				{% if kpi.finance.year.schedules %}
+				<ul class="marked_projects">
+					{% for schedule in kpi.finance.year.schedules %}
+					<li>รอบเบิกวันที่ {{schedule.scheduled_on|thai_abbr_date}}<div class="bottom_note">จำนวน {{schedule.expected_budget}}</div></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</li>
+			<li>
+				<h4>การดำเนินงาน</h4>
+				{% if kpi.operation.year.percentage %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name kpi.operation.year.percentage %}-bar-graph" style="width:{{kpi.operation.year.percentage}}%;"></div>
+				</div>
+				<div class="percentage kpi-{% kpi_range_name kpi.operation.year.percentage %}-percentage">{{kpi.operation.year.percentage}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				{% ifequal kpi.operation.year.percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name kpi.operation.year.percentage %}-percentage">{{kpi.operation.year.percentage}}%</div>
+				{% else %}
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endifequal %}
+				{% endif %}
+				{% if kpi.operation.current.kpi %}
+				<ul class="marked_projects">
+					{% for kpi in kpi.operation.year.kpi %}
+					<li>ตัวชี้วัด {{kpi.kpi.ref_no}} &#187; <span>{{kpi.result_score}}/{{kpi.target_score}}</span></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</li>
+			<li>
+				<h4>ทีมงาน</h4>
+				{% if kpi.teamwork.year.percentage %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name kpi.teamwork.year.percentage %}-bar-graph" style="width:{{kpi.teamwork.year.percentage}}%;"></div>
+				</div>
+				<div class="percentage kpi-{% kpi_range_name kpi.teamwork.year.percentage %}-percentage">{{kpi.teamwork.year.percentage}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				{% ifequal kpi.teamwork.year.percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name kpi.teamwork.year.percentage %}-percentage">{{kpi.teamwork.year.percentage}}%</div>
+				{% else %}
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endifequal %}
+				{% endif %}
+				{% if kpi.teamwork.current.kpi %}
+				<ul class="marked_projects">
+					{% for kpi in kpi.teamwork.year.kpi %}
+					<li>ตัวชี้วัด {{kpi.kpi.ref_no}} &#187; <span>{{kpi.result_score}}/{{kpi.target_score}}</span></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</li>
+			<li>
+				<h4>ภาคี</h4>
+				{% if kpi.partner.year.percentage %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name kpi.partner.year.percentage %}-bar-graph" style="width:{{kpi.partner.year.percentage}}%;"></div>
+				</div>
+				<div class="percentage kpi-{% kpi_range_name kpi.partner.year.percentage %}-percentage">{{kpi.partner.year.percentage}}%</div>
+				{% else %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+				{% ifequal kpi.partner.year.percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name kpi.partner.year.percentage %}-percentage">{{kpi.partner.year.percentage}}%</div>
+				{% else %}
+				<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
+				{% endifequal %}
+				{% endif %}
+				{% if kpi.partner.year.kpi %}
+				<ul class="marked_projects">
+					{% for kpi in kpi.partner.year.kpi %}
+					<li>ตัวชี้วัด {{kpi.kpi.ref_no}} &#187; <span>{{kpi.result_score}}/{{kpi.target_score}}</span></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+	{% endif %}
+	
+	
+	
+	
 	<h2>{% trans 'Current Activities' %}</h2>
 	{% if current_activities %}
 	<ul class="department_list">

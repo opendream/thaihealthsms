@@ -1,7 +1,9 @@
 import calendar
-from django.db.models import Q
 from datetime import datetime, date
 import os
+
+from django.db.models import Q
+from django.db.models import F
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -153,22 +155,38 @@ def view_administer_users(request):
 def view_sector_overview(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
 	current_date = date.today()
+	current_year = current_date.year
 	
 	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True)
 	
 	for master_plan in master_plans:
-		current_year = current_date.year
 		master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
 		
 		# Finance KPI
-		master_plan.finance_kpi = 0
+		projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
+		result = ProjectBudgetSchedule.objects.filter(project__in=projects, year=current_year).aggregate(Sum('expected_budget'), Sum('used_budget'))
+		
+		if result['expected_budget__sum']:
+			master_plan.finance_kpi = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100)
+			if master_plan.finance_kpi > 100: master_plan.finance_kpi = 100
+		else:
+			master_plan.finance_kpi = None
+		
+		marked_projects = list()
+		for result_project in ProjectBudgetSchedule.objects.filter(project__in=projects, scheduled_on__lt=current_date, claimed_on=None, year=current_year):
+			marked_projects.append({'project':result_project.project, 'schedule':result_project})
+			
+		master_plan.finance_projects = marked_projects
 		
 		# Operation KPI
 		kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.OPERATION_CATEGORY)
 		result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
 		
-		master_plan.operation_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
-		if master_plan.operation_kpi > 100: master_plan.operation_kpi = 100
+		if result['target_score__sum']:
+			master_plan.operation_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
+			if master_plan.operation_kpi > 100: master_plan.operation_kpi = 100
+		else:
+			master_plan.operation_kpi = None
 		
 		marked_projects = list()
 		for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
@@ -181,8 +199,11 @@ def view_sector_overview(request, sector_id):
 		kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.TEAMWORK_CATEGORY)
 		result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
 		
-		master_plan.teamwork_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
-		if master_plan.teamwork_kpi > 100: master_plan.teamwork_kpi = 100
+		if result['target_score__sum']:
+			master_plan.teamwork_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
+			if master_plan.teamwork_kpi > 100: master_plan.teamwork_kpi = 100
+		else:
+			master_plan.teamwork_kpi = None
 		
 		marked_projects = list()
 		for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
@@ -195,8 +216,11 @@ def view_sector_overview(request, sector_id):
 		kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.PARTNER_CATEGORY)
 		result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
 		
-		master_plan.partner_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
-		if master_plan.partner_kpi > 100: master_plan.partner_kpi = 100
+		if result['target_score__sum']:
+			master_plan.partner_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
+			if master_plan.partner_kpi > 100: master_plan.partner_kpi = 100
+		else:
+			master_plan.partner_kpi = None
 		
 		marked_projects = list()
 		for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
@@ -218,6 +242,8 @@ def view_sector_kpi(request, sector_id):
 		master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
 		
 		# Finance KPI
+		projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
+		master_plan.finance_kpi = _get_sector_finance_kpi_percentage(master_plan)
 		
 		# Operation KPI
 		kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.OPERATION_CATEGORY)
@@ -233,16 +259,48 @@ def view_sector_kpi(request, sector_id):
 		
 	return render_response(request, "sector_kpi.html", {'sector':sector, 'master_plans':master_plans})
 
+def _get_sector_finance_kpi_percentage(master_plan):
+	current_date = date.today()
+	
+	projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
+	
+	if not projects: return None
+	
+	years_kpi = list()
+	for year in master_plan.years:
+		result = ProjectBudgetSchedule.objects.filter(project__in=projects, year=year).aggregate(Sum('expected_budget'), Sum('used_budget'))
+		
+		if result['expected_budget__sum']:
+			percentage = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100)
+		else:
+			percentage = None
+		
+		marked_projects = list()
+		for result_project in ProjectBudgetSchedule.objects.filter(project__in=projects, scheduled_on__lt=current_date, claimed_on=None, year=year):
+			marked_projects.append({'project':result_project.project, 'schedule':result_project})
+		
+		years_kpi.append({'percentage':percentage, 'projects':marked_projects})
+	
+	result = ProjectBudgetSchedule.objects.filter(project__in=projects).aggregate(Sum('expected_budget'), Sum('used_budget'))
+	percentage = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100) if result['expected_budget__sum'] else 0
+	
+	return {'years_kpi':years_kpi, 'total_percentage':percentage}
+
 def _get_sector_kpi_percentage(master_plan, kpis):
 	for kpi in kpis:
 		years_kpi = list()
 		for year in master_plan.years:
 			result = KPISchedule.objects.filter(kpi=kpi, year=year).aggregate(Sum('target_score'), Sum('result_score'))
-			percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+			
+			print result
+			
+			if result['target_score__sum']:
+				percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
+			else:
+				percentage = None
 			
 			marked_projects = list()
 			for result_project in KPISchedule.objects.filter(kpi=kpi, year=year).values('project').annotate(Sum('target_score'), Sum('result_score')):
-				print result_project
 				project_percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
 				if project_percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':project_percentage})
 			
@@ -253,13 +311,6 @@ def _get_sector_kpi_percentage(master_plan, kpis):
 		result = KPISchedule.objects.filter(kpi=kpi).aggregate(Sum('target_score'), Sum('result_score'))
 		kpi.total_percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
 		
-		marked_projects = list()
-		for result_project in KPISchedule.objects.filter(kpi=kpi).values('project').annotate(Sum('target_score'), Sum('result_score')):
-			project_percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
-			if project_percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':project_percentage})
-		
-		kpi.marked_projects = marked_projects
-	
 	return kpis
 
 @login_required
@@ -381,7 +432,98 @@ def view_master_plan_kpi(request, master_plan_id):
 @login_required
 def view_program_overview(request, program_id):
 	program = get_object_or_404(Project, pk=program_id)
-	return render_response(request, "project_overview.html", {'project':program})
+	current_date = date.today()
+	current_year = current_date.year
+	
+	kpi = dict()
+	
+	# Finance KPI
+	kpi['finance'] = {'current':dict(), 'year':dict()}
+	
+	# Note: Check against next finance schedule
+	# Not have schedule -> 0%
+	# Have only claimed schedule -> 100%
+	# Have un-claimed schedule -> 0%
+	
+	past_schedules = ProjectBudgetSchedule.objects.filter(project=program, scheduled_on__lt=current_date)
+	
+	if not past_schedules:
+		kpi['finance']['current'] = {'percentage':None, 'schedules':None}
+		
+	else:
+		percentage = -1
+		schedules = list()
+		for past_schedule in past_schedules:
+			if not past_schedule.claimed_on:
+				percentage = 0
+				schedules.append(past_schedule)
+		
+		if percentage == -1: percentage = 100
+		
+		kpi['finance']['current'] = {'percentage':percentage, 'schedules':schedules}
+	
+	result = ProjectBudgetSchedule.objects.filter(project=program, year=current_year).aggregate(Sum('expected_budget'), Sum('used_budget'))
+	percentage = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100) if result['expected_budget__sum'] else 0
+	
+	print result
+	
+	kpi['finance']['year'] = {'percentage':percentage}
+	
+	# Operation KPI
+	kpi['operation'] = {'current':dict(), 'year':dict()}
+	kpis = MasterPlanKPI.objects.filter(master_plan=program.master_plan, category=MasterPlanKPI.OPERATION_CATEGORY)
+	
+	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum('target_score'), Sum('result_score'))
+	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	
+	marked_kpis = list()
+	for kpi_schedule in KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date, result_score__lt=F('target_score')):
+		marked_kpis.append(kpi_schedule)
+	
+	kpi['operation']['current'] = {'percentage':percentage, 'kpi':marked_kpis}
+	
+	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
+	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	
+	kpi['operation']['year'] = {'percentage':percentage}
+	
+	# Teamwork KPI
+	kpi['teamwork'] = {'current':dict(), 'year':dict()}
+	kpis = MasterPlanKPI.objects.filter(master_plan=program.master_plan, category=MasterPlanKPI.TEAMWORK_CATEGORY)
+	
+	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum('target_score'), Sum('result_score'))
+	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	
+	marked_kpis = list()
+	for kpi_schedule in KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date, result_score__lt=F('target_score')):
+		marked_kpis.append(kpi_schedule)
+	
+	kpi['teamwork']['current'] = {'percentage':percentage, 'kpi':marked_kpis}
+	
+	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
+	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	
+	kpi['teamwork']['year'] = {'percentage':percentage}
+	
+	# Partner KPI
+	kpi['partner'] = {'current':dict(), 'year':dict()}
+	kpis = MasterPlanKPI.objects.filter(master_plan=program.master_plan, category=MasterPlanKPI.PARTNER_CATEGORY)
+	
+	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum('target_score'), Sum('result_score'))
+	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	
+	marked_kpis = list()
+	for kpi_schedule in KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date, result_score__lt=F('target_score')):
+		marked_kpis.append(kpi_schedule)
+	
+	kpi['partner']['current'] = {'percentage':percentage, 'kpi':marked_kpis}
+	
+	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
+	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	
+	kpi['partner']['year'] = {'percentage':percentage}
+	
+	return render_response(request, "project_overview.html", {'project':program, 'kpi':kpi, 'current_year':current_year})
 
 @login_required
 def view_program_projects(request, program_id):
@@ -456,23 +598,65 @@ def view_program_reports_send(request, program_id):
 def view_program_kpi(request, program_id):
 	program = get_object_or_404(Project, pk=program_id)
 	current_date = date.today()
+	current_year = current_date.year
+	
+	# Operation KPI
+	kpi_ids = KPISchedule.objects.filter(project=program, kpi__category=MasterPlanKPI.OPERATION_CATEGORY, year=current_year).values('kpi').distinct()
+	operation_kpis = list()
+	
+	for kpi_id in kpi_ids:
+		operation_kpi = MasterPlanKPI.objects.get(id=kpi_id['kpi'])
+		operation_kpi.schedules = KPISchedule.objects.filter(kpi=operation_kpi, project=program, year=current_year).order_by('-end_date')
+		
+		for schedule in operation_kpi.schedules:
+			schedule.revisions = KPIScheduleRevision.objects.filter(schedule=schedule).order_by('-revised_on')
+		
+		operation_kpis.append(operation_kpi)
+	
+	# Teamwork KPI
+	kpi_ids = KPISchedule.objects.filter(project=program, kpi__category=MasterPlanKPI.TEAMWORK_CATEGORY, year=current_year).values('kpi').distinct()
+	teamwork_kpis = list()
+	
+	for kpi_id in kpi_ids:
+		teamwork_kpi = MasterPlanKPI.objects.get(id=kpi_id['kpi'])
+		teamwork_kpi.schedules = KPISchedule.objects.filter(kpi=teamwork_kpi, project=program, year=current_year).order_by('-end_date')
+		
+		for schedule in teamwork_kpi.schedules:
+			schedule.revisions = KPIScheduleRevision.objects.filter(schedule=schedule).order_by('-revised_on')
+		
+		teamwork_kpis.append(teamwork_kpi)
+	
+	# Partner KPI
+	kpi_ids = KPISchedule.objects.filter(project=program, kpi__category=MasterPlanKPI.PARTNER_CATEGORY, year=current_year).values('kpi').distinct()
+	partner_kpis = list()
+	
+	for kpi_id in kpi_ids:
+		partner_kpi = MasterPlanKPI.objects.get(id=kpi_id['kpi'])
+		partner_kpi.schedules = KPISchedule.objects.filter(kpi=partner_kpi, project=program, year=current_year).order_by('-end_date')
+		
+		for schedule in partner_kpi.schedules:
+			schedule.revisions = KPIScheduleRevision.objects.filter(schedule=schedule).order_by('-revised_on')
+		
+		partner_kpis.append(partner_kpi)
+	
+	return render_response(request, "project_kpi.html", {'project':program, 'operation_kpis':operation_kpis, 'teamwork_kpis':teamwork_kpis, 'partner_kpis':partner_kpis})
 
-	kpi_targets = KPITargetProject.objects.filter(project=program)
-
-	for kpi_target in kpi_targets:
-		kpi_target.current_submission = KPISubmission.objects.filter(target=kpi_target, start_date__lte=current_date, end_date__gte=current_date).order_by("-end_date")
-		for submission_item in kpi_target.current_submission: submission_item.revisions = KPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
-
-		kpi_target.last_submission = KPISubmission.objects.filter(target=kpi_target, end_date__lt=current_date).order_by("-end_date")
-		for submission_item in kpi_target.last_submission: submission_item.revisions = KPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
-
-	current_finance_submission = FinanceKPISubmission.objects.filter(project=program, start_date__lte=current_date, end_date__gte=current_date).order_by("-end_date")
-	for submission_item in current_finance_submission: submission_item.revisions = FinanceKPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
-
-	last_finance_submission = FinanceKPISubmission.objects.filter(project=program, end_date__lt=current_date).order_by("-end_date")
-	for submission_item in last_finance_submission: submission_item.revisions = FinanceKPISubmissionRevision.objects.filter(submission=submission_item).order_by("-submitted_on")
-
-	return render_response(request, "project_kpi.html", {'project':program, 'kpi_targets':kpi_targets, 'current_finance_submission':current_finance_submission, 'last_finance_submission':last_finance_submission})
+@login_required
+def view_program_finance(request, program_id):
+	program = get_object_or_404(Project, pk=program_id)
+	
+	year_ids = ProjectBudgetSchedule.objects.filter(project=program).values('year').distinct()
+	finance_years = list()
+	
+	for year_id in year_ids:
+		schedules = ProjectBudgetSchedule.objects.filter(project=program, year=year_id['year']).order_by('-scheduled_on')
+		
+		for schedule in schedules:
+			schedule.revisions = ProjectBudgetScheduleRevision.objects.filter(schedule=schedule).order_by('-revised_on')
+		
+		finance_years.append({'number':year_id['year'], 'schedules':schedules})
+	
+	return render_response(request, "project_finance.html", {'project':program, 'finance_years':finance_years})
 
 @login_required
 def view_program_comments(request, program_id):

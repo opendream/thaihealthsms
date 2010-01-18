@@ -59,7 +59,7 @@ class RoleNode(template.Node):
 			
 			if user_roles.intersection(roles):
 				output = self.nodelist.render(context)
-				return output.upper()
+				return output
 		
 		return ""
 

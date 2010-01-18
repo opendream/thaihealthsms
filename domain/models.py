@@ -86,10 +86,10 @@ class Activity(models.Model):
 class ProjectBudgetSchedule(models.Model):
 	project = models.ForeignKey('Project')
 	expected_budget = models.IntegerField()
-	used_budget = models.IntegerField()
-	year = models.IntegerField() # Buddhist calendar (e.g. use 2552 to represent 2008 A.D. in Gregorian calendar)
+	used_budget = models.IntegerField(default=0)
+	year = models.IntegerField() # Gregorian calendar e.g. 2009 -- Fill when create KPI
 	scheduled_on = models.DateField()
-	requested_on = models.DateField()
+	claimed_on = models.DateField(null=True)
 
 class ProjectBudgetScheduleRevision(models.Model):
 	schedule = models.ForeignKey('ProjectBudgetSchedule')

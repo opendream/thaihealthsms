@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load helper %}
+{% load interface_tags %}
+
+{% block post_comment_ajax_url %}/post-comment/object/program/{{project.id}}/{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block html_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$(".update-kpi").click(function(e) {
+		e.preventDefault();
+		
+		var schedule_id = $(this).attr("rel");
+		var trObject = $(this).closest("tr");
+		var result = trObject.find("input[name='result_score']").val();
+		
+		{% role user 'sector_manager_assistant' %}
+		var target = trObject.find("input[name='target_score']").val();
+		
+		$.post("/ajax/update-kpi-schedule/", {'schedule': schedule_id, 'result':result, 'target':target}, function(data) {
+			trObject.after('<tr class="revision"><td class="head"></td><td class="input">' + data.target_score + ' หน่วย</td><td class="input">' + data.result_score + ' หน่วย</td><td colspan="2">ข้อมูลเมื่อวันที่ ' + data.revised_on + '</td></tr>');
+		}, "json");
+		{% endrole %}
+		
+		{% role user 'program_manager,program_manager_assistant' %}
+		$.post("/ajax/update-kpi-schedule/", {'schedule': schedule_id, 'result':result}, function(data) {
+			trObject.after('<tr class="revision"><td class="head"></td><td class="input">' + data.target_score + ' หน่วย</td><td class="input">' + data.result_score + ' หน่วย</td><td colspan="2">ข้อมูลเมื่อวันที่ ' + data.revised_on + '</td></tr>');
+		}, "json");
+		{% endrole %}
+	});
+});
+</script>
+
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_program_overview project.id %}">ภาพรวม</a></li>
+			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
+			<li><a href="{% url view_program_reports project.id %}">รายงานแผนงาน</a></li>
+			<li><a href="{% url view_program_kpi project.id %}">ตัวชี้วัดแผนงาน</a></li>
+			<li class="selected">แผนการเงิน</li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">ความคิดเห็น</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="program_finance_page">
+<table class="finance_years">
+	<tr>
+		<th></th>
+		<th>คาดการณ์</th>
+		<th>เบิกจ่ายจริง</th>
+		<th></th>
+	</tr>
+	{% for year in finance_years %}
+		<tr>
+			<td colspan="4"><h3>ปี {{year.number}}</h3></td>
+		</tr>
+		{% for schedule in year.schedules %}
+			<tr>
+				<td class="head">{{schedule.scheduled_on|thai_month_year}}</td>
+				<td class="input">
+				{% role user 'sector_manager_assistant' %}<input type="text" name="expected_budget" value="{{schedule.expected_budget}}"/>{% endrole %}
+				{% role user 'program_manager,program_manager_assistant' %}{{schedule.expected_budget}}{% endrole %}
+				หน่วย
+				</td>
+				<td class="input">
+				{% role user 'sector_manager_assistant' %}<input type="text" name="used_budget" value="{{schedule.used_budget}}"/>{% endrole %}
+				{% role user 'program_manager,program_manager_assistant' %}{{schedule.used_budget}}{% endrole %}
+				หน่วย
+				</td>
+				<td><button class="update-kpi" rel="{{schedule.id}}">แก้ไขข้อมูล</button></td>
+			</tr>
+			{% for revision in schedule.revisions %}
+				<tr class="revision">
+					<td class="head"></td>
+					<td class="input">{{revision.expected_budget}} หน่วย</td>
+					<td class="input">{{revision.used_budget}} หน่วย</td>
+					<td>ข้อมูลเมื่อวันที่ {{revision.revised_on|thai_display_datetime}}</td>
+				</tr>
+			{% endfor %}
+		{% endfor %}
+	{% endfor %}
+</table>
+</div>
+{% endblock %}

@@ -26,6 +26,7 @@ urlpatterns = patterns('interface.views',
 	url(r'^program/(?P<program_id>\d+)/reports/$', 'view_program_reports', name='view_program_reports'),
 	url(r'^program/(?P<program_id>\d+)/reports/send/$', 'view_program_reports_send', name='view_program_reports_send'),
 	url(r'^program/(?P<program_id>\d+)/kpi/$', 'view_program_kpi', name='view_program_kpi'),
+	url(r'^program/(?P<program_id>\d+)/finance/$', 'view_program_finance', name='view_program_finance'),
 	url(r'^program/(?P<program_id>\d+)/comments/$', 'view_program_comments', name='view_program_comments'),
 	
 	url(r'^project/(?P<project_id>\d+)/$', 'view_project_overview', name='view_project_overview'),
