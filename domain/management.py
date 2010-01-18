@@ -378,13 +378,63 @@ def after_syncdb(sender, **kwargs):
 		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(14), is_submitted=True, last_submitted=date.today() - timedelta(13), last_activity=APPROVE_ACTIVITY)
 		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(16), is_submitted=True, last_submitted=date.today() - timedelta(15), last_activity=APPROVE_ACTIVITY)
 
+		report_program11 = ReportProject.objects.create(report=report1, project=program1201_1)
+		report_program12 = ReportProject.objects.create(report=report2, project=program1201_1)
+
+
+		# Next due
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() + timedelta(7))
+		ReportSchedule.objects.create(report_project=report_program12, due_date=date.today() + timedelta(8))
+
+		# Late
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(3))
+		ReportSchedule.objects.create(report_project=report_program12, due_date=date.today() - timedelta(4))
+		
+		# Submitted
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() + timedelta(3), is_submitted=True, last_submitted=date.today())
+
+		# Rejected
+		ReportSchedule.objects.create(report_project=report_program12, due_date=date.today() - timedelta(3), is_submitted=True, last_submitted=date.today(), last_activity=REJECT_ACTIVITY)
+
+		# Approved
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(2), is_submitted=True, last_submitted=date.today(), last_activity=APPROVE_ACTIVITY)
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(10), is_submitted=True, last_submitted=date.today() - timedelta(9), last_activity=APPROVE_ACTIVITY)
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(12), is_submitted=True, last_submitted=date.today() - timedelta(11), last_activity=APPROVE_ACTIVITY)
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(14), is_submitted=True, last_submitted=date.today() - timedelta(13), last_activity=APPROVE_ACTIVITY)
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(16), is_submitted=True, last_submitted=date.today() - timedelta(15), last_activity=APPROVE_ACTIVITY)
+		
+		
+		report_program11 = ReportProject.objects.create(report=report1, project=program1201_2)
+		report_program12 = ReportProject.objects.create(report=report2, project=program1201_2)
+
+
+		# Next due
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() + timedelta(7))
+		ReportSchedule.objects.create(report_project=report_program12, due_date=date.today() + timedelta(8))
+
+		# Late
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(3))
+		ReportSchedule.objects.create(report_project=report_program12, due_date=date.today() - timedelta(4))
+
+		# Rejected
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() + timedelta(3), is_submitted=True, last_submitted=date.today(), last_activity=REJECT_ACTIVITY)
+		ReportSchedule.objects.create(report_project=report_program12, due_date=date.today() - timedelta(3), is_submitted=True, last_submitted=date.today(), last_activity=REJECT_ACTIVITY)
+
+		# Approved
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(2), is_submitted=True, last_submitted=date.today(), last_activity=APPROVE_ACTIVITY)
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(10), is_submitted=True, last_submitted=date.today() - timedelta(9), last_activity=APPROVE_ACTIVITY)
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(12), is_submitted=True, last_submitted=date.today() - timedelta(11), last_activity=APPROVE_ACTIVITY)
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(14), is_submitted=True, last_submitted=date.today() - timedelta(13), last_activity=APPROVE_ACTIVITY)
+		ReportSchedule.objects.create(report_project=report_program11, due_date=date.today() - timedelta(16), is_submitted=True, last_submitted=date.today() - timedelta(15), last_activity=APPROVE_ACTIVITY)
+
+
 		# Comment Receiver by Role
 		CommentReceiverRole.objects.create(comment_type='activity', role=activity_manager_role)
 		CommentReceiverRole.objects.create(comment_type='activity', role=activity_manager_assistant_role)
 		CommentReceiverRole.objects.create(comment_type='project', role=project_manager_role)
 		CommentReceiverRole.objects.create(comment_type='project', role=project_manager_assistant_role)
 		CommentReceiverRole.objects.create(comment_type='program', role=program_manager_role)	
-		CommentReceiverRole.objects.create(comment_type='program', role=program_manager_assistant_role)	
+		CommentReceiverRole.objects.create(comment_type='program', role=program_manager_assistant_role)
 
 from django.db.models.signals import post_syncdb
 post_syncdb.connect(after_syncdb, dispatch_uid="domain.management")

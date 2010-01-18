@@ -39,20 +39,27 @@
 		<h2>ตรวจสอบการส่งรายงาน</h2>
 		<div class="report_checkup">
 			<ul>
-				{% for user_project in user_projects %}
+				{% for project in projects %}
 				<li>
-					<h3>{{user_project.ref_no}} {{user_project.name}}</h3>
-					{% if user_project.reports %}
-						{% for reports in user_project.reports %}
-							{% if reports.schedules %}
-								<h4>{{reports.report.name}}</h4>
+					<h3><a href="{% url view_program_overview project.id %}">{{project.ref_no}} {{project.name}}</a></h3>
+					{% if project.reports %}
+						{% for report in project.reports %}
+							{% if report.schedules %}
+								<h4>{{report.report.name}}</h4>
 								<ul class="reports">
-									{% for report_schedule in reports.schedules %}
-										{% if not report_schedule.overdue %}
-										<li><a href="{% url view_report_overview report_schedule.id %}">งวดวันที่ {{report_schedule.due_date|thai_date}}</a></li>
-										{% else %}
-										<li class="overdue">งวดวันที่ {{report_schedule.due_date|thai_date}} (เลยกำหนดส่งมาแล้ว {{report_schedule.due_date|timesince}})</li>
-										{% endif %}
+									{% for report_schedule in report.schedules %}
+										<li class="{{report_schedule.statuses}}">
+											<a href="{% url view_report_overview report_schedule.id %}">งวดวันที่ {{report_schedule.due_date|thai_date}}</a>
+											<div class="item-overview">
+												{% if report_schedule.late_ago %}
+												<span>เลยกำหนด <em>{{report_schedule.late_ago}}</em> วัน</span>
+												{% endif %}
+												{% if report_schedule.last_submitted %}
+												<span>ส่งเมื่อ <em>{{report_schedule.last_submitted|thai_datetime}}</em></span>
+												{% endif %}
+												<span><a href="{% url view_report_comments report_schedule.id %}"><em>{{report_schedule.comment_count}}</em> ความคิดเห็น</a></span>
+											</div>
+										</li>
 									{% endfor %}
 								</ul>
 							{% endif %}

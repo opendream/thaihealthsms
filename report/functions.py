@@ -21,9 +21,15 @@ def get_submitted_and_overdue_reports(project): # For assistant
 		next_due = ReportSchedule.objects.filter(report_project=report_project, due_date__gte=current_date).aggregate(Min('due_date'))['due_date__min']
 		last_due = ReportSchedule.objects.filter(report_project=report_project, due_date__lt=current_date).aggregate(Max('due_date'))['due_date__max']
 
-		schedules = ReportSchedule.objects.filter(report_project=report_project).filter((Q(is_submitted=False) & Q(due_date__lt=current_date)) | Q(due_date=last_due) | (Q(due_date=next_due) & Q(is_submitted=True))).order_by('-due_date')
+		schedules = ReportSchedule.objects.filter(report_project=report_project).filter((Q(is_submitted=False) & Q(due_date__lt=current_date)) | Q(due_date=last_due) | (Q(due_date=next_due) & Q(is_submitted=True))).exclude(last_activity=APPROVE_ACTIVITY).order_by('-due_date')
 
-		for schedule in schedules: schedule.overdue = schedule.due_date < current_date and not schedule.is_submitted
+		for schedule in schedules: 
+			schedule.overdue = schedule.due_date < current_date and not schedule.is_submitted
+			statuses = get_schedule_statuses(schedule)
+			schedule.statuses = ' '.join(statuses)
+			if 'overdue' in statuses:
+				schedule.late_ago = (current_date - schedule.due_date).days
+				
 		report_project.schedules = schedules
 
 	return report_projects
@@ -37,7 +43,13 @@ def get_nextdue_and_overdue_reports(project): # For project manager
 
 		schedules = ReportSchedule.objects.filter(report_project=report_project).filter((Q(is_submitted=False) & Q(due_date__lt=current_date)) | Q(due_date=next_due)).order_by('-due_date')
 
-		for schedule in schedules: schedule.overdue = schedule.due_date < current_date and not schedule.is_submitted
+		for schedule in schedules: 
+			schedule.overdue = schedule.due_date < current_date and not schedule.is_submitted
+			statuses = get_schedule_statuses(schedule)
+			schedule.statuses = ' '.join(statuses)
+			if 'overdue' in statuses:
+				schedule.late_ago = (current_date - schedule.due_date).days
+				
 		report_project.schedules = schedules
 
 	return report_projects
