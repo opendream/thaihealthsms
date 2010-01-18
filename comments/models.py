@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import Group
 
 class Comment(models.Model):
 	message = models.CharField(max_length=1024)
@@ -8,6 +9,10 @@ class Comment(models.Model):
 	is_urgent = models.BooleanField(default=False)
 	sent_on = models.DateTimeField(auto_now_add=True)
 	sent_by = models.ForeignKey('domain.UserAccount')
+
+class CommentReceiverRole(models.Model):
+	comment_type = models.CharField(max_length=64)
+	role = models.ForeignKey(Group)
 
 class CommentReceiver(models.Model):
 	comment = models.ForeignKey('Comment')
