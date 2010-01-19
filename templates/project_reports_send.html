@@ -60,7 +60,7 @@
 					<h3>งวดวันที่ {{schedule.due_date|thai_date}}</h3>
 					
 					{% if schedule.is_submitted %}
-					<span>ส่งรายงานเมื่อวันที่ {{schedule.submitted|thai_date}} เวลา {{schedule.submitted|time:"H:i"}} น.</span>
+					<span class="note">ส่งรายงานเมื่อวันที่ {{schedule.last_submitted|thai_date}} เวลา {{schedule.last_submitted|time:"H:i"}} น.</span>
 					{% else %}
 					<form method="post" action=".">
 						<input type="hidden" name="schedule_id" value="{{schedule.id}}" />
@@ -69,7 +69,7 @@
 					</form>
 					{% endif %}
 					
-					{% ifnotequal forloop.counter 1 %}เลยกำหนดส่งมาแล้ว {{schedule.due_date|timesince}}{% endifnotequal %}
+					{% ifnotequal forloop.counter 1 %}<span class="note">เลยกำหนดส่งมาแล้ว {{schedule.due_date|timesince}}</span>{% endifnotequal %}
 				</div>
 				
 				<div class="content">

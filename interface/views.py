@@ -523,9 +523,11 @@ def view_program_overview(request, program_id):
 		kpi['finance']['current'] = {'percentage':percentage, 'schedules':schedules}
 	
 	result = ProjectBudgetSchedule.objects.filter(project=program, year=current_year).aggregate(Sum('expected_budget'), Sum('used_budget'))
-	percentage = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100) if result['expected_budget__sum'] else 0
 	
-	print result
+	if result['expected_budget__sum']:
+		percentage = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100) if result['expected_budget__sum'] else 0
+	else:
+		percentage = None
 	
 	kpi['finance']['year'] = {'percentage':percentage}
 	
@@ -543,7 +545,11 @@ def view_program_overview(request, program_id):
 	kpi['operation']['current'] = {'percentage':percentage, 'kpi':marked_kpis}
 	
 	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	
+	if result['target_score__sum']:
+		percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	else:
+		percentage = None
 	
 	kpi['operation']['year'] = {'percentage':percentage}
 	
@@ -561,7 +567,11 @@ def view_program_overview(request, program_id):
 	kpi['teamwork']['current'] = {'percentage':percentage, 'kpi':marked_kpis}
 	
 	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	
+	if result['target_score__sum']:
+		percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	else:
+		percentage = None
 	
 	kpi['teamwork']['year'] = {'percentage':percentage}
 	
@@ -579,7 +589,11 @@ def view_program_overview(request, program_id):
 	kpi['partner']['current'] = {'percentage':percentage, 'kpi':marked_kpis}
 	
 	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	
+	if result['target_score__sum']:
+		percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	else:
+		percentage = None
 	
 	kpi['partner']['year'] = {'percentage':percentage}
 	

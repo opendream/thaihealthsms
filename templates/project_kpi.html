@@ -62,6 +62,7 @@ $(document).ready(function() {
 <div class="program_kpi_page">
 
 <h2>ตัวชี้วัดการดำเนินงาน</h2>
+{% if operation_kpis %}
 <ul class="kpis">
 	{% for kpi in operation_kpis %}
 	<li>
@@ -111,8 +112,12 @@ $(document).ready(function() {
 	</li>
 	{% endfor %}
 </ul>
+{% else %}
+<div class="no_information">ไม่มีข้อมูลตัวชี้วัด</div>
+{% endif %}
 
 <h2>ตัวชี้วัดทีมงาน</h2>
+{% if teamwork_kpis %}
 <ul class="kpis">
 	{% for kpi in teamwork_kpis %}
 	<li>
@@ -163,6 +168,9 @@ $(document).ready(function() {
 	</li>
 	{% endfor %}
 </ul>
+{% else %}
+<div class="no_information">ไม่มีข้อมูลตัวชี้วัด</div>
+{% endif %}
 
 <h2>ตัวชี้วัดภาคี</h2>
 {% if partner_kpis %}

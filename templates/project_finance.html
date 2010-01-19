@@ -50,6 +50,7 @@ $(document).ready(function() {
 
 {% block body_content %}
 <div class="program_finance_page">
+{% if finance_years %}
 <table class="finance_years">
 	<tr>
 		<th></th>
@@ -97,5 +98,8 @@ $(document).ready(function() {
 		{% endfor %}
 	{% endfor %}
 </table>
+{% else %}
+<div class="ss_no_information">ไม่มีข้อมูลแผนการเงิน</div>
+{% endif %}
 </div>
 {% endblock %}

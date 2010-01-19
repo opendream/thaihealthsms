@@ -281,10 +281,13 @@
 	{% endif %}
 	
 	<h2>รายงานล่าสุด</h2>
-	<ul class="schedules">
-		{% for report_schedule in report_schedules %}
-		<li><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.report_project.report.name}} งวดวันที่ {{report_schedule.due_date|thai_date}}</a></li>
-		{% endfor %}
-	</ul>
+	<div class="reports_section">
+		<ul>
+			{% for report_schedule in report_schedules %}
+			<li><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.report_project.report.name}} งวดวันที่ {{report_schedule.due_date|thai_date}}</a></li>
+			{% endfor %}
+		</ul>
+	</div>
+	
 </div>
 {% endblock %}
