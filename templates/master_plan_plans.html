@@ -48,7 +48,7 @@
 				{% for project in plan.future_projects %}
 				<li>
 					<a href="{% url view_program_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
-					<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{{project.manager.first_name}} {{project.manager.last_name}}</em></span></div>
+					<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
 				</li>
 				{% endfor %}
 			</ul>
@@ -59,7 +59,7 @@
 				{% for project in plan.past_projects %}
 				<li>
 					<a href="{% url view_program_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
-					<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{{project.manager.first_name}} {{project.manager.last_name}}</em></span></div>
+					<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
 				</li>
 				{% endfor %}
 			</ul>
