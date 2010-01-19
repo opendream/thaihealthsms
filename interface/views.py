@@ -76,14 +76,9 @@ def _view_sector_manager_assistant_frontpage(request):
 	return render_response(request, "dashboard_assistant.html", {'projects':projects})
 
 def _view_program_manager_frontpage(request):
-<<<<<<< HEAD
 	manager = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name='program_manager')
 	program = manager[0].projects.all()[0]
 	return redirect("/program/%d/" % program.id)
-=======
-	user_account = request.user.get_profile()
-	return redirect("/sector/%d/" % user_account.sector.id)
->>>>>>> comment
 
 def _view_program_manager_assistant_frontpage(request):
 	responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile(), role__name="program_manager_assistant")
@@ -94,14 +89,9 @@ def _view_program_manager_assistant_frontpage(request):
 	return render_response(request, "dashboard_program_assistant.html", {'projects':projects})
 
 def _view_project_manager_frontpage(request):
-<<<<<<< HEAD
 	manager = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name='project_manager')
 	project = manager[0].projects.all()[0]
 	return redirect("/project/%d/" % project.id)	
-=======
-	user_account = request.user.get_profile()
-	return redirect("/sector/%d/" % user_account.sector.id)
->>>>>>> comment
 
 def _view_project_manager_assistant_frontpage(request):
 	user_account = request.user.get_profile()
