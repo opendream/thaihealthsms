@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block body_content %}
-<div class="kpi_page">
+<div class="sector_kpi_page">
 {% for master_plan in master_plans %}
 	<h3><a href="{% url view_master_plan_overview master_plan.id %}">แผนหลัก {{master_plan.ref_no}} {{master_plan.name}}</a></h3>
 	<table>

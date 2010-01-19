@@ -73,7 +73,9 @@ def _view_sector_manager_assistant_frontpage(request):
 	return render_response(request, "dashboard_assistant.html", {'projects':responsibility.projects.all()})
 
 def _view_program_manager_frontpage(request):
-	return redirect("/sector/%d/" % user_account.sector.id)
+	manager = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name='program_manager')
+	program = manager[0].projects.all()[0]
+	return redirect("/program/%d/" % program.id)
 
 def _view_program_manager_assistant_frontpage(request):
 	responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile(), role__name="program_manager_assistant")
@@ -84,7 +86,9 @@ def _view_program_manager_assistant_frontpage(request):
 	return render_response(request, "dashboard_program_assistant.html", {'projects':projects})
 
 def _view_project_manager_frontpage(request):
-	return redirect("/sector/%d/" % user_account.sector.id)
+	manager = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name='project_manager')
+	project = manager[0].projects.all()[0]
+	return redirect("/project/%d/" % project.id)	
 
 def _view_project_manager_assistant_frontpage(request):
 	return redirect("/sector/%d/" % user_account.sector.id)
@@ -347,27 +351,79 @@ def view_sectors_overview(request):
 @login_required
 def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
-
 	current_date = date.today()
-
-	#finance_result = FinanceKPISubmission.objects.filter(project__master_plan=master_plan, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("budget"), Sum("spent_budget"))
-	#finance_percentage = int(float(finance_result["spent_budget__sum"]) / float(finance_result["budget__sum"]) * 100)
-
-	#operation_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.OPERATION_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
-	#operation_percentage = int(float(operation_result["result_score__sum"]) / float(operation_result["target_score__sum"]) * 100)
-
-	#teamwork_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.TEAMWORK_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
-	#teamwork_percentage = int(float(teamwork_result["result_score__sum"]) / float(teamwork_result["target_score__sum"]) * 100)
-
-	#partner_result = KPISubmission.objects.filter(target__kpi__master_plan=master_plan, target__kpi__category=MasterPlanKPI.PARTNER_CATEGORY, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
-	#partner_percentage = int(float(partner_result["result_score__sum"]) / float(partner_result["target_score__sum"]) * 100)
-
-	finance_percentage = 50
-	operation_percentage = 50
-	teamwork_percentage = 50
-	partner_percentage = 50
-
-	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, 'finance_percentage':finance_percentage, 'operation_percentage':operation_percentage, 'teamwork_percentage':teamwork_percentage, 'partner_percentage':partner_percentage})
+	current_year = current_date.year
+	
+	master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
+	
+	# Finance KPI
+	projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
+	result = ProjectBudgetSchedule.objects.filter(project__in=projects, year=current_year).aggregate(Sum('expected_budget'), Sum('used_budget'))
+	
+	if result['expected_budget__sum']:
+		master_plan.finance_kpi = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100)
+		if master_plan.finance_kpi > 100: master_plan.finance_kpi = 100
+	else:
+		master_plan.finance_kpi = None
+	
+	marked_projects = list()
+	for result_project in ProjectBudgetSchedule.objects.filter(project__in=projects, scheduled_on__lt=current_date, claimed_on=None, year=current_year):
+		marked_projects.append({'project':result_project.project, 'schedule':result_project})
+		
+	master_plan.finance_projects = marked_projects
+	
+	# Operation KPI
+	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.OPERATION_CATEGORY)
+	result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
+	
+	if result['target_score__sum']:
+		master_plan.operation_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
+		if master_plan.operation_kpi > 100: master_plan.operation_kpi = 100
+	else:
+		master_plan.operation_kpi = None
+	
+	marked_projects = list()
+	for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
+		percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
+		if percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':percentage})
+	
+	master_plan.operation_projects = marked_projects
+	
+	# Teamwork KPI
+	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.TEAMWORK_CATEGORY)
+	result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
+	
+	if result['target_score__sum']:
+		master_plan.teamwork_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
+		if master_plan.teamwork_kpi > 100: master_plan.teamwork_kpi = 100
+	else:
+		master_plan.teamwork_kpi = None
+	
+	marked_projects = list()
+	for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
+		percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
+		if percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':percentage})
+	
+	master_plan.teamwork_projects = marked_projects
+	
+	# Partner KPI
+	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.PARTNER_CATEGORY)
+	result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
+	
+	if result['target_score__sum']:
+		master_plan.partner_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
+		if master_plan.partner_kpi > 100: master_plan.partner_kpi = 100
+	else:
+		master_plan.partner_kpi = None
+	
+	marked_projects = list()
+	for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
+		percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
+		if percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':percentage})
+	
+	master_plan.partner_projects = marked_projects
+	
+	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, })
 
 @login_required
 def view_master_plan_plans(request, master_plan_id):
@@ -388,43 +444,25 @@ def view_master_plan_kpi(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	current_date = date.today()
 
-	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan)
-
-	for kpi in kpis:
-		kpi.target_projects = KPITargetProject.objects.filter(kpi=kpi)
-
-		for target_project in kpi.target_projects:
-			result = KPISubmission.objects.filter(target=target_project, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("target_score"), Sum("result_score"))
-
-			target_project.target_score = result["target_score__sum"]
-			target_project.result_score = result["result_score__sum"]
-
-			target_project.percentage = int((float(target_project.result_score) / float(target_project.target_score)) * 100)
-
-			if target_project.percentage < 50: target_project.range = "lowest"
-			elif target_project.percentage < 100: target_project.range = "low"
-			elif target_project.percentage == 100: target_project.range = "expect"
-			else: target_project.range = "above"
-
+	master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
+	
 	# Finance KPI
 	projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
+	master_plan.finance_kpi = _get_sector_finance_kpi_percentage(master_plan)
+	
+	# Operation KPI
+	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.OPERATION_CATEGORY)
+	master_plan.operation_kpi = _get_sector_kpi_percentage(master_plan, kpis)
+	
+	# Teamwork KPI
+	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.TEAMWORK_CATEGORY)
+	master_plan.teamwork_kpi = _get_sector_kpi_percentage(master_plan, kpis)
+	
+	# Partner KPI
+	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.PARTNER_CATEGORY)
+	master_plan.partner_kpi = _get_sector_kpi_percentage(master_plan, kpis)
 
-	for project in projects:
-		result = FinanceKPISubmission.objects.filter(project=project, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum("budget"), Sum("spent_budget"))
-
-		project.budget = result["budget__sum"]
-		if not project.budget: project.budget = "100"
-		project.spent_budget = result["spent_budget__sum"]
-		if not project.spent_budget: project.spent_budget = "0"
-
-		project.percentage = int((float(project.spent_budget) / float(project.budget)) * 100)
-
-		if project.percentage < 50: project.range = "lowest"
-		elif project.percentage < 100: project.range = "low"
-		elif project.percentage == 100: project.range = "expect"
-		else: project.range = "above"
-
-	return render_response(request, "master_plan_kpi.html", {'master_plan':master_plan, 'kpis':kpis, 'projects':projects})
+	return render_response(request, "master_plan_kpi.html", {'master_plan':master_plan, })
 
 #
 # PROGRAM

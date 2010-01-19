@@ -9,7 +9,11 @@ from django.contrib.auth.decorators import login_required
 from django.utils import simplejson
 
 from helper.utilities import format_display_datetime, user_has_role
-from domain.models import ProjectBudgetSchedule, ProjectBudgetScheduleRevision, KPISchedule, KPIScheduleRevision, UserRoleResponsibility
+from domain.models import ProjectBudgetSchedule
+from domain.models import ProjectBudgetScheduleRevision
+from domain.models import KPISchedule
+from domain.models import KPIScheduleRevision
+from domain.models import UserRoleResponsibility
 
 @login_required
 def ajax_update_kpi_schedule(request):
@@ -43,22 +47,21 @@ def ajax_update_kpi_schedule(request):
 		raise Http404
 
 @login_required
-def ajax_update_finance_kpi_submission(request):
+def ajax_update_finance_schedule(request):
 	if request.method == "POST":
-		submission_id = request.POST.get("submission")
-		budget = request.POST.get("budget")
-		spent = request.POST.get("spent")
+		schedule_id = request.POST.get("schedule")
+		expected_budget = request.POST.get("expected")
+		used_budget = request.POST.get("used")
 		
-		submission = FinanceKPISubmission.objects.get(pk=submission_id)
+		schedule = ProjectBudgetSchedule.objects.get(pk=schedule_id)
 		
-		revision = FinanceKPISubmissionRevision.objects.create(submission=submission, budget=submission.budget, spent_budget=submission.spent_budget, submitted_by=request.user.get_profile())
+		revision = ProjectBudgetScheduleRevision.objects.create(schedule=schedule, expected_budget=schedule.expected_budget, used_budget=schedule.used_budget, revised_by=request.user.get_profile())
 		
-		submission.budget = int(budget)
-		submission.spent_budget = int(spent)
-		submission.last_update = revision.submitted_on
-		submission.save()
+		schedule.expected_budget = int(expected_budget)
+		schedule.used_budget = int(used_budget)
+		schedule.save()
 		
-		return HttpResponse(simplejson.dumps({'id':submission.id, 'budget':revision.budget, 'spent_budget':revision.spent_budget, 'submitted_on':format_display_datetime(revision.submitted_on)}))
+		return HttpResponse(simplejson.dumps({'id':schedule.id, 'expected':revision.expected_budget, 'used':revision.used_budget, 'revised_on':format_display_datetime(revision.revised_on)}))
 		
 	else:
 		raise Http404

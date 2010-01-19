@@ -16,7 +16,7 @@
 		<ul>
 			<li><a href="{% url view_master_plan_overview master_plan.id %}">ภาพรวม</a></li>
 			<li><a href="{% url view_master_plan_plans master_plan.id %}">แผนงาน/โครงการที่รับผิดชอบ</a></li>
-			<li class="selected">ผลลัพธ์จากตัวชี้วัด</li>
+			<li class="selected">ตัวชี้วัดองค์กร</li>
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -24,100 +24,267 @@
 {% endblock %}
 
 {% block body_content %}
-<div class="kpi_summary_page">
-
-<h2>ตัวชี้วัดการเงิน</h2>
-<ul class="kpis">
-	<li>
-		<h3>การเบิกจ่ายงบประมาณ</h3>
-		<table>
-			{% for project in projects %}
-			<tr>
-				<td class="program">{{project.name}}</td>
-				<td class="percentage {% kpi_range_name project.percentage %}-percentage">{{project.percentage}}%</td>
-				<td class="graph">
-					<div class="bar-graph-container">
-						<div class="bar-graph {% kpi_range_name project.percentage %}-bar-graph" style="width:{{project.percentage}}%;"></div>
-					</div>
-				</td>
-			</tr>
+<div class="sector_kpi_page">
+	<table>
+		{% if master_plan.finance_kpi or master_plan.operation_kpi or master_plan.teamwork_kpi or master_plan.partner_kpi %}
+		<tr>
+			{% for year in master_plan.years %}
+			<th class="year_header">{{year|add:'543'}}</th>
 			{% endfor %}
-		</table>
-	</li>
-</ul>
-
-<h2>ตัวชี้วัดการดำเนินงาน</h2>
-<ul class="kpis">
-	{% for kpi in kpis %}
-	{% ifequal kpi.category 1 %}
-	<li>
-		<h3>{{kpi.name}}</h3>
-		<table>
-			{% for target_project in kpi.target_projects %}
-			<tr>
-				<td class="program">{{target_project.project.name}}</td>
-				<td class="percentage {% kpi_range_name target_project.percentage %}-percentage">{{target_project.percentage}}%</td>
-				<td class="graph">
-					<div class="bar-graph-container">
-						<div class="bar-graph {% kpi_range_name target_project.percentage %}-bar-graph" style="width:{{target_project.percentage}}%;"></div>
-					</div>
-				</td>
-			</tr>
+			<th class="year_header">{{master_plan.years|first|add:'543'}} - {{master_plan.years|last|add:'543'}}</th>
+		</tr>
+		{% endif %}
+		
+		<tr>
+			<td colspan="{{master_plan.years|length|add:'1'}}"><h4>ตัวชี้วัดการเงิน</h4></td>
+		</tr>
+		{% if master_plan.finance_kpi %}
+		<tr>
+			{% for years_kpi in master_plan.finance_kpi.years_kpi %}
+			{% if years_kpi.percentage %}
+			<td class="graph_cell">
+				<div class="percentage kpi-{% kpi_range_name years_kpi.percentage %}-percentage">{{years_kpi.percentage}}%</div>
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name years_kpi.percentage %}-bar-graph" style="width:{{years_kpi.percentage}}%;"></div>
+				</div>
+				{% if years_kpi.projects %}
+				<ul class="marked_projects">
+					{% for marked_project in years_kpi.projects %}
+					<li><a href="/program/{{marked_project.project.id}}/">แผนงาน {{marked_project.project.ref_no}}</a> &#187; <span><span>ยังไม่มีการเบิก</span><div class="bottom_note">เลยกำหนดมาแล้ว {{marked_project.schedule.scheduled_on|timesince|truncatewords:2|cut:'.'|cut:','}}</div></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</td>
+			{% else %}
+			<td class="graph_cell">
+				{% ifequal years_kpi.percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name years_kpi.percentage %}-percentage">0%</div>
+				{% else %}
+				<div class="percentage no_percentage">---%</div>
+				{% endifequal %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+			</td>
+			{% endif %}
 			{% endfor %}
-		</table>
-	</li>
-	{% endifequal %}
-	{% endfor %}
-</ul>
-
-<h2>ตัวชี้วัดทีมงาน</h2>
-<ul class="kpis">
-	{% for kpi in kpis %}
-	{% ifequal kpi.category 2 %}
-	<li>
-		<h3>{{kpi.name}}</h3>
-		<table>
-			{% for target_project in kpi.target_projects %}
-			<tr>
-				<td class="program">{{target_project.project.name}}</td>
-				<td class="percentage {% kpi_range_name target_project.percentage %}-percentage">{{target_project.percentage}}%</td>
-				<td class="graph">
-					<div class="bar-graph-container">
-						<div class="bar-graph {% kpi_range_name target_project.percentage %}-bar-graph" style="width:{{target_project.percentage}}%;"></div>
-					</div>
-				</td>
-			</tr>
+			{% if master_plan.finance_kpi.total_percentage %}
+			<td class="graph_cell">
+				<div class="percentage kpi-{% kpi_range_name master_plan.finance_kpi.total_percentage %}-percentage">{{master_plan.finance_kpi.total_percentage}}%</div>
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name master_plan.finance_kpi.total_percentage %}-bar-graph" style="width:{{master_plan.finance_kpi.total_percentage}}%;"></div>
+				</div>
+			</td>
+			{% else %}
+			<td class="graph_cell">
+				{% ifequal master_plan.finance_kpi.total_percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name master_plan.finance_kpi.total_percentage %}-percentage">0%</div>
+				{% else %}
+				<div class="percentage no_percentage">---%</div>
+				{% endifequal %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+			</td>
+			{% endif %}
+		</tr>
+		{% else %}
+		<tr>
+			<td colspan="{{master_plan.years|length|add:'1'}}" class="no_information">ไม่มีข้อมูลตัวชี้วัด</td>
+		</tr>
+		{% endif %}
+		
+		<tr>
+			<td colspan="{{master_plan.years|length|add:'1'}}"><h4>ตัวชี้วัดการดำเนินงาน</h4></td>
+		</tr>
+		{% if master_plan.operation_kpi %}
+		{% for kpi in master_plan.operation_kpi %}
+		<tr>
+			<td colspan="{{master_plan.years|length|add:'1'}}" class="kpi_name">{{kpi.ref_no}} {{kpi.name}}</td>
+		</tr>
+		<tr>
+			{% for years_kpi in kpi.years_kpi %}
+			{% if years_kpi.percentage %}
+			<td class="graph_cell">
+				<div class="percentage kpi-{% kpi_range_name years_kpi.percentage %}-percentage">{{years_kpi.percentage}}%</div>
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name years_kpi.percentage %}-bar-graph" style="width:{{years_kpi.percentage}}%;"></div>
+				</div>
+				{% if years_kpi.projects %}
+				<ul class="marked_projects">
+					{% for marked_project in years_kpi.projects %}
+					<li><a href="/program/{{marked_project.project.id}}/">แผนงาน {{marked_project.project.ref_no}}</a> &#187; <span class="kpi-{% kpi_range_name marked_project.percentage %}-percentage">{{marked_project.percentage}}%</span></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</td>
+			{% else %}
+			<td class="graph_cell">
+				{% ifequal years_kpi.percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name years_kpi.percentage %}-percentage">0%</div>
+				{% else %}
+				<div class="percentage no_percentage">---%</div>
+				{% endifequal %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+			</td>
+			{% endif %}
 			{% endfor %}
-		</table>
-	</li>
-	{% endifequal %}
-	{% endfor %}
-</ul>
-
-<h2>ตัวชี้วัดภาคี</h2>
-<ul class="kpis">
-	{% for kpi in kpis %}
-	{% ifequal kpi.category 3 %}
-	<li>
-		<h3>{{kpi.name}}</h3>
-		<table>
-			{% for target_project in kpi.target_projects %}
-			<tr>
-				<td class="program">{{target_project.project.name}}</td>
-				<td class="percentage {% kpi_range_name target_project.percentage %}-percentage">{{target_project.percentage}}%</td>
-				<td class="graph">
-					<div class="bar-graph-container">
-						<div class="bar-graph {% kpi_range_name target_project.percentage %}-bar-graph" style="width:{{target_project.percentage}}%;"></div>
-					</div>
-				</td>
-			</tr>
+			{% if kpi.total_percentage %}
+			<td class="graph_cell">
+				<div class="percentage kpi-{% kpi_range_name kpi.total_percentage %}-percentage">{{kpi.total_percentage}}%</div>
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name kpi.total_percentage %}-bar-graph" style="width:{{kpi.total_percentage}}%;"></div>
+				</div>
+			</td>
+			{% else %}
+			<td class="graph_cell">
+				{% ifequal kpi.total_percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name kpi.total_percentage %}-percentage">0%</div>
+				{% else %}
+				<div class="percentage no_percentage">---%</div>
+				{% endifequal %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+			</td>
+			{% endif %}
+		</tr>
+		{% endfor %}
+		{% else %}
+		<tr>
+			<td colspan="{{master_plan.years|length|add:'1'}}" class="no_information">ไม่มีข้อมูลตัวชี้วัด</td>
+		</tr>
+		{% endif %}
+		
+		<tr>
+			<td colspan="{{master_plan.years|length|add:'1'}}"><h4>ตัวชี้วัดทีมงาน</h4></td>
+		</tr>
+		{% if master_plan.teamwork_kpi %}
+		{% for kpi in master_plan.teamwork_kpi %}
+		<tr>
+			<td colspan="{{master_plan.years|length|add:'1'}}" class="kpi_name">{{kpi.ref_no}} {{kpi.name}}</td>
+		</tr>
+		<tr>
+			{% for years_kpi in kpi.years_kpi %}
+			{% if years_kpi.percentage %}
+			<td class="graph_cell">
+				<div class="percentage kpi-{% kpi_range_name years_kpi.percentage %}-percentage">{{years_kpi.percentage}}%</div>
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name years_kpi.percentage %}-bar-graph" style="width:{{years_kpi.percentage}}%;"></div>
+				</div>
+				{% if years_kpi.projects %}
+				<ul class="marked_projects">
+					{% for marked_project in years_kpi.projects %}
+					<li><a href="/program/{{marked_project.project.id}}/">แผนงาน {{marked_project.project.ref_no}}</a> &#187; <span class="kpi-{% kpi_range_name marked_project.percentage %}-percentage">{{marked_project.percentage}}%</span></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</td>
+			{% else %}
+			<td class="graph_cell">
+				{% ifequal years_kpi.percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name years_kpi.percentage %}-percentage">0%</div>
+				{% else %}
+				<div class="percentage no_percentage">---%</div>
+				{% endifequal %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+			</td>
+			{% endif %}
 			{% endfor %}
-		</table>
-	</li>
-	{% endifequal %}
-	{% endfor %}
-</ul>
-
-
+			{% if kpi.total_percentage %}
+			<td class="graph_cell">
+				<div class="percentage kpi-{% kpi_range_name kpi.total_percentage %}-percentage">{{kpi.total_percentage}}%</div>
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name kpi.total_percentage %}-bar-graph" style="width:{{kpi.total_percentage}}%;"></div>
+				</div>
+			</td>
+			{% else %}
+			<td class="graph_cell">
+				{% ifequal kpi.total_percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name kpi.total_percentage %}-percentage">0%</div>
+				{% else %}
+				<div class="percentage no_percentage">---%</div>
+				{% endifequal %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+			</td>
+			{% endif %}
+		</tr>
+		{% endfor %}
+		{% else %}
+		<tr>
+			<td colspan="{{master_plan.years|length|add:'1'}}" class="no_information">ไม่มีข้อมูลตัวชี้วัด</td>
+		</tr>
+		{% endif %}
+		
+		<tr>
+			<td colspan="{{master_plan.years|length|add:'1'}}"><h4>ตัวชี้วัดภาคี</h4></td>
+		</tr>
+		{% if master_plan.partner_kpi %}
+		{% for kpi in master_plan.partner_kpi %}
+		<tr>
+			<td colspan="{{master_plan.years|length|add:'1'}}" class="kpi_name">{{kpi.ref_no}} {{kpi.name}}</td>
+		</tr>
+		<tr>
+			{% for years_kpi in kpi.years_kpi %}
+			{% if years_kpi.percentage %}
+			<td class="graph_cell">
+				<div class="percentage kpi-{% kpi_range_name years_kpi.percentage %}-percentage">{{years_kpi.percentage}}%</div>
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name years_kpi.percentage %}-bar-graph" style="width:{{years_kpi.percentage}}%;"></div>
+				</div>
+				{% if years_kpi.projects %}
+				<ul class="marked_projects">
+					{% for marked_project in years_kpi.projects %}
+					<li><a href="/program/{{marked_project.project.id}}/">แผนงาน {{marked_project.project.ref_no}}</a> &#187; <span class="kpi-{% kpi_range_name marked_project.percentage %}-percentage">{{marked_project.percentage}}%</span></li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			</td>
+			{% else %}
+			<td class="graph_cell">
+				{% ifequal years_kpi.percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name years_kpi.percentage %}-percentage">0%</div>
+				{% else %}
+				<div class="percentage no_percentage">---%</div>
+				{% endifequal %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+			</td>
+			{% endif %}
+			{% endfor %}
+			{% if kpi.total_percentage %}
+			<td class="graph_cell">
+				<div class="percentage kpi-{% kpi_range_name kpi.total_percentage %}-percentage">{{kpi.total_percentage}}%</div>
+				<div class="kpi-graph-container">
+					<div class="kpi-graph kpi-{% kpi_range_name kpi.total_percentage %}-bar-graph" style="width:{{kpi.total_percentage}}%;"></div>
+				</div>
+			</td>
+			{% else %}
+			<td class="graph_cell">
+				{% ifequal kpi.total_percentage 0 %}
+				<div class="percentage kpi-{% kpi_range_name kpi.total_percentage %}-percentage">0%</div>
+				{% else %}
+				<div class="percentage no_percentage">---%</div>
+				{% endifequal %}
+				<div class="kpi-graph-container">
+					<div class="kpi-graph" style="width:0%;"></div>
+				</div>
+			</td>
+			{% endif %}
+		</tr>
+		{% endfor %}
+		{% else %}
+		<tr>
+			<td colspan="{{master_plan.years|length|add:'1'}}" class="no_information">ไม่มีข้อมูลตัวชี้วัด</td>
+		</tr>
+		{% endif %}
+	</table>
 </div>
 {% endblock %}

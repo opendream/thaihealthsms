@@ -8,6 +8,7 @@
 {% block html_head %}
 <script type="text/javascript">
 $(document).ready(function() {
+	{% role_dept user 'sector_manager_assistant,program_manager,program_manager_assistant' project %}
 	$(".update-kpi").click(function(e) {
 		e.preventDefault();
 		
@@ -15,20 +16,21 @@ $(document).ready(function() {
 		var trObject = $(this).closest("tr");
 		var result = trObject.find("input[name='result_score']").val();
 		
-		{% role user 'sector_manager_assistant' %}
+		{% role_dept user 'sector_manager_assistant' project %}
 		var target = trObject.find("input[name='target_score']").val();
 		
 		$.post("/ajax/update-kpi-schedule/", {'schedule': schedule_id, 'result':result, 'target':target}, function(data) {
 			trObject.after('<tr class="revision"><td class="head"></td><td class="input">' + data.target_score + ' หน่วย</td><td class="input">' + data.result_score + ' หน่วย</td><td colspan="2">ข้อมูลเมื่อวันที่ ' + data.revised_on + '</td></tr>');
 		}, "json");
-		{% endrole %}
+		{% endrole_dept %}
 		
-		{% role user 'program_manager,program_manager_assistant' %}
+		{% role_dept user 'program_manager,program_manager_assistant' project %}
 		$.post("/ajax/update-kpi-schedule/", {'schedule': schedule_id, 'result':result}, function(data) {
 			trObject.after('<tr class="revision"><td class="head"></td><td class="input">' + data.target_score + ' หน่วย</td><td class="input">' + data.result_score + ' หน่วย</td><td colspan="2">ข้อมูลเมื่อวันที่ ' + data.revised_on + '</td></tr>');
 		}, "json");
-		{% endrole %}
+		{% endrole_dept %}
 	});
+	{% endrole_dept %}
 });
 </script>
 
@@ -48,6 +50,7 @@ $(document).ready(function() {
 			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
 			<li><a href="{% url view_program_reports project.id %}">รายงานแผนงาน</a></li>
 			<li class="selected">ตัวชี้วัดแผนงาน</li>
+			<li><a href="{% url view_program_finance project.id %}">แผนการเงิน</a></li>
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">ความคิดเห็น</a></li>
 		</ul>
 		<div class="clear"></div>
@@ -74,12 +77,26 @@ $(document).ready(function() {
 			<tr>
 				<td class="head">{{schedule.start_date|thai_month_year}} - {{schedule.end_date|thai_month_year}}</td>
 				<td class="input">
-				{% role user 'sector_manager_assistant' %}<input type="text" name="target_score" value="{{schedule.target_score}}"/>{% endrole %}
-				{% role user 'program_manager,program_manager_assistant' %}{{schedule.target_score}}{% endrole %}
-				หน่วย
+					{% role_dept user 'sector_manager_assistant' project %}
+					<input type="text" name="target_score" value="{{schedule.target_score}}"/>
+					{% else %}
+					{{schedule.target_score}}
+					{% endrole_dept %}
+					หน่วย
 				</td>
-				<td class="input"><input type="text" name="result_score" value="{{schedule.result_score}}"/> หน่วย</td>
-				<td><button class="update-kpi" rel="{{schedule.id}}">แก้ไขข้อมูล</button></td>
+				<td class="input">
+					{% role_dept user 'sector_manager_assistant,program_manager,program_manager_assistant' project %}
+					<input type="text" name="result_score" value="{{schedule.result_score}}"/>
+					{% else %}
+					{{schedule.result_score}}
+					{% endrole_dept %}
+					หน่วย
+				</td>
+				<td>
+					{% role_dept user 'sector_manager_assistant,program_manager,program_manager_assistant' project %}
+					<button class="update-kpi" rel="{{schedule.id}}">แก้ไขข้อมูล</button>
+					{% endrole_dept %}
+				</td>
 			</tr>
 			{% for revision in schedule.revisions %}
 			<tr class="revision">
@@ -107,16 +124,31 @@ $(document).ready(function() {
 				<th>ผลที่เกิดขึ้น</th>
 				<th></th>
 			</tr>
+			
 			{% for schedule in kpi.schedules %}
 			<tr>
 				<td class="head">{{schedule.start_date|thai_month_year}} - {{schedule.end_date|thai_month_year}}</td>
 				<td class="input">
-				{% role user 'sector_manager_assistant' %}<input type="text" name="target_score" value="{{schedule.target_score}}"/>{% endrole %}
-				{% role user 'program_manager,program_manager_assistant' %}{{schedule.target_score}}{% endrole %}
-				หน่วย
+					{% role_dept user 'sector_manager_assistant' project %}
+					<input type="text" name="target_score" value="{{schedule.target_score}}"/>
+					{% else %}
+					{{schedule.target_score}}
+					{% endrole_dept %}
+					หน่วย
 				</td>
-				<td class="input"><input type="text" name="result_score" value="{{schedule.result_score}}"/> หน่วย</td>
-				<td><button class="update-kpi" rel="{{schedule.id}}">แก้ไขข้อมูล</button></td>
+				<td class="input">
+					{% role_dept user 'sector_manager_assistant,program_manager' project %}
+					<input type="text" name="result_score" value="{{schedule.result_score}}"/>
+					{% else %}
+					{{schedule.result_score}}
+					{% endrole_dept %}
+					หน่วย
+				</td>
+				<td>
+					{% role_dept user 'sector_manager_assistant,program_manager,program_manager_assistant' project %}
+					<button class="update-kpi" rel="{{schedule.id}}">แก้ไขข้อมูล</button>
+					{% endrole_dept %}
+				</td>
 			</tr>
 			{% for revision in schedule.revisions %}
 			<tr class="revision">
@@ -149,12 +181,26 @@ $(document).ready(function() {
 			<tr>
 				<td class="head">{{schedule.start_date|thai_month_year}} - {{schedule.end_date|thai_month_year}}</td>
 				<td class="input">
-				{% role user 'sector_manager_assistant' %}<input type="text" name="target_score" value="{{schedule.target_score}}"/>{% endrole %}
-				{% role user 'program_manager,program_manager_assistant' %}{{schedule.target_score}}{% endrole %}
-				หน่วย
+					{% role_dept user 'sector_manager_assistant' project %}
+					<input type="text" name="target_score" value="{{schedule.target_score}}"/>
+					{% else %}
+					{{schedule.target_score}}
+					{% endrole_dept %}
+					หน่วย
 				</td>
-				<td class="input"><input type="text" name="result_score" value="{{schedule.result_score}}"/> หน่วย</td>
-				<td><button class="update-kpi" rel="{{schedule.id}}">แก้ไขข้อมูล</button></td>
+				<td class="input">
+					{% role_dept user 'sector_manager_assistant,program_manager' project %}
+					<input type="text" name="result_score" value="{{schedule.result_score}}"/>
+					{% else %}
+					{{schedule.result_score}}
+					{% endrole_dept %}
+					หน่วย
+				</td>
+				<td>
+					{% role_dept user 'sector_manager_assistant,program_manager,program_manager_assistant' project %}
+					<button class="update-kpi" rel="{{schedule.id}}">แก้ไขข้อมูล</button>
+					{% endrole_dept %}
+				</td>
 			</tr>
 			{% for revision in schedule.revisions %}
 			<tr class="revision">

@@ -30,10 +30,11 @@ DASHBOARD PAGE
 .overview_page ul.master_plans a:link, .overview_page ul.master_plans a:visited, .overview_page ul.master_plans a:active {font-size:131%;}
 
 /* KPI Section*/
-.overview_page .kpi_section h3 {font-size:131%;color:#2D8659;margin-bottom:8px;}
+.overview_page .kpi_section {margin-top:-10px;}
+.overview_page .kpi_section h3 {font-size:131%;color:#2D8659;margin:15px 0px 8px;}
 .overview_page .kpi_section h4 {font-size:131%;color:#333;}
 .overview_page .kpi_section .interval {font-size:131%;color:#666;margin:5px 0px 10px;}
-.overview_page .kpi_section li {width:230px;border:1px solid #CCC;float:left;margin-right:15px;padding:10px 15px;margin-bottom:15px;}
+.overview_page .kpi_section .kpi {width:230px;border:1px solid #CCC;vertical-align:top;padding:10px 15px;}
 
 .overview_page .kpi_section .kpi-graph-container {margin-top:5px;}
 .overview_page .kpi_section .percentage {font-size:153.9%;padding:0px 0px 2px;}
@@ -81,24 +82,23 @@ COMMENT INBOX PAGE
 .comment_inbox_page .comments li .metadata {float:right;color:#333;font-weight:normal;}
 
 /*
-KPI PAGE
+SECTOR KPI PAGE
 */
 
+.sector_kpi_page h3 {font-size:131%;margin-bottom:15px;}
+.sector_kpi_page h4 {font-size:131%;color:#2D8659;margin:10px 0px;}
 
-.kpi_page h3 {font-size:131%;margin-bottom:15px;}
-.kpi_page h4 {font-size:131%;color:#2D8659;margin:8px 0px 0px;}
+.sector_kpi_page table td {vertical-align:top;}
+.sector_kpi_page .year_header {font-size:123.1%;color:#CCC;padding:5px 0px 5px 15px;background-color:#666;}
+.sector_kpi_page .kpi_name {font-size:108%;color:#333;padding:0px 0px 5px 15px;}
+.sector_kpi_page .graph_cell {padding:0px 10px 0px 15px;}
+.sector_kpi_page .graph_cell .percentage {float:right;font-size:131%;}
+.sector_kpi_page .graph_cell .no_percentage {color:#999;}
+.sector_kpi_page .graph_cell .marked_projects {margin-bottom:15px;}
+.sector_kpi_page .graph_cell .marked_projects li {font-size:116%;float:none;border:none;width:auto;margin:5px 0px 8px;padding:0px;}
+.sector_kpi_page .graph_cell .marked_projects li .bottom_note {margin:4px 0px 6px;font-size:0.9em;color:#555;}
 
-.kpi_page table td {vertical-align:top;}
-.kpi_page .year_header {font-size:123.1%;color:#CCC;padding:5px 0px 5px 10px;background-color:#666;}
-.kpi_page .kpi_name {font-size:108%;color:#333;}
-.kpi_page .graph_cell {padding:0px 10px 0px 0px;}
-.kpi_page .graph_cell .percentage {float:right;font-size:131%;}
-.kpi_page .graph_cell .no_percentage {color:#999;}
-.kpi_page .graph_cell .marked_projects {margin-bottom:15px;}
-.kpi_page .graph_cell .marked_projects li {font-size:116%;float:none;border:none;width:auto;margin:5px 0px 8px;padding:0px;}
-.kpi_page .graph_cell .marked_projects li .bottom_note {margin:4px 0px 6px;font-size:0.9em;color:#555;}
-
-.kpi_page table td.no_information {font-size:131%;color:#666;}
+.sector_kpi_page table td.no_information {font-size:123.1%;color:#666;padding:0px 0px 15px 15px;}
 
 .kpi-graph-container {margin:2px 40px 10px 0px;}
 

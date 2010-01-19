@@ -8,27 +8,20 @@
 {% block html_head %}
 <script type="text/javascript">
 $(document).ready(function() {
-	$(".update-kpi").click(function(e) {
+	{% role_dept user 'sector_manager_assistant' project %}
+	$(".update-finance").click(function(e) {
 		e.preventDefault();
 		
 		var schedule_id = $(this).attr("rel");
 		var trObject = $(this).closest("tr");
-		var result = trObject.find("input[name='result_score']").val();
+		var used = trObject.find("input[name='used_budget']").val();
+		var expected = trObject.find("input[name='expected_budget']").val();
 		
-		{% role user 'sector_manager_assistant' %}
-		var target = trObject.find("input[name='target_score']").val();
-		
-		$.post("/ajax/update-kpi-schedule/", {'schedule': schedule_id, 'result':result, 'target':target}, function(data) {
-			trObject.after('<tr class="revision"><td class="head"></td><td class="input">' + data.target_score + ' หน่วย</td><td class="input">' + data.result_score + ' หน่วย</td><td colspan="2">ข้อมูลเมื่อวันที่ ' + data.revised_on + '</td></tr>');
+		$.post("/ajax/update-finance-schedule/", {'schedule': schedule_id, 'used':used, 'expected':expected}, function(data) {
+			trObject.after('<tr class="revision"><td class="head"></td><td class="input">' + data.expected + ' หน่วย</td><td class="input">' + data.used + ' หน่วย</td><td colspan="2">ข้อมูลเมื่อวันที่ ' + data.revised_on + '</td></tr>');
 		}, "json");
-		{% endrole %}
-		
-		{% role user 'program_manager,program_manager_assistant' %}
-		$.post("/ajax/update-kpi-schedule/", {'schedule': schedule_id, 'result':result}, function(data) {
-			trObject.after('<tr class="revision"><td class="head"></td><td class="input">' + data.target_score + ' หน่วย</td><td class="input">' + data.result_score + ' หน่วย</td><td colspan="2">ข้อมูลเมื่อวันที่ ' + data.revised_on + '</td></tr>');
-		}, "json");
-		{% endrole %}
 	});
+	{% endrole_dept %}
 });
 </script>
 
@@ -58,6 +51,9 @@ $(document).ready(function() {
 
 {% block body_content %}
 <div class="program_finance_page">
+
+
+
 <table class="finance_years">
 	<tr>
 		<th></th>
@@ -71,18 +67,28 @@ $(document).ready(function() {
 		</tr>
 		{% for schedule in year.schedules %}
 			<tr>
-				<td class="head">{{schedule.scheduled_on|thai_month_year}}</td>
+				<td class="head">{{schedule.scheduled_on|thai_abbr_date}}</td>
 				<td class="input">
-				{% role user 'sector_manager_assistant' %}<input type="text" name="expected_budget" value="{{schedule.expected_budget}}"/>{% endrole %}
-				{% role user 'program_manager,program_manager_assistant' %}{{schedule.expected_budget}}{% endrole %}
+				{% role_dept user 'sector_manager_assistant' project %}
+				<input type="text" name="expected_budget" value="{{schedule.expected_budget}}"/>
+				{% else %}
+				{{schedule.expected_budget}}
+				{% endrole_dept %}
 				หน่วย
 				</td>
 				<td class="input">
-				{% role user 'sector_manager_assistant' %}<input type="text" name="used_budget" value="{{schedule.used_budget}}"/>{% endrole %}
-				{% role user 'program_manager,program_manager_assistant' %}{{schedule.used_budget}}{% endrole %}
+				{% role_dept user 'sector_manager_assistant' project %}
+				<input type="text" name="used_budget" value="{{schedule.used_budget}}"/>
+				{% else %}
+				{{schedule.used_budget}}
+				{% endrole_dept %}
 				หน่วย
 				</td>
-				<td><button class="update-kpi" rel="{{schedule.id}}">แก้ไขข้อมูล</button></td>
+				<td>
+					{% role_dept user 'sector_manager_assistant' project %}
+					<button class="update-finance" rel="{{schedule.id}}">แก้ไขข้อมูล</button>
+					{% endrole_dept %}
+				</td>
 			</tr>
 			{% for revision in schedule.revisions %}
 				<tr class="revision">

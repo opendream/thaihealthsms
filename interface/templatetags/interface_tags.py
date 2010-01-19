@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from domain.constants import PROJECT_TYPE_TEXT
 from domain.models import Project, UserAccount, UserRoleResponsibility
 from thaihealthsms.helper.utilities import format_date
+from thaihealthsms.helper.utilities import who_responsible
 from comments.models import CommentReceiver
 
 register = template.Library()
@@ -25,9 +26,8 @@ def get_unread_comments(user_account_id):
 def print_sector_header(sector):
 	html = unicode('<div class="title"><span>สำนัก ', 'utf-8') + sector.ref_no + '</span> ' + sector.name + '</div>'
 	
-	responsibility = UserRoleResponsibility.objects.filter(role__name="sector_manager", sectors__in=(sector,))
-	managers = [item.user.first_name + ' ' + item.user.last_name for item in responsibility]
-	html += unicode('<div class="info">ผู้จัดการสำนัก ', 'utf-8') + ' ,'.join(managers) + '</div>'
+	managers = ', '.join([user.first_name + ' ' + user.last_name for user in who_responsible(sector)])
+	html += unicode('<div class="info">ผู้จัดการสำนัก ', 'utf-8') + managers + '</div>'
 	
 	return html
 
@@ -43,19 +43,17 @@ def print_project_header(project):
 	html = '<div class="sector"><a href="/sector/' + str(project.sector.id) + '/">' + project.sector.name + '</a> - <a href="/master_plan/' + str(project.master_plan.id) + '/">' + project.master_plan.name + '</a></div>'
 	
 	if not project.parent_project:
-		responsibility = UserRoleResponsibility.objects.filter(role__name="program_manager", projects__in=(project,))
-		managers = [item.user.first_name + ' ' + item.user.last_name for item in responsibility]
+		managers = ', '.join([user.first_name + ' ' + user.last_name for user in who_responsible(project)])
 		
 		html += '<div class="title"><span> ' + unicode(PROJECT_TYPE_TEXT[project.prefix_name], "utf-8") + ' ' + project.ref_no + '</span> ' + project.name + '</div>'
-		html += unicode('<div class="info"><span>รับผิดชอบโดย ', "utf-8") + ' ,'.join(managers) + unicode('</span> <a href="#" class="post-comment">ความคิดเห็น &#187; แผนงาน</a></div>', "utf-8")
+		html += unicode('<div class="info"><span>รับผิดชอบโดย ', "utf-8") + managers + unicode('</span> <a href="#" class="post-comment">ความคิดเห็น &#187; แผนงาน</a></div>', "utf-8")
 	
 	else:
-		responsibility = UserRoleResponsibility.objects.filter(role__name="project_manager", projects__in=(project,))
-		managers = [item.user.first_name + ' ' + item.user.last_name for item in responsibility]
+		managers = ', '.join([user.first_name + ' ' + user.last_name for user in who_responsible(project)])
 		
 		html += '<div class="parent"><a href="/program/' + str(project.parent_project.id) + '/">' + project.parent_project.name + '</a></div>'
 		html += '<div class="title"><span> ' + unicode(PROJECT_TYPE_TEXT[project.prefix_name], "utf-8") + ' ' + project.ref_no + '</span> ' + project.name + '</div>'
-		html += unicode('<div class="info"><span>รับผิดชอบโดย ', "utf-8") + ' ,'.join(managers) + unicode('</span> <a href="#" class="post-comment">ความคิดเห็น &#187; โครงการ</a></div>', "utf-8")
+		html += unicode('<div class="info"><span>รับผิดชอบโดย ', "utf-8") + managers + unicode('</span> <a href="#" class="post-comment">ความคิดเห็น &#187; โครงการ</a></div>', "utf-8")
 	
 	return html
 
