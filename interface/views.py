@@ -94,6 +94,7 @@ def _view_project_manager_frontpage(request):
 	return redirect("/project/%d/" % project.id)	
 
 def _view_project_manager_assistant_frontpage(request):
+	user_account = request.user.get_profile()
 	return redirect("/sector/%d/" % user_account.sector.id)
 
 @login_required
