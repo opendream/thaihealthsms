@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load helper %}
+{% load helper i18n %}
 {% load interface_tags %}
 
 {% block post_comment_ajax_url %}{% if not project.parent_project %}/post-comment/object/program/{{project.id}}/{% else %}/post-comment/object/project/{{project.id}}/{% endif %}{% endblock %}
@@ -18,15 +18,15 @@
 	<div class="tabs">
 		<ul>
 			{% if not project.parent_project %}
-			<li><a href="{% url view_program_overview project.id %}">ภาพรวม</a></li>
-			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
-			<li><a href="{% url view_program_reports project.id %}">รายงานแผนงาน</a></li>
-			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />ความคิดเห็น</li>
+			<li><a href="{% url view_program_overview project.id %}">{% trans 'Overview' %}</a></li>
+			<li><a href="{% url view_program_projects project.id %}">{% trans 'Projects' %}</a></li>
+			<li><a href="{% url view_program_reports project.id %}">{% trans 'Project Reports' %}</a></li>
+			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />{% trans 'Comments' %}</li>
 			{% else %}
-			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
-			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
-			<li><a href="{% url view_project_reports project.id %}">รายงานโครงการ</a></li>
-			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />ความคิดเห็น</li>
+			<li><a href="{% url view_project_overview project.id %}">{% trans 'Overview' %}</a></li>
+			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
+			<li><a href="{% url view_project_reports project.id %}">{% trans 'Project Reports' %}</a></li>
+			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />{% trans 'Comments' %}</li>
 			{% endif %}
 		</ul>
 		<div class="clear"></div>
@@ -40,10 +40,14 @@
 	<ul class="comments">
 		{% for comment in comments %}
 		<li {% if comment.already_read %}class="read"{% endif %}>
-			<div class="sender">{{comment.comment.sent_by.first_name}} {{comment.comment.sent_by.last_name}}<div class="metadata">ส่งเมื่อวันที่ {{comment.sent_on|thai_date}} เวลา {{comment.sent_on|date:"H:i"}} น.</div></div>
+			<div class="sender">{{comment.comment.sent_by.first_name}} {{comment.comment.sent_by.last_name}}
+			  <div class="metadata">
+			    {% blocktrans with comment.sent_on|thai_date as c_date and comment.sent_on|date:'H:i' as c_time %}Send at {{ c_date }} Time {{ c_time }} o'clock{% endblocktrans %}
+			  </div>
+			</div>
 			<p>{{comment.comment.message}}</p>
 			<div class="receivers">
-				<h4>ส่งถึง:</h4>
+				<h4>{% trans 'Receivers' %}:</h4>
 				<ul>
 					{% for receiver in comment.receivers %}
 					<li>{{receiver.receiver.first_name}} {{receiver.receiver.last_name}}</li>
@@ -54,7 +58,7 @@
 		{% endfor %}
 	</ul>
 	{% else %}
-	<div class="ss_no_information">ไม่มีความคิดเห็นที่เกี่ยวข้อง</div>
+	<div class="ss_no_information">{% trans 'No Related Comments' %}</div>
 	{% endif %}
 </div>
 {% endblock %}

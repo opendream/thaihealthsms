@@ -71,6 +71,7 @@ def _view_sector_manager_assistant_frontpage(request):
 	return render_response(request, "dashboard_assistant.html", {'projects':responsibility.projects.all()})
 
 def _view_program_manager_frontpage(request):
+	user_account = request.user.get_profile()
 	return redirect("/sector/%d/" % user_account.sector.id)
 
 def _view_program_manager_assistant_frontpage(request):
@@ -82,9 +83,11 @@ def _view_program_manager_assistant_frontpage(request):
 	return render_response(request, "dashboard_program_assistant.html", {'projects':projects})
 
 def _view_project_manager_frontpage(request):
+	user_account = request.user.get_profile()
 	return redirect("/sector/%d/" % user_account.sector.id)
 
 def _view_project_manager_assistant_frontpage(request):
+	user_account = request.user.get_profile()
 	return redirect("/sector/%d/" % user_account.sector.id)
 
 @login_required

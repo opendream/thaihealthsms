@@ -38,7 +38,11 @@
 			<ul class="comments">
 				{% for comment in object.comments %}
 				<li>
-					<div class="sender">{{comment.comment.sent_by.first_name}} {{comment.comment.sent_by.last_name}}<div class="metadata">{% blocktrans %}Send at {{comment.sent_on|thai_date}} Time {{comment.sent_on|date:"H:i"}} o'clock{% endblocktrans %}</div></div>
+					<div class="sender">{{comment.comment.sent_by.first_name}} {{comment.comment.sent_by.last_name}}
+					  <div class="metadata">
+						{% blocktrans with comment.sent_on|thai_date as c_date and comment.sent_on|date:'H:i' as c_time %}Send at {{ c_date }} Time {{ c_time }} o'clock{% endblocktrans %}
+					  </div>
+					</div>
 					<p>{{comment.comment.message}}</p>
 				</li>
 				{% endfor %}
