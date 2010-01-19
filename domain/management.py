@@ -295,13 +295,17 @@ def after_syncdb(sender, **kwargs):
 		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=2000000, used_budget=0, year=2010, scheduled_on=date(2010, 4, 1))
 
 		# KPI ##################
-		kpi1 = MasterPlanKPI.objects.create(ref_no="R1", name="KPI 1", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
-		kpi2 = MasterPlanKPI.objects.create(ref_no="R2", name="KPI 2", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
-		kpi3 = MasterPlanKPI.objects.create(ref_no="R3", name="KPI 3", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
-		kpi4 = MasterPlanKPI.objects.create(ref_no="R4", name="KPI 4", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		kpi1 = MasterPlanKPI.objects.create(ref_no="R1", name="เกิดตำบลต้นแบบดำเนินงานระบบการดูแลสุขภาพชุมชนในระดับตำบล จำนวน 100 แห่ง", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		kpi2 = MasterPlanKPI.objects.create(ref_no="R2", name="ภาคีกลุ่มผลักดันนโยบายร่วมพัฒนาและได้ข้อเสนอเชิงนโยบายสาธารณะระดับชาติ หรือ ระดับองค์กร/พื้นที่เรื่องระบบบริการสุขภาพ และการดูแลสุขภาพชุมชน อย่างน้อย 3 เรื่อง", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		kpi3 = MasterPlanKPI.objects.create(ref_no="R3", name="ภาคี \"เจ้าของเรื่อง\" ได้ชุดความรู้ที่เกียวกับการสร้างเสริมสุขภาพผ่านระบบบริการสุขภาพผ่านระบบบริการสุขภาพ อย่างน้อย 20 เรื่อง", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		# kpi4 = MasterPlanKPI.objects.create(ref_no="R4", name="เกิดรูปแบบในการพัฒนาบริการสร้างเสริมสุขภาพ อย่างน้อย 2 รูปแบบ", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		# kpi5 = MasterPlanKPI.objects.create(ref_no="R5", name="เกิดการร่วมขับเคลื่อนและผลักดันนโยบายสาธรารณะร่วมกับองค์กรหลักในระบบบริการสุขภาพอย่างน้อย 2 ประเด็น", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
 
-		kpi5 = MasterPlanKPI.objects.create(ref_no="R4", name="KPI 4", category=MasterPlanKPI.TEAMWORK_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
-		KPISchedule.objects.create(kpi=kpi5, project=program1201_1, year=2010, target_score=100, result_score=0, start_date=date(2009,10,1), end_date=date(2009,12,1))
+		kpi6 = MasterPlanKPI.objects.create(ref_no="R6", name="ศักยภาพพนักงาน", category=MasterPlanKPI.TEAMWORK_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		kpi7 = MasterPlanKPI.objects.create(ref_no="R7", name="การทำงานเป็นทีม", category=MasterPlanKPI.TEAMWORK_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+
+		kpi8 = MasterPlanKPI.objects.create(ref_no="R8", name="ประสิทธิภาพ", category=MasterPlanKPI.PARTNER_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		kpi9 = MasterPlanKPI.objects.create(ref_no="R9", name="ความร่วมมือ", category=MasterPlanKPI.PARTNER_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
 
 
 		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2009, target_score=100, result_score=30, start_date=date(2008,10,1), end_date=date(2008,12,1))
