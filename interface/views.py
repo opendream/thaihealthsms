@@ -537,7 +537,13 @@ def view_program_overview(request, program_id):
 	kpis = MasterPlanKPI.objects.filter(master_plan=program.master_plan, category=MasterPlanKPI.OPERATION_CATEGORY)
 	
 	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum('target_score'), Sum('result_score'))
-	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	
+	if result['target_score__sum']:
+		percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
+	else:
+		percentage = None
+	
+	print "percentage" + str(percentage)
 	
 	marked_kpis = list()
 	for kpi_schedule in KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date, result_score__lt=F('target_score')):
