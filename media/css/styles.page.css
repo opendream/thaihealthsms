@@ -33,6 +33,7 @@ DASHBOARD PAGE
 .overview_page .kpi_section {margin-top:-10px;}
 .overview_page .kpi_section h3 {font-size:131%;color:#2D8659;margin:15px 0px 8px;}
 .overview_page .kpi_section h4 {font-size:131%;color:#333;}
+.overview_page .kpi_section table {margin-bottom:15px;}
 .overview_page .kpi_section .interval {font-size:131%;color:#666;margin:5px 0px 10px;}
 .overview_page .kpi_section .kpi {width:230px;border:1px solid #CCC;vertical-align:top;padding:10px 15px;}
 
@@ -43,6 +44,26 @@ DASHBOARD PAGE
 .overview_page .kpi_section .marked_projects li {color:#333;font-size:116%;float:none;border:none;width:auto;margin:5px 0px 8px;padding:0px;}
 .overview_page .kpi_section .marked_projects li .finance_note {font-size:0.9em;}
 .overview_page .kpi_section .marked_projects li .bottom_note {margin:4px 0px 6px;font-size:0.9em;color:#555;}
+
+.overview_page .hierarchy_section {}
+.overview_page .hierarchy_section .item_overview {font-size:108%;margin:4px 0px 10px;}
+.overview_page .hierarchy_section .item_overview span {color:#666;margin-right:20px;}
+.overview_page .hierarchy_section .item_overview span em {color:#096;padding:0px 5px;}
+.overview_page .hierarchy_section .ss_no_information {margin-left:10px;}
+
+.overview_page .sector_hierarchy_section h3 {font-size:131%;color:#2D8659;margin:15px 0px 10px;}
+.overview_page .sector_hierarchy_section h4 {font-size:116%;color:#333;margin:10px 0px 10px 10px;}
+.overview_page .sector_hierarchy_section ul {margin-left:20px;}
+.overview_page .sector_hierarchy_section li a:link, .overview_page .sector_hierarchy_section li a:visited, .overview_page .sector_hierarchy_section li a:active {font-size:116%;}
+
+.overview_page .master_plan_hierarchy_section {}
+.overview_page .master_plan_hierarchy_section h3 {font-size:116%;color:#333;margin:10px 0px 10px;}
+.overview_page .master_plan_hierarchy_section ul {margin-left:15px;}
+.overview_page .master_plan_hierarchy_section li a:link, .overview_page .master_plan_hierarchy_section li a:visited, .overview_page .master_plan_hierarchy_section li a:active {font-size:116%;}
+
+.overview_page .project_hierarchy_section li {margin:0px 0px 10px 15px;}
+.overview_page .project_hierarchy_section h3 {font-size:116%;}
+
 
 /**/
 .overview_page .sectors h2 a:link, .overview_page .sectors h2 a:visited, .overview_page .sectors h2 a:active {color:#FFF;text-decoration:none;}
@@ -222,6 +243,7 @@ PROGRAM KPI PAGE
 .program_kpi_page table td input {width:80px;margin-right:10px;}
 .program_kpi_page table td img {vertical-align:middle;}
 .program_kpi_page table .revision {color:#666;}
+.program_kpi_page table .revision td.head {font-size:100%;text-align:right;}
 .program_kpi_page table td .update-kpi {margin-right:150px;}
 .program_kpi_page .no_information {font-size:123.1%;color:#666;margin-left:15px;}
 
@@ -238,6 +260,7 @@ PROGRAM FINANCE PAGE
 .program_finance_page table td input {width:80px;margin-right:10px;}
 .program_finance_page table td img {vertical-align:middle;}
 .program_finance_page table .revision {color:#666;}
+.program_finance_page table .revision td.head {font-size:100%;text-align:right;}
 .program_finance_page table td .update-finance {margin-right:150px;}
 
 /*

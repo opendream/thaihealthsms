@@ -145,8 +145,9 @@
 			{% endfor %}
 		</table>
 	</div>
-	<div class="master_plans_programs">
-		<h2>แผนงาน/โครงการภายใต้แผนหลัก</h2>
+	
+	<h2>แผนงาน/โครงการที่ดำเนินการอยู่ในปัจจุบัน</h2>
+	<div class="hierarchy_section sector_hierarchy_section">
 		{% for master_plan in master_plans %}
 			<h3>แผนหลัก {{master_plan.ref_no}} {{master_plan.name}}</h3>
 			{% for plan in master_plan.plans %}
@@ -155,12 +156,11 @@
 					<div class="ss_no_information">ไม่มีแผนงาน/โครงการ</div>
 				{% else %}
 					{% if plan.current_projects %}
-					<h5 class="em">แผนงาน/โครงการในปัจจุบัน</h5>
 					<ul>
 						{% for project in plan.current_projects %}
 						<li>
 							<a href="{% url view_program_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
-							<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{{project.manager.first_name}} {{project.manager.last_name}}</em></span></div>
+							<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
 						</li>
 						{% endfor %}
 					</ul>

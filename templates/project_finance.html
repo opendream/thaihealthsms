@@ -25,7 +25,6 @@ $(document).ready(function() {
 });
 </script>
 
-
 {% endblock %}
 
 {% block body_title %}
@@ -51,9 +50,6 @@ $(document).ready(function() {
 
 {% block body_content %}
 <div class="program_finance_page">
-
-
-
 <table class="finance_years">
 	<tr>
 		<th></th>
@@ -70,17 +66,17 @@ $(document).ready(function() {
 				<td class="head">{{schedule.scheduled_on|thai_abbr_date}}</td>
 				<td class="input">
 				{% role_dept user 'sector_manager_assistant' project %}
-				<input type="text" name="expected_budget" value="{{schedule.expected_budget}}"/>
+					<input type="text" name="expected_budget" value="{{schedule.expected_budget}}"/>
 				{% else %}
-				{{schedule.expected_budget}}
+					{{schedule.expected_budget}}
 				{% endrole_dept %}
 				หน่วย
 				</td>
 				<td class="input">
 				{% role_dept user 'sector_manager_assistant' project %}
-				<input type="text" name="used_budget" value="{{schedule.used_budget}}"/>
+					<input type="text" name="used_budget" value="{{schedule.used_budget}}"/>
 				{% else %}
-				{{schedule.used_budget}}
+					{{schedule.used_budget}}
 				{% endrole_dept %}
 				หน่วย
 				</td>
@@ -92,7 +88,7 @@ $(document).ready(function() {
 			</tr>
 			{% for revision in schedule.revisions %}
 				<tr class="revision">
-					<td class="head"></td>
+					<td class="head">แก้ไข</td>
 					<td class="input">{{revision.expected_budget}} หน่วย</td>
 					<td class="input">{{revision.used_budget}} หน่วย</td>
 					<td>ข้อมูลเมื่อวันที่ {{revision.revised_on|thai_display_datetime}}</td>

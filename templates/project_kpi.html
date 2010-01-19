@@ -100,7 +100,7 @@ $(document).ready(function() {
 			</tr>
 			{% for revision in schedule.revisions %}
 			<tr class="revision">
-				<td class="head"></td>
+				<td class="head">แก้ไข</td>
 				<td class="input">{{revision.target_score}} หน่วย</td>
 				<td class="input">{{revision.result_score}} หน่วย</td>
 				<td>ข้อมูลเมื่อวันที่ {{revision.revised_on|thai_display_datetime}}</td>
@@ -152,7 +152,7 @@ $(document).ready(function() {
 			</tr>
 			{% for revision in schedule.revisions %}
 			<tr class="revision">
-				<td class="head"></td>
+				<td class="head">แก้ไข</td>
 				<td class="input">{{revision.target_score}} หน่วย</td>
 				<td class="input">{{revision.result_score}} หน่วย</td>
 				<td>ถูกแก้ไขเมื่อวันที่ {{revision.submitted_on|thai_display_datetime}}</td>
@@ -204,7 +204,7 @@ $(document).ready(function() {
 			</tr>
 			{% for revision in schedule.revisions %}
 			<tr class="revision">
-				<td class="head"></td>
+				<td class="head">แก้ไข</td>
 				<td class="input">{{revision.target_score}} หน่วย</td>
 				<td class="input">{{revision.result_score}} หน่วย</td>
 				<td>ถูกแก้ไขเมื่อวันที่ {{revision.submitted_on|thai_display_datetime}}</td>

@@ -247,30 +247,34 @@
 	{% endif %}
 	
 	{% if not project.parent_project %}
-	<h2>โครงการภายใต้แผนงาน</h2>
+		<h2>โครงการที่ดำเนินการอยู่</h2>
 		{% if current_projects %}
-		<ul>
-			{% for project in current_projects %}
-				<li>
-					<h3><a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a></h3>
-					<div class="item_overview"><span>ช่วงเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span></div>
-				</li>
-			{% endfor %}
-		</ul>
+		<div class="hierarchy_section project_hierarchy_section">
+			<ul>
+				{% for project in current_projects %}
+					<li>
+						<h3><a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a></h3>
+						<div class="item_overview"><span>ช่วงเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span></div>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
 		{% else %}
 		<div class="ss_no_information">ไม่มีโครงการในปัจจุบัน</div>
 		{% endif %}
 	{% else %}
-	<h2>กิจกรรมภายใต้โครงการ</h2>
+		<h2>กิจกรรมที่ดำเนินการอยู่</h2>
 		{% if current_activities %}
-		<ul>
-			{% for activity in current_activities %}
-			<li>
-				<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
-				<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
-			</li>
-			{% endfor %}
-		</ul>
+		<div class="hierarchy_section project_hierarchy_section">
+			<ul>
+				{% for activity in current_activities %}
+				<li>
+					<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
+					<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
 		{% else %}
 		<div class="ss_no_information">ไม่มีกิจกรรมที่ดำเนินอยู่</div>
 		{% endif %}
