@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-15 16:57+0700\n"
+"POT-Creation-Date: 2010-01-19 10:36+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,40 +56,48 @@ msgstr "กล่องความคิดเห็น"
 msgid "Read All Comments"
 msgstr "อ่านความคิดเห็นทั้งหมด"
 
-#: templates/dashboard_comments.html:41
-msgid ""
-"Send at %(comment.sent_on|thai_date)s Time %(comment.sent_on|date:\"H:i\")s "
-"o'clock"
-msgstr ""
-"ส่งเมื่อ %(comment.sent_on|thai_date)s เวลา %(comment.sent_on|date:\"H:i\")s น."
+#: templates/dashboard_comments.html:43 templates/project_comments.html:45
+msgid "Send at %(c_date)s Time %(c_time)s o'clock"
+msgstr "ส่งเมื่อ %(c_date)s เวลา %(c_time)s น."
 
-#: templates/dashboard_comments.html:50
+#: templates/dashboard_comments.html:54
 msgid "No New Comment"
 msgstr "ไม่มีความคิดเห็นใหม่"
 
+#: templates/project_comments.html:21 templates/project_comments.html.py:26
 #: templates/project_overview.html:20 templates/report_overview.html:20
 msgid "Overview"
 msgstr "ภาพรวม"
 
-#: templates/project_overview.html:22
+#: templates/project_comments.html:22 templates/project_overview.html:22
 msgid "Projects"
 msgstr "โครงการ"
 
+#: templates/project_comments.html:23 templates/project_comments.html.py:28
 #: templates/project_overview.html:23 templates/project_overview.html.py:28
 msgid "Project Reports"
 msgstr "รายงานโครงการ"
 
-#: templates/project_overview.html:24
-msgid "Project KPIs"
-msgstr "ตัวชี้วัดโครงการ"
-
+#: templates/project_comments.html:24 templates/project_comments.html.py:29
 #: templates/project_overview.html:25 templates/project_overview.html.py:29
 msgid "Comments"
 msgstr "ความคิดเห็น"
 
-#: templates/project_overview.html:27
+#: templates/project_comments.html:27 templates/project_overview.html:27
 msgid "Activities"
 msgstr "กิจกรรม"
+
+#: templates/project_comments.html:50
+msgid "Receivers"
+msgstr "ผู้รับ"
+
+#: templates/project_comments.html:61
+msgid "No Related Comments"
+msgstr "ไม่มีความคิดเห็นที่เกี่ยวข้อง"
+
+#: templates/project_overview.html:24
+msgid "Project KPIs"
+msgstr "ตัวชี้วัดโครงการ"
 
 #: templates/project_overview.html:39
 msgid "Current Activities"
