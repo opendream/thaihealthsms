@@ -51,13 +51,16 @@ $(document).ready(function() {
 			$("#post-comment-dialog").css("display", "none");
 		}
 	});
-	
+
 	$("#post-comment-receivers").fcbkcomplete({json_url:"{% url ajax_query_comment_receivers %}", cache:true, filter_case:false, filter_hide:true, newel:true});
 	
 });
+
 </script>
-	
-	{% block html_head %}{% endblock %}
+
+{% block js %}{% endblock %}
+{% block html_head %}{% endblock %}
+
 </head>
 <body>
 	<div class="body_header">
@@ -84,8 +87,7 @@ $(document).ready(function() {
 
 <div id="post-comment-dialog">
 <label>ผู้รับเพิ่มเติม (นอกเหนือจากผู้รับผิดชอบ):</label>
-<input type="text" id="post-comment-receivers"/>
-<label>{% trans 'Comment' %}</label>
+<input type="text" id="post-comment-receivers"/> <label>{% trans 'Comment' %}</label>
 <textarea id="post-comment-textarea"></textarea>
 <div class="button-panel"><button>{% trans 'Send a Comment' %}</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" />{% trans 'Sending...' %}</span></div>
 </div>

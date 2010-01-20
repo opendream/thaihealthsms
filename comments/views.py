@@ -48,7 +48,7 @@ def ajax_post_object_comment(request, object_name, object_id):
 		elif object_name == "report":
 			report_schedule = ReportSchedule.objects.get(pk=object_id)
 
-		comment_receiver_roles = CommentReceiverRole.objects.filter(comment_type=object_name)
+		comment_receiver_roles = CommentReceiverRole.objects.filter(object_name=object_name)
 		roles = [r.role for r in comment_receiver_roles]
 		role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(project,))
 		for r in role_resps:
@@ -71,18 +71,20 @@ def ajax_post_object_comment(request, object_name, object_id):
 def ajax_reply_comment(request, comment_id):
 	if request.method == "POST":
 		try:
-			Comment.objects.get(pk=comment_id)
+			comment = Comment.objects.get(pk=comment_id)
 		except Comment.DoesNotExist:
 			return HttpResponse(simplejson.dumps({'error': '404',}))
-		
-		message = request.POST['message'].strip()
-		
-		comment_reply = CommentReply.objects.create(message=message, sent_by=request.user.get_profile())
-		
-		# TODO: Send Email
-		
-		return HttpResponse(simplejson.dumps({'id': comment_reply.id,}))
-		
+
+		if comment:
+			message = request.POST['message'].strip()
+			#comment_reply = CommentReply.objects.create(comment=comment, message=message, sent_by=request.user.get_profile())
+
+			# TODO: Send Email
+
+			#return HttpResponse(simplejson.dumps({'id': comment_reply.id,}))
+			return HttpResponse(simplejson.dumps({'id': comment.id,}))
+		else:
+			return HttpResponse(simplejson.dumps({'error': '404',}))
 	else:
 		raise Http404
 

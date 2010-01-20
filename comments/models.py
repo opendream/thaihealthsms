@@ -11,7 +11,7 @@ class Comment(models.Model):
 	sent_by = models.ForeignKey('domain.UserAccount')
 
 class CommentReceiverRole(models.Model):
-	comment_type = models.CharField(max_length=64)
+	object_name = models.CharField(max_length=64)
 	role = models.ForeignKey(Group)
 
 class CommentReceiver(models.Model):
