@@ -91,17 +91,17 @@ def after_syncdb(sender, **kwargs):
 		sector7, created = Sector.objects.get_or_create(ref_no='7', name='สำนักสนับสนุนการพัฒนาระบบสุขภาพและบริการสุขภาพ')
 
 		# Users ##################
-		
+
 		# Sector Admin
 		sector_admin1 = User.objects.create_user("sector_admin1", "sector_admin1@example.com", "password")
 		sector_admin1.groups.add(sector_admin_role)
-		
+
 		sector_admin_account1 = sector_admin1.get_profile()
 		sector_admin_account1.sector = sector7
 		sector_admin_account1.first_name = "Sector"
 		sector_admin_account1.last_name = "Admin"
 		sector_admin_account1.save()
-		
+
 		# Sector Managers
 		sector_manager1 = User.objects.create_user("sector7", "sector1@example.com", "password")
 		sector_manager1.groups.add(sector_manager_role)
@@ -287,6 +287,10 @@ def after_syncdb(sender, **kwargs):
 		project1201_1_005 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=program1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-005", name="โครงการทดลองที่ห้า", start_date=date(2010,4,1), end_date=date(2010,8,1))
 		project1201_1_006 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=program1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-006", name="โครงการทดลองที่หก", start_date=date(2010,8,1), end_date=date(2010,12,1))
 
+		# Project without parent
+		project1201_1_007 = Project.objects.create(sector=sector7, master_plan=master_plan12, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-007", name="โครงการทดลองที่เจ็ด", start_date=date(2010,8,1), end_date=date(2010,12,1))
+		project1201_1_008 = Project.objects.create(sector=sector7, master_plan=master_plan12, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-008", name="โครงการทดลองที่แปด", start_date=date(2010,9,1), end_date=date(2010,11,1))
+
 		user_responsibility = UserRoleResponsibility.objects.create(user=project_manager_account1, role=project_manager_role)
 		user_responsibility.projects.add(project1201_1_001)
 		user_responsibility.projects.add(project1201_1_002)
@@ -324,14 +328,14 @@ def after_syncdb(sender, **kwargs):
 		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=1000000, used_budget=0, year=2010, scheduled_on=date(2010, 4, 1))
 		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=1000000, used_budget=0, year=2011, scheduled_on=date(2010, 10, 1))
 		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=1000000, used_budget=0, year=2011, scheduled_on=date(2011, 4, 1))
-		
+
 		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=1000000, year=2009, scheduled_on=date(2008, 10, 1), claimed_on=date(2008, 10, 1))
 		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=1000000, year=2009, scheduled_on=date(2009, 4, 1), claimed_on=date(2009, 4, 1))
 		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=1000000, year=2010, scheduled_on=date(2009, 10, 1), claimed_on=date(2009, 10, 1))
 		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=0, year=2010, scheduled_on=date(2010, 4, 1))
 		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=0, year=2011, scheduled_on=date(2010, 10, 1))
 		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=0, year=2011, scheduled_on=date(2011, 4, 1))
-		
+
 		ProjectBudgetSchedule.objects.create(project=program1201_3, expected_budget=1000000, used_budget=1000000, year=2009, scheduled_on=date(2008, 10, 1), claimed_on=date(2008, 10, 1))
 		ProjectBudgetSchedule.objects.create(project=program1201_3, expected_budget=1000000, used_budget=1000000, year=2009, scheduled_on=date(2009, 4, 1), claimed_on=date(2009, 4, 1))
 		ProjectBudgetSchedule.objects.create(project=program1201_3, expected_budget=1000000, used_budget=1000000, year=2010, scheduled_on=date(2009, 10, 1), claimed_on=date(2009, 10, 1))
@@ -359,28 +363,28 @@ def after_syncdb(sender, **kwargs):
 		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2010, target_score=10, result_score=0, start_date=date(2010,1,1), end_date=date(2010,3,1))
 		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
 		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
-		
+
 		KPISchedule.objects.create(kpi=kpi2, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
 		KPISchedule.objects.create(kpi=kpi2, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
 		KPISchedule.objects.create(kpi=kpi2, project=program1201_1, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
 		KPISchedule.objects.create(kpi=kpi2, project=program1201_1, year=2010, target_score=10, result_score=0, start_date=date(2010,1,1), end_date=date(2010,3,1))
 		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
 		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
-		
+
 		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
 		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
 		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
 		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2010, target_score=10, result_score=0, start_date=date(2010,1,1), end_date=date(2010,3,1))
 		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
 		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
-		
+
 		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
 		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
 		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
 		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2010, target_score=10, result_score=0, start_date=date(2010,1,1), end_date=date(2010,3,1))
 		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
 		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
-		
+
 		# Program 1201_2
 		KPISchedule.objects.create(kpi=kpi2, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
 		KPISchedule.objects.create(kpi=kpi2, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
@@ -388,21 +392,21 @@ def after_syncdb(sender, **kwargs):
 		KPISchedule.objects.create(kpi=kpi2, project=program1201_2, year=2010, target_score=10, result_score=5, start_date=date(2010,1,1), end_date=date(2010,3,1))
 		KPISchedule.objects.create(kpi=kpi2, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
 		KPISchedule.objects.create(kpi=kpi2, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
-		
+
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2010, target_score=10, result_score=4, start_date=date(2010,1,1), end_date=date(2010,3,1))
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
-		
+
 		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
 		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
 		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
 		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2010, target_score=10, result_score=7, start_date=date(2010,1,1), end_date=date(2010,3,1))
 		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
 		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
-		
+
 		# Program 1201_3
 		KPISchedule.objects.create(kpi=kpi3, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
 		KPISchedule.objects.create(kpi=kpi3, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
@@ -410,14 +414,14 @@ def after_syncdb(sender, **kwargs):
 		KPISchedule.objects.create(kpi=kpi3, project=program1201_3, year=2010, target_score=10, result_score=0, start_date=date(2010,1,1), end_date=date(2010,3,1))
 		KPISchedule.objects.create(kpi=kpi3, project=program1201_3, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
 		KPISchedule.objects.create(kpi=kpi3, project=program1201_3, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
-		
+
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2010, target_score=10, result_score=2, start_date=date(2010,1,1), end_date=date(2010,3,1))
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
 		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
-		
+
 		KPISchedule.objects.create(kpi=kpi9, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
 		KPISchedule.objects.create(kpi=kpi9, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
 		KPISchedule.objects.create(kpi=kpi9, project=program1201_3, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
