@@ -93,6 +93,8 @@ COMMENTS PAGE
 .comments_page .comments .receivers h4 {display:inline;color:#666;margin-right:5px;}
 .comments_page .comments .receivers ul {display:inline;}
 .comments_page .comments .receivers ul li {border:1px solid #DDD;color:#666;margin-right:10px;padding:2px 5px;display:inline-block;display:-moz-inline-stack;*display:inline;list-style:none;zoom:1;}
+.comments_page .comments .indented { padding-left: 35px; }
+.comments_page .comments .indented .reply-comment-item { padding: 10px; }
 
 /*
 COMMENT INBOX PAGE

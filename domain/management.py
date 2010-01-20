@@ -540,12 +540,12 @@ def after_syncdb(sender, **kwargs):
 
 
 		# Comment Receiver by Role
-		CommentReceiverRole.objects.create(comment_type='activity', role=activity_manager_role)
-		CommentReceiverRole.objects.create(comment_type='activity', role=activity_manager_assistant_role)
-		CommentReceiverRole.objects.create(comment_type='project', role=project_manager_role)
-		CommentReceiverRole.objects.create(comment_type='project', role=project_manager_assistant_role)
-		CommentReceiverRole.objects.create(comment_type='program', role=program_manager_role)
-		CommentReceiverRole.objects.create(comment_type='program', role=program_manager_assistant_role)
+		CommentReceiverRole.objects.create(object_name='activity', role=activity_manager_role)
+		CommentReceiverRole.objects.create(object_name='activity', role=activity_manager_assistant_role)
+		CommentReceiverRole.objects.create(object_name='project', role=project_manager_role)
+		CommentReceiverRole.objects.create(object_name='project', role=project_manager_assistant_role)
+		CommentReceiverRole.objects.create(object_name='program', role=program_manager_role)
+		CommentReceiverRole.objects.create(object_name='program', role=program_manager_assistant_role)
 
 from django.db.models.signals import post_syncdb
 post_syncdb.connect(after_syncdb, dispatch_uid="domain.management")

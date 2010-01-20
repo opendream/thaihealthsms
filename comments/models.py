@@ -25,3 +25,6 @@ class CommentReply(models.Model):
 	content = models.CharField(max_length=1024)
 	sent_on = models.DateTimeField(auto_now_add=True)
 	sent_by = models.ForeignKey('domain.UserAccount')
+
+	class Meta:
+		ordering = ['sent_on']

@@ -112,6 +112,21 @@ POST COMMENT DIALOG
 #post-comment-dialog .button-panel .loading img {vertical-align:text-bottom;}
 #post-comment-dialog .autosuggest {}
 
+/*
+REPLY COMMENT DIALOG
+*/
+#reply-comment-dialog {padding:0px 10px;display:none;}
+#reply-comment-dialog label {font-size:108%;margin:10px 0px 5px;color:#555;display:block;margin-bottom:5px;}
+#reply-comment-dialog textarea {height:80px;width:98%;}
+#reply-comment-dialog .button-panel {margin:10px 0px 40px;}
+#reply-comment-dialog .button-panel .loading {margin-left:10px;display:none;}
+#reply-comment-dialog .button-panel .loading img {vertical-align:text-bottom;}
+#reply-comment-dialog .autosuggest {}
+
+#reply-comment-box { padding: 10px; }
+
+.reply-comment-link 
+
 /* Activity Calendar */
 .yui-skin-sam {overflow:hidden}
 .yui-calendar .has-event {background-color:#99FF99 !important;}

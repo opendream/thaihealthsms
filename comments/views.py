@@ -77,12 +77,16 @@ def ajax_reply_comment(request, comment_id):
 
 		if comment:
 			message = request.POST['message'].strip()
-			#comment_reply = CommentReply.objects.create(comment=comment, message=message, sent_by=request.user.get_profile())
+			comment_reply = CommentReply.objects.create(comment=comment, content=message, sent_by=request.user.get_profile())
+
+			for receiver in comment.commentreceiver_set.all():
+				if receiver.is_read:
+					receiver.is_read = False
+					receiver.save()
 
 			# TODO: Send Email
 
-			#return HttpResponse(simplejson.dumps({'id': comment_reply.id,}))
-			return HttpResponse(simplejson.dumps({'id': comment.id,}))
+			return HttpResponse(simplejson.dumps({'id': comment_reply.id,}))
 		else:
 			return HttpResponse(simplejson.dumps({'error': '404',}))
 	else:
