@@ -165,7 +165,7 @@ def view_sector_overview(request, sector_id):
 	current_date = date.today()
 	current_year = current_date.year
 	
-	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True, start_year__lte=current_year, end_year__gte=current_year)
+	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True, start_year__lte=current_year, end_year__gte=current_year).order_by('ref_no')
 	
 	for master_plan in master_plans:
 		master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
@@ -251,7 +251,7 @@ def view_sector_kpi(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
 	current_date = date.today()
 	
-	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True)
+	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True).order_by('ref_no')
 	
 	for master_plan in master_plans:
 		master_plan.years = range(master_plan.start_year, master_plan.end_year+1)

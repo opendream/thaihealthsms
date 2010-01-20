@@ -91,7 +91,17 @@ def after_syncdb(sender, **kwargs):
 		sector7, created = Sector.objects.get_or_create(ref_no='7', name='สำนักสนับสนุนการพัฒนาระบบสุขภาพและบริการสุขภาพ')
 
 		# Users ##################
-
+		
+		# Sector Admin
+		sector_admin1 = User.objects.create_user("sector_admin1", "sector_admin1@example.com", "password")
+		sector_admin1.groups.add(sector_admin_role)
+		
+		sector_admin_account1 = sector_admin1.get_profile()
+		sector_admin_account1.sector = sector7
+		sector_admin_account1.first_name = "Sector"
+		sector_admin_account1.last_name = "Admin"
+		sector_admin_account1.save()
+		
 		# Sector Managers
 		sector_manager1 = User.objects.create_user("sector7", "sector1@example.com", "password")
 		sector_manager1.groups.add(sector_manager_role)
@@ -412,11 +422,11 @@ def after_syncdb(sender, **kwargs):
 		# Report ##################
 		report1 = Report.objects.create(name="รายงานความก้าวหน้าประจำเดือน",
 										created_by=sector_manager_account1,
-										master_plan=master_plan12)
+										sector=sector7)
 
 		report2 = Report.objects.create(name="รายงานการเงินประจำเดือน",
 										created_by=sector_manager_account1,
-										master_plan=master_plan12)
+										sector=sector7)
 
 		report_program11 = ReportProject.objects.create(report=report1, project=program1204_1)
 		report_program12 = ReportProject.objects.create(report=report2, project=program1204_1)

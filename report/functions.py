@@ -16,7 +16,7 @@ from comments.models import *
 def get_submitted_and_overdue_reports(project): # For assistant
 	report_projects = ReportProject.objects.filter(project=project)
 	current_date = date.today()
-
+	
 	for report_project in report_projects:
 		next_due = ReportSchedule.objects.filter(report_project=report_project, due_date__gte=current_date).aggregate(Min('due_date'))['due_date__min']
 		last_due = ReportSchedule.objects.filter(report_project=report_project, due_date__lt=current_date).aggregate(Max('due_date'))['due_date__max']

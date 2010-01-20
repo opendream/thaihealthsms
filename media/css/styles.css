@@ -63,7 +63,7 @@ html, body {background-color:#F3F3F3;}
 .ss_tab_navi {background-color:#666;border-top:1px solid #CCC;}
 .ss_tab_navi .tabs {border-top:1px solid #999;padding:10px 15px 0px;}
 .ss_tab_navi .tabs li {color:#ED6912;background-color:#777;font-size:108%;font-weight:bold;padding:5px 15px;display:block;float:left;margin-right:10px;}
-.ss_tab_navi .tabs li.right_item {float:right;margin-right:0px;}
+.ss_tab_navi .tabs li.right_item {float:right;margin-right:0px;margin-left:10px;}
 .ss_tab_navi .tabs li.selected {background-color:#FFF;}
 .ss_tab_navi .tabs li a:link, .ss_tab_navi .tabs li a:visited, .ss_tab_navi .tabs li a:active {color:#FFF;text-decoration:none;}
 .ss_tab_navi .tabs li a:hover {color:#F39659;text-decoration:underline;background:none;}

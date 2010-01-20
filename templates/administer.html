@@ -17,9 +17,6 @@
 			<li class="selected">หน้าแรก</li>
 			<li><a href="{% url view_administer_organization %}">โครงสร้างองค์กร</a></li>
 			<li><a href="{% url view_administer_users %}">ผู้ใช้ระบบ</a></li>
-			{% role user 'sector_manager_assistant' %}
-			<li><a href="{% url view_administer_users %}">รายงาน</a></li>
-			{% endrole %}
 		</ul>
 		<div class="clear"></div>
 	</div>

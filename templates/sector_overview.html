@@ -17,7 +17,8 @@
 		<ul>
 			<li class="selected">ภาพรวม</li>
 			<li><a href="{% url view_sector_kpi sector.id %}">ตัวชี้วัดองค์กร</a></li>
-			<li class="right_item"><a href="{% url view_sectors_overview %}">สำนักทั้งหมด</a></li>
+			<li class="right_item"><a href="{% url view_sectors_overview %}">สำนักอื่นๆ</a></li>
+			<li class="right_item"><a href="{% url view_sectors_overview %}">แก้ไขข้อมูลสำนัก</a></li>
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -150,6 +151,7 @@
 	<div class="hierarchy_section sector_hierarchy_section">
 		{% for master_plan in master_plans %}
 			<h3>แผนหลัก {{master_plan.ref_no}} {{master_plan.name}}</h3>
+			{% if master_plan.plans %}
 			{% for plan in master_plan.plans %}
 				<h4>{{plan.ref_no}} {{plan.name}}</h4>
 				{% if not plan.current_projects and not plan.future_projects and not plan.past_projects %}
@@ -167,6 +169,9 @@
 					{% endif %}
 				{% endif %}
 			{% endfor %}
+			{% else %}
+			<div class="ss_no_information">ไม่มีแผนงาน/โครงการที่ดำเนินอยู่</div>
+			{% endif %}
 		{% endfor %}
 	</div>
 </div>
