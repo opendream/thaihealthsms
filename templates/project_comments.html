@@ -46,6 +46,7 @@
 			  </div>
 			</div>
 			<p>{{comment.comment.message}}</p>
+			<div><a href="#" id="comment-{{ comment.id }}" class="reply-comment">{% trans 'Reply' %}</a></div>
 			<div class="receivers">
 				<h4>{% trans 'Receivers' %}:</h4>
 				<ul>
@@ -61,4 +62,47 @@
 	<div class="ss_no_information">{% trans 'No Related Comments' %}</div>
 	{% endif %}
 </div>
+
+<div id="reply-comment-dialog">
+	<label>ผู้รับเพิ่มเติม (นอกเหนือจากผู้รับผิดชอบ):</label>
+	<input type="hidden" id="comment-id"/>
+	<input type="text" id="reply-comment-receivers"/> <label>{% trans 'Comment' %}</label>
+	<textarea id="reply-comment-textarea"></textarea>
+	<div class="button-panel"><button>{% trans 'Send a Comment' %}</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" />{% trans 'Sending...' %}</span></div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#reply-comment-dialog button").click(function(e) {
+		e.preventDefault();
+		var message = $("#reply-comment-dialog textarea").val();
+		var comment_id = $("#reply-comment-dialog ").val();
+		
+		if(message != "") {
+			$("#reply-comment-dialog .loading").show();
+			$.post("/reply-comment/" + comment_id, {'message': message}, function(data) {
+				$("#reply-comment-dialog .loading").hide();
+				$.fn.colorbox.close();
+			}, "json");
+		}
+	});
+
+	$(".reply-comment").colorbox({width:"50%", scrolling:false, opacity:0.4, inline:true, href:"#post-comment-dialog", 
+		onOpen:function(){
+			$("#post-comment-dialog").css("display", "block");
+			$("#post-comment-dialog textarea").val("");
+			$("#post-comment-dialog #comment-id").val($(this).attr("id").substring(8));
+			$("#post-comment-dialog .loading").hide();
+			
+			$("#post-comment-receivers_feed").css("width", "auto");
+		},
+		onComplete:function(){ $("#post-comment-dialog textarea").focus(); },
+		onCleanup:function() {
+			$("#post-comment-dialog").css("display", "none");
+		}
+	});
+});
+</script>
 {% endblock %}
