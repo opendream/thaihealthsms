@@ -152,9 +152,17 @@ def view_administer_organization(request):
 
 @login_required
 def view_administer_users(request):
+	pass
+
+@login_required
+def view_administer_users_add(request):
+	return UserAccountWizard([UserAccountForm1, UserAccountForm2])
+	
+@login_required
+def view_administer_users_add_tmp(request):
 	user_account = request.user.get_profile()
 	if request.method == 'POST':
-		form = UserAccountForm(request.POST)
+		form = UserAccountForm2(request.POST)
 		if form.is_valid():
 			print 'ss', form.cleaned_data
 			'''
@@ -186,7 +194,7 @@ def view_administer_users(request):
 
 
 	else:
-		form = UserAccountForm()
+		form = UserAccountForm1()
 
 	return render_response(request, "administer_users.html", {'form':form})
 
