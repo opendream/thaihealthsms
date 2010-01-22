@@ -9,7 +9,9 @@ urlpatterns = patterns('interface.views',
 	url(r'^administer/$', 'view_administer', name='view_administer'),
 	url(r'^administer/organization/$', 'view_administer_organization', name='view_administer_organization'),
 	url(r'^administer/organization/sector$', 'view_administer_organization_sector', name='view_administer_organization_sector'),
-	url(r'^administer/organization/add/sector$', 'view_administer_organization_add_sector', name='view_administer_organization_add_sector'),
+	url(r'^administer/organization/sector/add$', 'view_administer_organization_add_sector', name='view_administer_organization_add_sector'),
+	url(r'^administer/organization/masterplan$', 'view_administer_organization_masterplan', name='view_administer_organization_masterplan'),
+	url(r'^administer/organization/masterplan/add$', 'view_administer_organization_add_masterplan', name='view_administer_organization_add_masterplan'),
 	url(r'^administer/users/$', 'view_administer_users', name='view_administer_users'),
 
 	# Sector
@@ -20,8 +22,8 @@ urlpatterns = patterns('interface.views',
 	# Master Plan
 	url(r'^master_plan/(?P<master_plan_id>\d+)/$', 'view_master_plan_overview', name='view_master_plan_overview'),
 	url(r'^master_plan/(?P<master_plan_id>\d+)/plans/$', 'view_master_plan_plans', name='view_master_plan_plans'),
-	url(r'^master_plan/(?P<master_plan_id>\d+)/edit/$', 'view_master_plan_edit', name='view_master_plan_edit'),
-	
+	#url(r'^master_plan/(?P<master_plan_id>\d+)/edit/$', 'view_master_plan_edit', name='view_master_plan_edit'),
+
 	url(r'^project/(?P<project_id>\d+)/$', 'view_project_overview', name='view_project_overview'),
 	url(r'^project/(?P<project_id>\d+)/projects/$', 'view_project_projects', name='view_project_projects'),
 	url(r'^project/(?P<project_id>\d+)/projects/add/$', 'view_project_add', name='view_project_add'),

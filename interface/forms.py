@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+import datetime
 
 from django import forms
 from django.contrib.formtools.wizard import FormWizard
@@ -111,5 +112,34 @@ class UserAccountWizard(FormWizard):
 
 class AddSectorForm(forms.Form):
 	'''Sector adding form'''
-	ref_no = forms.IntegerField(label='สำนักที่')
+	ref_no = forms.IntegerField(label='รหัส')
 	name = forms.CharField(max_length=512, label='ชื่อสำนัก')
+
+class AddMasterPlanForm(forms.Form):
+	'''MasterPlan adding form'''
+	ref_no = forms.IntegerField(label='รหัส')
+	name = forms.CharField(max_length=512, label='ชื่อแผน')
+	sector = forms.IntegerField(widget=forms.Select(choices=sectors), label='สังกัดสำนัก')
+	year_start = forms.IntegerField(label='ช่วงปี')
+	year_end = forms.IntegerField(label='ถึง')
+
+	def clean(self):
+		"Check if year_start and year_end is valid."
+
+		cleaned_data = self.cleaned_data
+		year_start = cleaned_data.get('year_start')
+		year_end = cleaned_data.get('year_end')
+
+		# Convert B.E. to C.E.
+		thai_year_start = year_start - 543
+		thai_year_end = year_end - 543
+		try:
+			thai_date_start = datetime.date(thai_year_start, 1, 1)
+			thai_date_end = datetime.date(thai_year_end, 1, 1)
+
+			if thai_date_start > thai_date_end:
+				raise forms.ValidationError("Start year must greater than end year")
+		except ValueError:
+			raise forms.ValidationError("Year is not valid.")
+
+		return cleaned_data

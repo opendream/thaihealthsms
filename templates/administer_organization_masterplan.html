@@ -31,10 +31,13 @@
 
 {% block body_content %}
 <div class="sector-list">
-<p><a href="{% url view_administer_organization_add_sector %}">เพิ่มสำนัก</a></p>
+<p><a href="{% url view_administer_organization_add_masterplan %}">เพิ่มแผนหลัก</a></p>
 <ul>
-	{% for sector in sectors %}
-	<li>{{ sector.name }}</li>
+	{% for masterplan in masterplans %}
+	<li>
+		<span class="masterplan-name">{{ masterplan.name }}</span>
+		<span class="masterplan-sector">{{ masterplan.sector.name }}</span>
+	</li>
 	{% endfor %}
 </ul>
 </div>

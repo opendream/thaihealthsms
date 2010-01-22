@@ -151,18 +151,55 @@ def view_administer_organization_add_sector(request):
 			ref_no = form.cleaned_data['ref_no']
 			name = form.cleaned_data['name']
 
-			sector = Sector(ref_no=ref_no, name=name)
-			sector.save()
+			# Not allow creation if there's existing sector.
+			try:
+				Sector.objects.get(ref_no=ref_no)
+				utilities.set_message(request, "Cannot create '%s' (duplicated ref_no)." % name)
+			except Sector.DoesNotExist:
+				sector = Sector(ref_no=ref_no, name=name)
+				sector.save()
 
-			if sector:
-				utilities.set_message(request, "Sector '%s' created successful." % sector.name)
+				utilities.set_message(request, "Sector '%s' created successful." % name)
 				return HttpResponseRedirect(reverse('interface.views.view_administer_organization_sector'))
-			else:
-				utilities.set_message(request, "Cannot create '%s'." % sector.name)
+
 	else:
 		form = AddSectorForm()
 
 	return render_response(request, "administer_organization_add_sector.html", {'form':form})
+
+@login_required
+def view_administer_organization_masterplan(request):
+	masterplans = MasterPlan.objects.all()
+	return render_response(request, "administer_organization_masterplan.html", {'masterplans':masterplans})
+
+@login_required
+def view_administer_organization_add_masterplan(request):
+	if request.method == 'POST':
+		form = AddMasterPlanForm(request.POST)
+		if form.is_valid():
+			ref_no = form.cleaned_data['ref_no']
+			name = form.cleaned_data['name']
+			sector = Sector.objects.get(id=form.cleaned_data['sector'])
+			year_start = form.cleaned_data['year_start']
+			year_end = form.cleaned_data['year_end']
+
+			# Not allow creation if there's existing master plan.
+			try:
+				MasterPlan.objects.get(ref_no=ref_no)
+				utilities.set_message(request, "Cannot create '%s' (duplicated ref_no)." % name)
+			except MasterPlan.DoesNotExist:
+				masterplan = MasterPlan(ref_no=ref_no,
+										name=name,
+										sector = sector)
+				masterplan.save()
+
+				utilities.set_message(request, "MasterPlan '%s' created successful." % name)
+				return HttpResponseRedirect(reverse('interface.views.view_administer_organization_masterplan'))
+
+	else:
+		form = AddMasterPlanForm()
+
+	return render_response(request, "administer_organization_add_masterplan.html", {'form':form})
 
 @login_required
 def view_administer_users(request):
@@ -220,15 +257,8 @@ def view_sector_reports(request, sector_id):
 def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	current_date = date.today()
-<<<<<<< Updated upstream:interface/views.py
 	current_year = utilities.current_year_number(master_plan)
 
-=======
-	current_year = utilities.what_is_current_year(master_plan)
-
-	master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
-
->>>>>>> Stashed changes:interface/views.py
 	# Plans
 	plans = Plan.objects.filter(master_plan=master_plan)
 	for plan in plans:
@@ -263,7 +293,6 @@ def view_project_overview(request, project_id):
 
 	if not project.parent_project:
 		current_projects = Project.objects.filter(parent_project=project, start_date__lte=current_date, end_date__gte=current_date)
-<<<<<<< Updated upstream:interface/views.py
 
 		report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
 
@@ -274,16 +303,6 @@ def view_project_overview(request, project_id):
 
 		return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities})
 
-=======
-
-	else:
-		pass # Find current activities
-
-	report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
-
-	return render_response(request, "project_overview.html", {'project':project, 'current_projects':current_projects, 'report_schedules':report_schedules})
-
->>>>>>> Stashed changes:interface/views.py
 @login_required
 def view_project_projects(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
