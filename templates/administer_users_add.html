@@ -13,6 +13,7 @@
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
+			<li><a href="{% url view_administer %}">หน้าแรก</a></li>
 			<li><a href="{% url view_administer_organization %}">โครงสร้างองค์กร</a></li>
 			<li class="selected">ผู้ใช้ระบบ</li>
 		</ul>
@@ -22,21 +23,15 @@
 {% endblock %}
 
 {% block body_content %}
-
-<table>
-	<thead>
-		<td>ชื่อ-นามสกุล</td>
-		<td>ตำแหน่ง</td>
-		<td>สังกัดสำนัก</td>
-		<td>แผนงาน/โครงการ ที่รับผิดชอบ</td>
-	</thead>
-	{% for user in users %}
-    <tr>
-		<td>{{user.get_profile.first_name}} {{user.get_profile.last_name}}</td>
-		<td>{{user.resp.role.name}}</td>
-		<td>{{user.get_profile.sector.ref_no}}</td>
-		<td>{{user.projects}}</td>
-	</tr>
-	{% endfor %}
-</table>
+<form action='.' method='POST'>
+<ul>
+    {% ifequal step 2 %}
+        <p>You're almost done!</p>
+    {% endifequal %}
+    <input type="hidden" name="{{ step_field }}" value="{{ step0 }}" />
+    {{ previous_fields|safe }}
+    {{ form.as_ul }}
+</ul>
+<p><input type="submit" value="Submit" /></p>
+</form>
 {% endblock %}

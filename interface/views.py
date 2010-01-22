@@ -12,6 +12,8 @@ from django.core.urlresolvers import reverse
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.core import serializers
+from django.utils import simplejson
 
 from thaihealthsms.shortcuts import render_response, access_denied
 
@@ -141,7 +143,18 @@ def view_administer_users(request):
 	user_account = request.user.get_profile()
 	if not request.user.is_superuser: return access_denied(request)
 	
-	return render_response(request, "administer_users.html", {})
+	users = User.objects.all()
+	for user in users:
+		resps = UserRoleResponsibility.objects.filter(user=user.get_profile())
+		
+		projects = []
+		for resp in resps:
+			projects += [project.name for project in resp.projects.all()]
+
+		user.projects = ', '.join(projects)
+
+
+	return render_response(request, "administer_users.html", {'users': users})
 
 #
 # SECTOR
@@ -160,7 +173,7 @@ def view_sector_overview(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
 	current_date = date.today()
 	current_year = current_date.year
-	
+
 	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True, start_year__lte=current_year, end_year__gte=current_year).order_by('ref_no')
 	
 	return render_response(request, "sector_overview.html", {'sector':sector, 'master_plans':master_plans,})
@@ -199,7 +212,7 @@ def view_master_plan_overview(request, master_plan_id):
 	plans = Plan.objects.filter(master_plan=master_plan)
 	for plan in plans:
 		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-		
+
 	master_plan.plans = plans
 	
 	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, 'current_year':current_year})
@@ -215,7 +228,6 @@ def view_master_plan_plans(request, master_plan_id):
 		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
 		plan.future_projects = Project.objects.filter(plan=plan, start_date__gt=current_date)
 		plan.past_projects = Project.objects.filter(plan=plan, end_date__lt=current_date)
-		
 		plan.unscheduled_projects = Project.objects.filter(plan=plan, start_date=None, end_date=None)
 	
 	return render_response(request, "master_plan_plans.html", {'master_plan':master_plan, 'plans':plans})
@@ -313,6 +325,7 @@ def view_program_comments(request, program_id):
 #	current_activities = project.activity_set.filter(start_date__lte=current_date, end_date__gte=current_date).order_by('end_date')
 #	future_activities = project.activity_set.filter(start_date__gt=current_date).order_by('start_date')
 #	return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities, 'report_schedules':report_schedules})
+
 
 # Helper function to find previous and next month.
 def prev_month(year, month, num=1):
