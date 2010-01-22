@@ -310,6 +310,12 @@ def after_syncdb(sender, **kwargs):
 		activity4 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สี่", start_date=date(2010,6,15), end_date=date(2010, 6,16))
 		activity5 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่ห้า", start_date=date(2011,6,14), end_date=date(2011,8,16))
 
+		user_responsibility.activities.add(activity1)
+		user_responsibility.activities.add(activity2)
+		user_responsibility.activities.add(activity3)
+		user_responsibility.activities.add(activity4)
+		user_responsibility.activities.add(activity5)
+
 		# Finance Schedule ##############
 
 		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=1000000, used_budget=1000000, year=2009, scheduled_on=date(2008, 10, 1), claimed_on=date(2008, 10, 1))
@@ -540,8 +546,6 @@ def after_syncdb(sender, **kwargs):
 
 
 		# Comment Receiver by Role
-		CommentReceiverRole.objects.create(object_name='activity', role=activity_manager_role)
-		CommentReceiverRole.objects.create(object_name='activity', role=activity_manager_assistant_role)
 		CommentReceiverRole.objects.create(object_name='project', role=project_manager_role)
 		CommentReceiverRole.objects.create(object_name='project', role=project_manager_assistant_role)
 		CommentReceiverRole.objects.create(object_name='program', role=program_manager_role)
