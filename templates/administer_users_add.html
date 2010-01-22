@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load helper %}
+
+{% block html_head %}
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	<div class="title"><span>จัดการระบบ</span> ผู้ใช้ระบบ</div>
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_administer %}">หน้าแรก</a></li>
+			<li><a href="{% url view_administer_organization %}">โครงสร้างองค์กร</a></li>
+			<li class="selected">ผู้ใช้ระบบ</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<form action='.' method='POST'>
+<ul>
+    {% ifequal step 2 %}
+        <p>You're almost done!</p>
+    {% endifequal %}
+    <input type="hidden" name="{{ step_field }}" value="{{ step0 }}" />
+    {{ previous_fields|safe }}
+    {{ form.as_ul }}
+</ul>
+<p><input type="submit" value="Submit" /></p>
+</form>
+{% endblock %}
