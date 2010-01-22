@@ -124,6 +124,10 @@ def view_dashboard_comments(request):
 
 	return render_response(request, "dashboard_comments.html", {'objects':objects})
 
+@login_required
+def view_dashboard_comments_outbox(request):
+	return render_response(request, "dashboard_comments_outbox.html", {'objects':objects})
+
 #
 # ADMIN
 #
@@ -211,14 +215,26 @@ def view_administer_users(request):
 		resps = UserRoleResponsibility.objects.filter(user=user.get_profile())
 
 		projects = []
+		roles = []
 		for resp in resps:
 			projects += [project.name for project in resp.projects.all()]
-
+			roles += [resp.role.name]
 		user.projects = ', '.join(projects)
+		user.roles = ', '.join(roles)
 
 
 	return render_response(request, "administer_users.html", {'users': users})
 
+@login_required
+def view_administer_users_delete(request, user_id):
+	user = User.objects.get(pk=user_id)
+	user_account = user.get_profile()
+	UserRoleResponsibility.objects.filter(user=user_account).delete()
+	user_account.delete()
+	user.delete()
+	
+	return HttpResponse(simplejson.dumps({'status': 'complete'}))
+	
 #
 # SECTOR
 #
@@ -257,31 +273,68 @@ def view_sector_reports(request, sector_id):
 def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	current_date = date.today()
-	current_year = utilities.current_year_number(master_plan)
-
+	current_year = utilities.current_year_number()
+	
 	# Plans
 	plans = Plan.objects.filter(master_plan=master_plan)
 	for plan in plans:
 		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-
+	
 	master_plan.plans = plans
-
+	
 	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, 'current_year':current_year})
 
 @login_required
 def view_master_plan_plans(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
-	current_date = date.today()
-
+	
 	plans = Plan.objects.filter(master_plan=master_plan)
 
 	for plan in plans:
-		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-		plan.future_projects = Project.objects.filter(plan=plan, start_date__gt=current_date)
-		plan.past_projects = Project.objects.filter(plan=plan, end_date__lt=current_date)
-		plan.unscheduled_projects = Project.objects.filter(plan=plan, start_date=None, end_date=None)
-
+		plan.projects = Project.objects.filter(plan=plan).order_by('-start_date')
+		
 	return render_response(request, "master_plan_plans.html", {'master_plan':master_plan, 'plans':plans})
+
+@login_required
+def view_master_plan_organization(request, master_plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	
+	plans = Plan.objects.filter(master_plan=master_plan)
+
+	for plan in plans:
+		plan.projects = Project.objects.filter(plan=plan).order_by('-start_date')
+	
+	return render_response(request, "master_plan_organization.html", {'master_plan':master_plan, 'plans':plans})
+
+@login_required
+def view_master_plan_add_plan(request, master_plan_id):
+	
+	return render_response(request, "master_plan_add_plan.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_edit_plan(request, master_plan_id, plan_id):
+	
+	return render_response(request, "master_plan_edit_plan.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_delete_plan(request, master_plan_id, plan_id):
+	
+	pass
+
+@login_required
+def view_master_plan_add_project(request, master_plan_id):
+	
+	return render_response(request, "master_plan_add_project.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_edit_project(request, master_plan_id, project_id):
+	
+	return render_response(request, "master_plan_edit_project.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_delete_project(request, master_plan_id, project_id):
+	
+	pass
 
 #
 # PROJECT

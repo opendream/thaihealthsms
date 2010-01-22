@@ -100,36 +100,56 @@ COMMENT INBOX PAGE
 .comment_inbox_page .comments li p {font-size:116%;padding:10px;}
 .comment_inbox_page .comments li .metadata {float:right;color:#333;font-weight:normal;}
 
+
+
+/*
+MASTER PLAN TABLE PAGE
+*/
+.master_plan_table_page {}
+.master_plan_table_page table {width:100%;}
+.master_plan_table_page table th {border:1px solid #999;padding:10px 10px;background-color:#666;color:white;font-size:116%;}
+.master_plan_table_page table td {border:1px solid #999;padding:8px 10px;font-size:108%;}
+
+.master_plan_table_page table .controls {width:55px;text-align:center;}
+.master_plan_table_page table .controls img {margin-right:7px;}
+.master_plan_table_page table .controls a:hover {background:none !important;}
+
+.master_plan_table_page table .plan {background-color:#DDD;}
+
+.master_plan_table_page table .ref_no {width:110px;text-align:center;}
+.master_plan_table_page table .name {}
+.master_plan_table_page table .start_date {width:120px;text-align:center;}
+.master_plan_table_page table .end_date {width:120px;text-align:center;}
+
 /*
 PROJECTS TABLE PAGE
 */
 .projects_table_page {}
 .projects_table_page table {width:100%;}
-.projects_table_page table th {border:1px solid #999;padding:10px 10px;background-color:#666;color:white;}
-.projects_table_page table td {border:1px solid #999;padding:8px 10px;}
+.projects_table_page table th {border:1px solid #999;padding:10px 10px;background-color:#666;color:white;font-size:116%;}
+.projects_table_page table td {border:1px solid #999;padding:8px 10px;font-size:108%;}
 
-.projects_table_page table .ref_no {width:120px;text-align:center;}
+.projects_table_page table .ref_no {width:130px;text-align:center;}
 .projects_table_page table .name {}
-.projects_table_page table .start_date {width:100px;text-align:center;}
-.projects_table_page table .end_date {width:100px;text-align:center;}
+.projects_table_page table .start_date {width:120px;text-align:center;}
+.projects_table_page table .end_date {width:120px;text-align:center;}
 
 /*
 ACTIVITY TABLE PAGE
 */
 .activities_table_page {}
 
-.activities_table_page .activity_calendar {}
-
 .activities_table_page table {width:100%;margin-top:20px;}
-.activities_table_page table th {border:1px solid #999;padding:10px 10px;background-color:#666;color:white;}
-.activities_table_page table td {border:1px solid #999;padding:8px 10px;}
+.activities_table_page table th {border:1px solid #999;padding:10px 10px;background-color:#666;color:white;font-size:116%;}
+.activities_table_page table td {border:1px solid #999;padding:8px 10px;font-size:108%;}
+
+.activities_table_page table .controls {width:55px;text-align:center;}
+.activities_table_page table .controls img {margin-right:7px;}
+.activities_table_page table .controls a:hover {background:none !important;}
 
 .activities_table_page table .name {}
-.activities_table_page table .start_date {width:100px;text-align:center;}
-.activities_table_page table .end_date {width:100px;text-align:center;}
-
-
-
+.activities_table_page table .start_date {width:120px;text-align:center;}
+.activities_table_page table .end_date {width:120px;text-align:center;}
 
 /*
 HIERARCHY PAGE
@@ -172,7 +192,6 @@ REPORT LIST PAGE
 /*
 SEND REPORT PAGE
 */
-.send_reports_page .breadcrumbs {font-size:131%;margin-bottom:20px;}
 .send_reports_page h2 {font-size:138.5%;margin:5px 0px 10px;color:#FFF;padding:8px 10px 4px;background-color:#399;border-bottom:3px solid #9CC;}
 .send_reports_page .reports li {margin-bottom:15px;}
 .send_reports_page .schedules li {border:1px solid #CCC;padding:10px 15px;}

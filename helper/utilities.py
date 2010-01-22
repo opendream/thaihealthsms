@@ -25,10 +25,11 @@ def format_month_year(datetime):
 
 # Current Year
 from datetime import date
+from domain.models import MasterPlanMonthPeriod
 
-def current_year_number(master_plan):
+def current_year_number():
 	today = date.today().replace(day=1)
-	month_period = master_plan.year_period.month_period
+	month_period = MasterPlanMonthPeriod.objects.get(is_default=True)
 	
 	if month_period.start_month == 1 and month_period.end_month == 12:
 		current_year = today.year

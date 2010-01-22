@@ -5,7 +5,8 @@ urlpatterns = patterns('interface.views',
 	url(r'^/$', 'view_frontpage', name='view_frontpage'),
 	url(r'^dashboard/$', 'view_frontpage', name='view_frontpage'),
 	url(r'^dashboard/comments/$', 'view_dashboard_comments', name='view_dashboard_comments'),
-
+	url(r'^dashboard/comments/outbox/$', 'view_dashboard_comments_outbox', name='view_dashboard_comments_outbox'),
+	
 	url(r'^administer/$', 'view_administer', name='view_administer'),
 	url(r'^administer/organization/$', 'view_administer_organization', name='view_administer_organization'),
 	url(r'^administer/organization/sector$', 'view_administer_organization_sector', name='view_administer_organization_sector'),
@@ -13,17 +14,24 @@ urlpatterns = patterns('interface.views',
 	url(r'^administer/organization/masterplan$', 'view_administer_organization_masterplan', name='view_administer_organization_masterplan'),
 	url(r'^administer/organization/masterplan/add$', 'view_administer_organization_add_masterplan', name='view_administer_organization_add_masterplan'),
 	url(r'^administer/users/$', 'view_administer_users', name='view_administer_users'),
-
+	url(r'^administer/users/(?P<user_id>\d+)/delete/$', 'view_administer_users_delete', name="view_administer_users_delete"),
+	
 	# Sector
 	url(r'^sector/(?P<sector_id>\d+)/$', 'view_sector_overview', name='view_sector_overview'),
 	url(r'^sector/(?P<sector_id>\d+)/reports/$', 'view_sector_reports', name='view_sector_reports'),
 	url(r'^sectors/$', 'view_sectors', name='view_sectors'),
-
+	
 	# Master Plan
 	url(r'^master_plan/(?P<master_plan_id>\d+)/$', 'view_master_plan_overview', name='view_master_plan_overview'),
 	url(r'^master_plan/(?P<master_plan_id>\d+)/plans/$', 'view_master_plan_plans', name='view_master_plan_plans'),
-	#url(r'^master_plan/(?P<master_plan_id>\d+)/edit/$', 'view_master_plan_edit', name='view_master_plan_edit'),
-
+	url(r'^master_plan/(?P<master_plan_id>\d+)/organization/$', 'view_master_plan_organization', name='view_master_plan_organization'),
+	url(r'^master_plan/(?P<master_plan_id>\d+)/plans/add/$', 'view_master_plan_add_plan', name='view_master_plan_add_plan'),
+	url(r'^master_plan/(?P<master_plan_id>\d+)/plan/(?P<plan_id>\d+)/$', 'view_master_plan_edit_plan', name='view_master_plan_edit_plan'),
+	url(r'^master_plan/(?P<master_plan_id>\d+)/plan/(?P<plan_id>\d+)/delete/$', 'view_master_plan_delete_plan', name='view_master_plan_delete_plan'),
+	url(r'^master_plan/(?P<master_plan_id>\d+)/projects/add/$', 'view_master_plan_add_project', name='view_master_plan_add_project'),
+	url(r'^master_plan/(?P<master_plan_id>\d+)/plan/(?P<project_id>\d+)/$', 'view_master_plan_edit_project', name='view_master_plan_edit_project'),
+	url(r'^master_plan/(?P<master_plan_id>\d+)/plan/(?P<project_id>\d+)/delete/$', 'view_master_plan_delete_project', name='view_master_plan_delete_project'),
+	
 	url(r'^project/(?P<project_id>\d+)/$', 'view_project_overview', name='view_project_overview'),
 	url(r'^project/(?P<project_id>\d+)/projects/$', 'view_project_projects', name='view_project_projects'),
 	url(r'^project/(?P<project_id>\d+)/projects/add/$', 'view_project_add', name='view_project_add'),
@@ -48,6 +56,7 @@ urlpatterns = patterns('interface.views',
 )
 
 urlpatterns += patterns('',
-	(r'^administer/users/add/$', UserAccountWizard([UserAccountFormStart, UserAccountFormSecond]))
-
+	url(r'^administer/users/add/$', UserAccountWizard([UserAccountFormStart, UserAccountFormSecond]), name="view_administer_users_add"),
+	url(r'^administer/users/(?P<user_id>\d+)/edit/$', UserAccountWizard([UserAccountFormStart, UserAccountFormSecond]), name="view_administer_users_edit"),
+	
 )
