@@ -40,21 +40,21 @@ class UserAccountFormStart(forms.Form):
 
 	def clean_project(self):
 		return self.cleaned_data.get('project', [])
-		
+
 class UserAccountFormSecond(forms.Form):
 	pass
-	
+
 class UserAccountWizard(FormWizard):
 	def done(self, request, form_list):
 		form = {}
 		for form_item in form_list:
 			form.update(form_item.cleaned_data)
-			
+
 		sector = Sector.objects.get(id=form.get('sector', 0))
 		print sector.id
-			
+
 		user = User.objects.create_user(form.get('username', ''), form.get('email', ''), form.get('password', ''))
-		
+
 		user_account = user.get_profile()
 		user_account.first_name = form.get('first_name', ''),
 		user_account.last_name = form.get('last_name', ''),
@@ -63,8 +63,8 @@ class UserAccountWizard(FormWizard):
 
 		group_name = form.get('role', '')
 		user_responsibility = UserRoleResponsibility.objects.create(
-			user = user_account, 
-			role = Group.objects.get(name=group_name)			
+			user = user_account,
+			role = Group.objects.get(name=group_name)
 		)
 
 		if group_name == 'sector_manager':
@@ -76,46 +76,40 @@ class UserAccountWizard(FormWizard):
 		elif group_name in ('program_manager', 'program_manager_assistant'):
 			program = Project.objects.get(pk=form.get('program', 0))
 			user_responsibility.projects.add(program)
-		
-		
+
+
 		set_message(request, 'Your user has been create.')
 		return HttpResponseRedirect('/administer/users/')
-	
+
 	def get_template(self, step):
 		return 'administer_users_add.html'
-		
-	def process_step(self, request, form, step):		
+
+	def process_step(self, request, form, step):
 		if step == 0 and form.is_valid():
-			group_name = form.cleaned_data.get('role', '')			
+			group_name = form.cleaned_data.get('role', '')
 			sector_id = form.cleaned_data.get('sector', 0)
-			
+
 			if group_name == 'sector_manager':
 				self.form_list[1] = UserAccountFormSecond
 			elif group_name == 'sector_manager_assistant':
 				projects_obj = Project.objects.filter(sector__id=sector_id, prefix_name=Project.PROJECT_IS_PROJECT, parent_project=None)
 				projects = [(project.id, '%s %s' % (project.ref_no, project.name)) for project in projects_obj]
-				
+
 				class UserAccountFormForSector(forms.Form):
 					project = forms.MultipleChoiceField(choices=projects, required=False, label='โครงการ')
-					
+
 				self.form_list[1] = UserAccountFormForSector
-				
+
 			elif group_name in ('program_manager', 'program_manager_assistant'):
 				programs_obj = Project.objects.filter(sector__id=sector_id, prefix_name=Project.PROJECT_IS_PROGRAM)
 				programs = [(program.id, '%s %s' % (program.ref_no, program.name)) for program in programs_obj]
-				
+
 				class UserAccountFormForProgram(forms.Form):
 					program = forms.IntegerField(widget=forms.Select(choices=programs), required=False, label='แผนงาน')
-			
+
 				self.form_list[1] = UserAccountFormForProgram
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+class AddSectorForm(forms.Form):
+	'''Sector adding form'''
+	ref_no = forms.IntegerField(label='สำนักที่')
+	name = forms.CharField(max_length=512, label='ชื่อสำนัก')
