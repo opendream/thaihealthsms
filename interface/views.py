@@ -152,51 +152,18 @@ def view_administer_organization(request):
 
 @login_required
 def view_administer_users(request):
-	pass
+	users = User.objects.all()
+	for user in users:
+		resps = UserRoleResponsibility.objects.filter(user=user.get_profile())
+		
+		projects = []
+		for resp in resps:
+			projects += [project.name for project in resp.projects.all()]
 
-@login_required
-def view_administer_users_add(request):
-	return UserAccountWizard([UserAccountForm1, UserAccountForm2])
-	
-@login_required
-def view_administer_users_add_tmp(request):
-	user_account = request.user.get_profile()
-	if request.method == 'POST':
-		form = UserAccountForm2(request.POST)
-		if form.is_valid():
-			print 'ss', form.cleaned_data
-			'''
-			user = User()
-			user.username = form.cleaned_data.get('username', '')
-			user.email = form.cleaned_data.get('email', '')
-			user.set_password(form.cleaned_data.get('password', ''))
-			user.save()
-
-			user_account = UserAccount()
-			user_account.account = user
-			user_account.first_name = form.cleaned_data.get('first_name', '')
-			user_account.last_name = form.cleaned_data.get('last_name', '')
-			user_account.sector = Sector.objects.get(id=form.cleaned_data.get('sector', 0))
-			user_account.save()
-
-			user_responsibility = UserRoleResponsibility()
-			user_responsibility.user = user_account
-			group_name = form.cleaned_data.get('role', '')
-			user_responsibility.role = Group.objects.get(name=group_name)
-
-			if group_name == 'sector_manager':
-				user_responsibility.sectors.add(user_account.sector)
-			elif group_name == 'sector_manager_assistant':
-				user_responsibility.sectors.add(user_account.sector)
-				user_responsibility.projects.add(Project.objects.filter())
-			elif group_name in ('program_manager', 'program_manager_assistant'):
-				pass'''
+		user.projects = ', '.join(projects)
 
 
-	else:
-		form = UserAccountForm1()
-
-	return render_response(request, "administer_users.html", {'form':form})
+	return render_response(request, "administer_users.html", {'users': users})
 
 @login_required
 def view_administer_users_programs(request, sector_id):

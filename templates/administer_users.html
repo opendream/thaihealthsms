@@ -2,42 +2,6 @@
 {% load helper %}
 
 {% block html_head %}
-<script type="text/javascript" language="javascript" charset="utf-8">
-// <![CDATA[
-	$(document).ready(function() {
-		$('#id_program, #id_project').parent().css({display:'none'})
-		$('#id_role, #id_sector').change(function (e) {
-			if ($('#id_role').val() == 'program_manager' ||
-			    $('#id_role').val() == 'program_manager_assistant') {
-			    $('#id_project').parent().hide();
-			    $.getJSON("/administer/users/" + $('#id_sector').val() + "/programs", function (data) {
-					$('#id_program').text('');
-					$.each(data, function (i, item) {
-						$('#id_program').append('<option value="' + item['pk'] + '">' + item.fields['name'] + '</option>');
-					});
-				});
-				$('#id_program').parent().show();
-			}
-			else if ($('#id_role').val() == 'sector_manager_assistant') {
-				$('#id_program').parent().hide();
-				$.getJSON("/administer/users/" + $('#id_sector').val() + "/projects", function (data) {
-					$('#id_project').text('');
-					$.each(data, function (i, item) {
-						$('#id_project').append('<option value="' + item['pk'] + '">' + item.fields['name'] + '</option>');
-					});
-				});
-				$('#id_project').parent().show();
-			}
-			else if ($('#id_role').val() == 'sector_manager') {
-				$('#id_program, #id_project').parent().hide();
-			}
-		});
-
-
-		$('#id_role').change();
-	});
-// ]]>
-</script>
 {% endblock %}
 
 {% block body_title %}
@@ -59,10 +23,21 @@
 {% endblock %}
 
 {% block body_content %}
-<form action="" method="post">
-	<ul>
-		{{ form.as_ul }}
-	</ul>
-	<p><input type="submit" value="Create user" /></p>
-</form>
+
+<table>
+	<thead>
+		<td>ชื่อ-นามสกุล</td>
+		<td>ตำแหน่ง</td>
+		<td>สังกัดสำนัก</td>
+		<td>แผนงาน/โครงการ ที่รับผิดชอบ</td>
+	</thead>
+	{% for user in users %}
+    <tr>
+		<td>{{user.get_profile.first_name}} {{user.get_profile.last_name}}</td>
+		<td>{{user.resp.role.name}}</td>
+		<td>{{user.get_profile.sector.ref_no}}</td>
+		<td>{{user.projects}}</td>
+	</tr>
+	{% endfor %}
+</table>
 {% endblock %}

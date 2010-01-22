@@ -9,7 +9,6 @@ urlpatterns = patterns('interface.views',
 	url(r'^administer/$', 'view_administer', name='view_administer'),
 	url(r'^administer/organization/$', 'view_administer_organization', name='view_administer_organization'),
 	url(r'^administer/users/$', 'view_administer_users', name='view_administer_users'),
-	url(r'^administer/users/add/$', 'view_administer_users_add', name='view_administer_users_add'),
 	url(r'^administer/users/(?P<sector_id>\d+)/programs/$', 'view_administer_users_programs', name='view_administer_users_programs'),
 	url(r'^administer/users/(?P<sector_id>\d+)/projects/$', 'view_administer_users_projects', name='view_administer_users_projects'),
 
@@ -52,4 +51,9 @@ urlpatterns = patterns('interface.views',
 	# Report
 	url(r'^report/(?P<report_id>\d+)/$', 'view_report_overview', name='view_report_overview'),
 	url(r'^report/(?P<report_id>\d+)/comments/$', 'view_report_comments', name='view_report_comments'),
+)
+
+urlpatterns += patterns('',
+	(r'^administer/users/add/$', UserAccountWizard([UserAccountFormStart, UserAccountFormSecond]))
+	
 )
