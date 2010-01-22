@@ -1,17 +1,14 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+NO_ACTIVITY = 0
 SUBMIT_ACTIVITY = 1
 APPROVE_ACTIVITY = 2
 REJECT_ACTIVITY = 3
-
-class ReportType(models.Model):
-	name = models.CharField(max_length=256)
-	sector = models.ForeignKey('domain.Sector', null=True)
+CANCEL_ACTIVITY = 4
 
 class Report(models.Model):
 	name = models.CharField(max_length=500)
-	type = models.ForeignKey('ReportType', null=True)
 	sector = models.ForeignKey('domain.Sector', null=True)
 	need_checkup = models.BooleanField(default=False) # Need to be sent to sector manager assistant to review
 	need_approval = models.BooleanField(default=False) # Need approval from sector manager assistant
@@ -25,18 +22,12 @@ class ReportProject(models.Model):
 class ReportSchedule(models.Model):
 	report_project = models.ForeignKey('ReportProject')
 	due_date = models.DateField(null=True)
-	is_submitted = models.BooleanField(default=False)
-	last_submitted = models.DateTimeField(null=True)
-	last_activity = models.IntegerField(default=SUBMIT_ACTIVITY)
-
-class ReportScheduleActivity(models.Model):
-	schedule = models.ForeignKey('ReportSchedule')
-	activity = models.IntegerField()
-	created_on = models.DateTimeField(auto_now_add=True)
-	created_by = models.ForeignKey('domain.UserAccount')
+	submitted_on = models.DateTimeField(null=True)
+	state = models.IntegerField(default=NO_ACTIVITY)
+	approval_on = models.DateTimeField(null=True)
 
 class ReportScheduleTextResponse(models.Model):
-	schedule = models.ForeignKey('ReportSchedule')
+	schedule = models.ForeignKey('ReportSchedule', primary_key=True)
 	text = models.CharField(max_length=512)
 	submitted = models.DateTimeField(auto_now_add=True)
 	submitted_by = models.ForeignKey('domain.UserAccount')

@@ -17,53 +17,44 @@
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
-			{% if not project.parent_project %}
-			<li><a href="{% url view_program_overview project.id %}">ภาพรวม</a></li>
-			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
-			<li class="selected">รายงานแผนงาน</li>
-			<li><a href="{% url view_program_kpi project.id %}">ตัวชี้วัดแผนงาน</a></li>
-			<li><a href="{% url view_program_finance project.id %}">แผนการเงิน</a></li>
-			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">ความคิดเห็น</a></li>
-			{% else %}
 			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
-			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
-			<li class="selected">รายงานโครงการ</li>
+			<li><a href="{% url view_project_projects project.id %}">โครงการ</a></li>
+			<li class="selected">รายงาน</li>
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
-			{% endif %}
 		</ul>
 		<div class="clear"></div>
 	</div>
 </div>
-<div class="ss_sub_tab_navi">
-	<ul>
-		{% if not project.parent_project %}
-		<li class="selected">รายงานแผนงาน</li>
-		<li><a href="{% url view_program_reports_send project.id %}">ส่งรายงาน</a></li>
-		{% else %}
-		<li class="selected">รายงานโครงการ</li>
-		<li><a href="{% url view_project_reports_send project.id %}">ส่งรายงาน</a></li>
-		{% endif %}
-	</ul>
-	<div class="clear"></div>
-</div>
 {% endblock %}
 
 {% block body_content %}
-<div class="report_list_page report_list_project_page">
+<!-- TODO Add role check here -->
+{% responsible user 'project_manager,project_manager_assistant' project %}
+<div class="ss_control_panel">
 	<ul>
-		{% for year in year_list %}
-		<li>
-			<h2>ปี {{year}}</h2>
-			<ul class="schedules">
-				{% for report_schedule in report_schedules %}
-					{% ifequal report_schedule.due_date.year year %}
-					<li><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.report_project.report.name}} งวดวันที่ {{report_schedule.due_date|thai_date}}</a></li>
-					{% endifequal %}
-				{% endfor %}
-			</ul>
-		</li>
-		{% endfor %}
+		<li><img src="{{MEDIA_URL}}/images/icon_report_send.png" class="icon"/><a href="{% url view_project_reports_send project.id %}">รายงานที่ต้องส่ง</a></li>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_project_reports_add project.id %}">สร้างรายงานใหม่</a></li>
 	</ul>
+</div>
+{% endresponsible %}
+
+<div class="report_project_list_page">
+	{% for report_project in report_projects %}
+		<h2>{{report_project.report.name}}</h2>
+		
+		{% if report_project.schedules %}
+			{% for year in report_project.year_list %}
+				<h3>ปี {{year|add:'543'}}</h3>
+				<ul class="schedules">
+					{% for schedule in report_project.schedules %}
+						{% ifequal schedule.due_date.year year %}<li><a href="{% url view_report_overview schedule.id %}">งวดวันที่ {{schedule.due_date|thai_abbr_date}}</a></li>{% endifequal %}
+					{% endfor %}
+				</ul>
+			{% endfor %}
+		{% else %}
+		<div class="ss_no_information">ไม่มีรายงาน</div>
+		{% endif %}
+	{% endfor %}
 </div>
 
 {% endblock %}

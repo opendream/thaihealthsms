@@ -1,7 +1,5 @@
 # -*- encoding: utf-8 -*-
 
-from domain.models import UserRoleResponsibility
-
 THAI_MONTH_NAME = ('', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม')
 THAI_MONTH_ABBR_NAME = ('', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.')
 
@@ -25,6 +23,14 @@ def format_date(datetime):
 def format_month_year(datetime):
 	return "%s %d" % (unicode(THAI_MONTH_NAME[datetime.month], "utf-8"), datetime.year + 543)
 
+# Current Year
+from datetime import date
+from domain.models import MasterPlanYear
+
+def what_is_current_year(master_plan):
+	today = date.today().replace(day=1)
+	return MasterPlanYear.objects.get(master_plan=master_plan, start_month__lte=today, end_month__gte=today)
+
 # Roles
 def user_has_role(user, roles):
 	user_groups = user.groups.all()
@@ -38,21 +44,15 @@ def user_has_role(user, roles):
 	return False
 
 # Who responsible
+from domain.models import UserRoleResponsibility
+
 def who_responsible(department):
 	if type(department).__name__ == 'Sector':
 		responsibility = UserRoleResponsibility.objects.filter(role__name='sector_manager', sectors__in=(department,))
 	
 	elif type(department).__name__ == 'Project':
-		if not department.parent_project:
-			responsibility = UserRoleResponsibility.objects.filter(role__name='program_manager', projects__in=(department,))
-			
-			if not responsibility: responsibility = UserRoleResponsibility.objects.filter(role__name='program_manager', plans__in=(department.plan,))
-			
-		else:
-			responsibility = UserRoleResponsibility.objects.filter(role__name='project_manager', projects__in=(department,))
-			
-			if not responsibility: responsibility = UserRoleResponsibility.objects.filter(role__name='program_manager', plans__in=(department.parent_project,))
-	
+		responsibility = UserRoleResponsibility.objects.filter(role__name='project_manager', projects__in=(department,))
+		if not responsibility: responsibility = UserRoleResponsibility.objects.filter(role__name='project_manager', plans__in=(department.plan,))
 	
 	users = list()
 	for responsibility_item in responsibility:

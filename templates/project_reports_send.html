@@ -17,37 +17,54 @@
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
-			{% if not project.parent_project %}
-			<li><a href="{% url view_program_overview project.id %}">ภาพรวม</a></li>
-			<li><a href="{% url view_program_projects project.id %}">โครงการ</a></li>
-			<li class="selected">รายงานแผนงาน</li>
-			<li><a href="{% url view_program_kpi project.id %}">ตัวชี้วัดแผนงาน</a></li>
-			<li><a href="{% url view_program_finance project.id %}">แผนการเงิน</a></li>
-			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_program_comments project.id %}">ความคิดเห็น</a></li>
-			{% else %}
 			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
+			{% if not project.parent_project %}
+			<li><a href="{% url view_project_projects project.id %}">โครงการ</a></li>
+			<li><a href="{% url view_project_reports project.id %}">รายงาน</a></li>
+			{% else %}
 			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
-			<li class="selected">รายงานโครงการ</li>
-			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
 			{% endif %}
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
 		</ul>
 		<div class="clear"></div>
 	</div>
 </div>
-<div class="ss_sub_tab_navi">
-	<ul>
-		{% if not project.parent_project %}
-		<li><a href="{% url view_program_reports project.id %}">รายงานแผนงาน</a></li>
-		{% else %}
-		<li><a href="{% url view_project_reports project.id %}">รายงานโครงการ</a></li>
-		{% endif %}
-		<li class="selected">ส่งรายงาน</li>
-	</ul>
-	<div class="clear"></div>
-</div>
 {% endblock %}
 
 {% block body_content %}
+<div class="send_reports_page">
+	<div class="breadcrumbs"><a href="{% url view_project_reports project.id %}">หน้ารายงาน</a> &#187; รายงานที่ต้องส่ง</div>
+	{% if reports %}
+	<ul class="reports">
+		{% for report in reports %}
+		<li>
+			<h2>{{report.report.name}}</h2>
+			{% if report.schedules %}
+			<ul class="schedules">
+				{% for schedule in report.schedules %}
+				<li>
+					<div class="schedule">
+						{{schedule.due_date|thai_abbr_date}}
+						{% if schedule.overdue %}<span class="overdue">เลยกำหนดส่งมาแล้ว {{schedule.due_date|elapse}}</span>{% endif %}
+						{% if schedule.waiting %}<span class="waiting">กำลังรอการตรวจสอบ</span>{% endif %}
+						{% if schedule.rejected %}<span class="rejected">รายงานถูกตีกลับ</span>{% endif %}
+					</div>
+					<div class="links"><img src="{{MEDIA_URL}}/images/icon_report.png" class="icon"/> <a href="/report/{{schedule.id}}/">เปิดหน้ารายงาน</a> <img src="{{MEDIA_URL}}/images/icon_comments.png" class="icon"/> <a href="/report/{{schedule.id}}/comments/">{{schedule.comment_count}} ความคิดเห็น</a> </div>
+				</li>
+				{% endfor %}
+			</ul>
+			{% else %}
+			<div class="ss_no_information">ไม่มีรายงานที่ต้องส่ง</div>
+			{% endif %}
+		</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีรายงานที่ต้องส่ง</div>
+	{% endif %}
+</div>
+
+<!--
 {% if reports %}
 <ul class="send_reports_page">
 	{% for report in reports %}
@@ -102,4 +119,5 @@
 {% else %}
 <div class="ss_no_information">ไม่มีรายงานที่ต้องส่ง</div>
 {% endif %}
+-->
 {% endblock %}

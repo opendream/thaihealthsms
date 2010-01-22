@@ -17,17 +17,14 @@
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
+			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
 			{% if not project.parent_project %}
-			<li><a href="{% url view_program_overview project.id %}">{% trans 'Overview' %}</a></li>
-			<li><a href="{% url view_program_projects project.id %}">{% trans 'Projects' %}</a></li>
-			<li><a href="{% url view_program_reports project.id %}">{% trans 'Project Reports' %}</a></li>
-			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />{% trans 'Comments' %}</li>
+			<li><a href="{% url view_project_projects project.id %}">โครงการ</a></li>
+			<li><a href="{% url view_project_reports project.id %}">รายงาน</a></li>
 			{% else %}
-			<li><a href="{% url view_project_overview project.id %}">{% trans 'Overview' %}</a></li>
-			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
-			<li><a href="{% url view_project_reports project.id %}">{% trans 'Project Reports' %}</a></li>
-			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />{% trans 'Comments' %}</li>
+			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
 			{% endif %}
+			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />ความคิดเห็น</li>
 		</ul>
 		<div class="clear"></div>
 	</div>

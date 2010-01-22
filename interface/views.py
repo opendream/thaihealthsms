@@ -13,7 +13,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 
-from thaihealthsms.shortcuts import render_response
+from thaihealthsms.shortcuts import render_response, access_denied
 
 from comments.models import *
 from domain.models import *
@@ -23,7 +23,7 @@ from interface.forms import *
 
 from domain import functions as domain_functions
 from report import functions as report_functions
-from helper.utilities import set_message
+from helper import utilities
 
 def view_frontpage(request):
 	if request.user.is_authenticated(): return view_dashboard(request)
@@ -36,33 +36,30 @@ def view_frontpage(request):
 def view_frontpage(request):
 	if request.user.is_superuser:
 		return _view_admin_frontpage(request)
-
+		
 	else:
 		primary_role = request.user.groups.all()[0] # Currently support only 1 role per user
-
+		
 		if primary_role.name == "sector_admin":
-			return _view_admin_frontpage(request)
-
+			return _view_sector_admin_frontpage(request)
+		
 		elif primary_role.name == "sector_manager":
 			return _view_sector_manager_frontpage(request)
-
+		
 		elif primary_role.name == "sector_manager_assistant":
 			return _view_sector_manager_assistant_frontpage(request)
-
-		elif primary_role.name == "program_manager":
-			return _view_program_manager_frontpage(request)
-
-		elif primary_role.name == "program_manager_assistant":
-			return _view_program_manager_assistant_frontpage(request)
-
+		
 		elif primary_role.name == "project_manager":
 			return _view_project_manager_frontpage(request)
-
+		
 		elif primary_role.name == "project_manager_assistant":
 			return _view_project_manager_assistant_frontpage(request)
 
 def _view_admin_frontpage(request):
 	return redirect("/administer/")
+
+def _view_sector_admin_frontpage(request):
+	return redirect("/sector/%d/" % request.user.get_profile().sector.id)
 
 def _view_sector_manager_frontpage(request):
 	return redirect("/sector/%d/" % request.user.get_profile().sector.id)
@@ -73,29 +70,21 @@ def _view_sector_manager_assistant_frontpage(request):
 	for project in projects:
 		project.reports = report_functions.get_submitted_and_overdue_reports(project)
 		
-	return render_response(request, "dashboard_assistant.html", {'projects':projects})
-
-def _view_program_manager_frontpage(request):
-	manager = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name='program_manager')
-	program = manager[0].projects.all()[0]
-	return redirect("/program/%d/" % program.id)
-
-def _view_program_manager_assistant_frontpage(request):
-	responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile(), role__name="program_manager_assistant")
-	projects = responsibility.projects.all()
-	for project in projects:
-		project.reports = report_functions.get_all_reports_schedule_by_project(project)
-
-	return render_response(request, "dashboard_program_assistant.html", {'projects':projects})
+		for report in project.reports:
+			for schedule in report.schedules:
+				schedule.comment_count = Comment.objects.filter(object_name='report', object_id=schedule.id).count()
+	
+	return render_response(request, "dashboard_sector_assistant.html", {'projects':projects})
 
 def _view_project_manager_frontpage(request):
 	manager = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name='project_manager')
 	project = manager[0].projects.all()[0]
-	return redirect("/project/%d/" % project.id)	
+	return redirect("/project/%d/" % project.id)
 
 def _view_project_manager_assistant_frontpage(request):
-	user_account = request.user.get_profile()
-	return redirect("/sector/%d/" % user_account.sector.id)
+	responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile(), role__name="project_manager_assistant")
+	project = manager[0].projects.all()[0]
+	return redirect("/project/%d/" % project.id)
 
 @login_required
 def view_dashboard_comments(request):
@@ -138,27 +127,34 @@ def view_dashboard_comments(request):
 #
 @login_required
 def view_administer(request):
-	user_account = request.user.get_profile()
-
-	return render_response(request, "administer.html", {})
+	return redirect('/administer/organization/')
 
 @login_required
 def view_administer_organization(request):
 	user_account = request.user.get_profile()
-
+	if not request.user.is_superuser: return access_denied(request)
+	
 	return render_response(request, "administer_organization.html", {})
 
 @login_required
 def view_administer_users(request):
 	user_account = request.user.get_profile()
-
+	if not request.user.is_superuser: return access_denied(request)
+	
 	return render_response(request, "administer_users.html", {})
-
-
 
 #
 # SECTOR
 #
+@login_required
+def view_sectors(request):
+	sectors = Sector.objects.all().order_by('ref_no')
+
+	for sector in sectors:
+		sector.master_plans = MasterPlan.objects.filter(sector=sector, is_active=True).order_by('ref_no')
+
+	return render_response(request, "sectors_overview.html", {'sectors':sectors})
+	
 @login_required
 def view_sector_overview(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
@@ -167,166 +163,7 @@ def view_sector_overview(request, sector_id):
 	
 	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True, start_year__lte=current_year, end_year__gte=current_year).order_by('ref_no')
 	
-	for master_plan in master_plans:
-		master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
-		
-		plans = Plan.objects.filter(master_plan=master_plan)
-
-		for plan in plans:
-			plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-		
-		master_plan.plans = plans
-		
-		# Finance KPI
-		projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
-		result = ProjectBudgetSchedule.objects.filter(project__in=projects, year=current_year).aggregate(Sum('expected_budget'), Sum('used_budget'))
-		
-		if result['expected_budget__sum']:
-			master_plan.finance_kpi = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100)
-			if master_plan.finance_kpi > 100: master_plan.finance_kpi = 100
-		else:
-			master_plan.finance_kpi = None
-		
-		marked_projects = list()
-		for result_project in ProjectBudgetSchedule.objects.filter(project__in=projects, scheduled_on__lt=current_date, claimed_on=None, year=current_year):
-			marked_projects.append({'project':result_project.project, 'schedule':result_project})
-			
-		master_plan.finance_projects = marked_projects
-		
-		# Operation KPI
-		kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.OPERATION_CATEGORY)
-		result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-		
-		if result['target_score__sum']:
-			master_plan.operation_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
-			if master_plan.operation_kpi > 100: master_plan.operation_kpi = 100
-		else:
-			master_plan.operation_kpi = None
-		
-		marked_projects = list()
-		for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
-			percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
-			if percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':percentage})
-		
-		master_plan.operation_projects = marked_projects
-		
-		# Teamwork KPI
-		kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.TEAMWORK_CATEGORY)
-		result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-		
-		if result['target_score__sum']:
-			master_plan.teamwork_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
-			if master_plan.teamwork_kpi > 100: master_plan.teamwork_kpi = 100
-		else:
-			master_plan.teamwork_kpi = None
-		
-		marked_projects = list()
-		for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
-			percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
-			if percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':percentage})
-		
-		master_plan.teamwork_projects = marked_projects
-		
-		# Partner KPI
-		kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.PARTNER_CATEGORY)
-		result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-		
-		if result['target_score__sum']:
-			master_plan.partner_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
-			if master_plan.partner_kpi > 100: master_plan.partner_kpi = 100
-		else:
-			master_plan.partner_kpi = None
-		
-		marked_projects = list()
-		for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
-			percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
-			if percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':percentage})
-		
-		master_plan.partner_projects = marked_projects
-		
 	return render_response(request, "sector_overview.html", {'sector':sector, 'master_plans':master_plans,})
-
-@login_required
-def view_sector_kpi(request, sector_id):
-	sector = get_object_or_404(Sector, pk=sector_id)
-	current_date = date.today()
-	
-	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True).order_by('ref_no')
-	
-	for master_plan in master_plans:
-		master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
-		
-		# Finance KPI
-		projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
-		master_plan.finance_kpi = _get_sector_finance_kpi_percentage(master_plan)
-		
-		# Operation KPI
-		kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.OPERATION_CATEGORY)
-		master_plan.operation_kpi = _get_sector_kpi_percentage(master_plan, kpis)
-		
-		# Teamwork KPI
-		kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.TEAMWORK_CATEGORY)
-		master_plan.teamwork_kpi = _get_sector_kpi_percentage(master_plan, kpis)
-		
-		# Partner KPI
-		kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.PARTNER_CATEGORY)
-		master_plan.partner_kpi = _get_sector_kpi_percentage(master_plan, kpis)
-		
-	return render_response(request, "sector_kpi.html", {'sector':sector, 'master_plans':master_plans})
-
-def _get_sector_finance_kpi_percentage(master_plan):
-	current_date = date.today()
-	
-	projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
-	
-	if not projects: return None
-	
-	years_kpi = list()
-	for year in master_plan.years:
-		result = ProjectBudgetSchedule.objects.filter(project__in=projects, year=year).aggregate(Sum('expected_budget'), Sum('used_budget'))
-		
-		if result['expected_budget__sum']:
-			percentage = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100)
-		else:
-			percentage = None
-		
-		marked_projects = list()
-		for result_project in ProjectBudgetSchedule.objects.filter(project__in=projects, scheduled_on__lt=current_date, claimed_on=None, year=year):
-			marked_projects.append({'project':result_project.project, 'schedule':result_project})
-		
-		years_kpi.append({'percentage':percentage, 'projects':marked_projects})
-	
-	result = ProjectBudgetSchedule.objects.filter(project__in=projects).aggregate(Sum('expected_budget'), Sum('used_budget'))
-	percentage = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100) if result['expected_budget__sum'] else 0
-	
-	return {'years_kpi':years_kpi, 'total_percentage':percentage}
-
-def _get_sector_kpi_percentage(master_plan, kpis):
-	for kpi in kpis:
-		years_kpi = list()
-		for year in master_plan.years:
-			result = KPISchedule.objects.filter(kpi=kpi, year=year).aggregate(Sum('target_score'), Sum('result_score'))
-			
-			print result
-			
-			if result['target_score__sum']:
-				percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
-			else:
-				percentage = None
-			
-			marked_projects = list()
-			for result_project in KPISchedule.objects.filter(kpi=kpi, year=year).values('project').annotate(Sum('target_score'), Sum('result_score')):
-				project_percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
-				if project_percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':project_percentage})
-			
-			years_kpi.append({'percentage':percentage, 'projects':marked_projects})
-		
-		kpi.years_kpi = years_kpi
-		
-		result = KPISchedule.objects.filter(kpi=kpi).aggregate(Sum('target_score'), Sum('result_score'))
-		kpi.total_percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
-		
-	return kpis
 
 @login_required
 def view_sector_master_plans(request, sector_id):
@@ -347,15 +184,6 @@ def view_sector_master_plans(request, sector_id):
 
 	return render_response(request, "sector_master_plans.html", {'sector':sector, 'master_plans':master_plans})
 
-@login_required
-def view_sectors_overview(request):
-	sectors = Sector.objects.all()
-
-	for sector in sectors:
-		sector.master_plans = MasterPlan.objects.filter(sector=sector, is_active=True)
-
-	return render_response(request, "sectors_overview.html", {'sectors':sectors})
-
 #
 # MASTER PLAN
 #
@@ -363,76 +191,9 @@ def view_sectors_overview(request):
 def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	current_date = date.today()
-	current_year = current_date.year
+	current_year = utilities.what_is_current_year(master_plan)
 	
 	master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
-	
-	# Finance KPI
-	projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
-	result = ProjectBudgetSchedule.objects.filter(project__in=projects, year=current_year).aggregate(Sum('expected_budget'), Sum('used_budget'))
-	
-	if result['expected_budget__sum']:
-		master_plan.finance_kpi = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100)
-		if master_plan.finance_kpi > 100: master_plan.finance_kpi = 100
-	else:
-		master_plan.finance_kpi = None
-	
-	marked_projects = list()
-	for result_project in ProjectBudgetSchedule.objects.filter(project__in=projects, scheduled_on__lt=current_date, claimed_on=None, year=current_year):
-		marked_projects.append({'project':result_project.project, 'schedule':result_project})
-		
-	master_plan.finance_projects = marked_projects
-	
-	# Operation KPI
-	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.OPERATION_CATEGORY)
-	result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-	
-	if result['target_score__sum']:
-		master_plan.operation_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
-		if master_plan.operation_kpi > 100: master_plan.operation_kpi = 100
-	else:
-		master_plan.operation_kpi = None
-	
-	marked_projects = list()
-	for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
-		percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
-		if percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':percentage})
-	
-	master_plan.operation_projects = marked_projects
-	
-	# Teamwork KPI
-	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.TEAMWORK_CATEGORY)
-	result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-	
-	if result['target_score__sum']:
-		master_plan.teamwork_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
-		if master_plan.teamwork_kpi > 100: master_plan.teamwork_kpi = 100
-	else:
-		master_plan.teamwork_kpi = None
-	
-	marked_projects = list()
-	for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
-		percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
-		if percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':percentage})
-	
-	master_plan.teamwork_projects = marked_projects
-	
-	# Partner KPI
-	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.PARTNER_CATEGORY)
-	result = KPISchedule.objects.filter(kpi__in=kpis, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-	
-	if result['target_score__sum']:
-		master_plan.partner_kpi = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100)
-		if master_plan.partner_kpi > 100: master_plan.partner_kpi = 100
-	else:
-		master_plan.partner_kpi = None
-	
-	marked_projects = list()
-	for result_project in KPISchedule.objects.filter(kpi__in=kpis, year=current_year).values('project').annotate(Sum('target_score'), Sum('result_score')):
-		percentage = int(float(result_project['result_score__sum']) / float(result_project['target_score__sum']) * 100) if result_project['target_score__sum'] else 0
-		if percentage < 100: marked_projects.append({'project':Project.objects.get(pk=result_project['project']), 'percentage':percentage})
-	
-	master_plan.partner_projects = marked_projects
 	
 	# Plans
 	plans = Plan.objects.filter(master_plan=master_plan)
@@ -441,7 +202,7 @@ def view_master_plan_overview(request, master_plan_id):
 		
 	master_plan.plans = plans
 	
-	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, })
+	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, 'current_year':current_year})
 
 @login_required
 def view_master_plan_plans(request, master_plan_id):
@@ -454,290 +215,73 @@ def view_master_plan_plans(request, master_plan_id):
 		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
 		plan.future_projects = Project.objects.filter(plan=plan, start_date__gt=current_date)
 		plan.past_projects = Project.objects.filter(plan=plan, end_date__lt=current_date)
-
+		
+		plan.unscheduled_projects = Project.objects.filter(plan=plan, start_date=None, end_date=None)
+	
 	return render_response(request, "master_plan_plans.html", {'master_plan':master_plan, 'plans':plans})
 
-@login_required
-def view_master_plan_kpi(request, master_plan_id):
-	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
-	current_date = date.today()
-
-	master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
-	
-	# Finance KPI
-	projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
-	master_plan.finance_kpi = _get_sector_finance_kpi_percentage(master_plan)
-	
-	# Operation KPI
-	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.OPERATION_CATEGORY)
-	master_plan.operation_kpi = _get_sector_kpi_percentage(master_plan, kpis)
-	
-	# Teamwork KPI
-	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.TEAMWORK_CATEGORY)
-	master_plan.teamwork_kpi = _get_sector_kpi_percentage(master_plan, kpis)
-	
-	# Partner KPI
-	kpis = MasterPlanKPI.objects.filter(master_plan=master_plan, category=MasterPlanKPI.PARTNER_CATEGORY)
-	master_plan.partner_kpi = _get_sector_kpi_percentage(master_plan, kpis)
-
-	return render_response(request, "master_plan_kpi.html", {'master_plan':master_plan, })
-
 #
-# PROGRAM
+# PROJECT
 #
 @login_required
-def view_program_overview(request, program_id):
-	program = get_object_or_404(Project, pk=program_id)
+def view_project_overview(request, project_id):
+	project = get_object_or_404(Project, pk=project_id)
 	current_date = date.today()
-	current_year = current_date.year
 	
-	current_projects = Project.objects.filter(parent_project=program, start_date__lte=current_date, end_date__gte=current_date)
+	if not project.parent_project:
+		current_projects = Project.objects.filter(parent_project=project, start_date__lte=current_date, end_date__gte=current_date)
 	
-	report_projects = ReportProject.objects.filter(project=program)
-	report_schedules = ReportSchedule.objects.filter(report_project__in=report_projects, is_submitted=True, last_activity=APPROVE_ACTIVITY).order_by('-due_date')[:5]
-	
-	kpi = dict()
-	
-	# Finance KPI
-	kpi['finance'] = {'current':dict(), 'year':dict()}
-	
-	# Note: Check against next finance schedule
-	# Not have schedule -> 0%
-	# Have only claimed schedule -> 100%
-	# Have un-claimed schedule -> 0%
-	
-	past_schedules = ProjectBudgetSchedule.objects.filter(project=program, scheduled_on__lt=current_date)
-	
-	if not past_schedules:
-		kpi['finance']['current'] = {'percentage':None, 'schedules':None}
-		
 	else:
-		percentage = -1
-		schedules = list()
-		for past_schedule in past_schedules:
-			if not past_schedule.claimed_on:
-				percentage = 0
-				schedules.append(past_schedule)
-		
-		if percentage == -1: percentage = 100
-		
-		kpi['finance']['current'] = {'percentage':percentage, 'schedules':schedules}
+		pass # Find current activities
 	
-	result = ProjectBudgetSchedule.objects.filter(project=program, year=current_year).aggregate(Sum('expected_budget'), Sum('used_budget'))
+	report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
 	
-	if result['expected_budget__sum']:
-		percentage = int(float(result['used_budget__sum']) / float(result['expected_budget__sum']) * 100) if result['expected_budget__sum'] else 0
-	else:
-		percentage = None
-	
-	kpi['finance']['year'] = {'percentage':percentage}
-	
-	# Operation KPI
-	kpi['operation'] = {'current':dict(), 'year':dict()}
-	kpis = MasterPlanKPI.objects.filter(master_plan=program.master_plan, category=MasterPlanKPI.OPERATION_CATEGORY)
-	
-	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum('target_score'), Sum('result_score'))
-	
-	if result['target_score__sum']:
-		percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
-	else:
-		percentage = None
-	
-	print "percentage" + str(percentage)
-	
-	marked_kpis = list()
-	for kpi_schedule in KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date, result_score__lt=F('target_score')):
-		marked_kpis.append(kpi_schedule)
-	
-	kpi['operation']['current'] = {'percentage':percentage, 'kpi':marked_kpis}
-	
-	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-	
-	if result['target_score__sum']:
-		percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
-	else:
-		percentage = None
-	
-	kpi['operation']['year'] = {'percentage':percentage}
-	
-	# Teamwork KPI
-	kpi['teamwork'] = {'current':dict(), 'year':dict()}
-	kpis = MasterPlanKPI.objects.filter(master_plan=program.master_plan, category=MasterPlanKPI.TEAMWORK_CATEGORY)
-	
-	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum('target_score'), Sum('result_score'))
-	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
-	
-	marked_kpis = list()
-	for kpi_schedule in KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date, result_score__lt=F('target_score')):
-		marked_kpis.append(kpi_schedule)
-	
-	kpi['teamwork']['current'] = {'percentage':percentage, 'kpi':marked_kpis}
-	
-	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-	
-	if result['target_score__sum']:
-		percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
-	else:
-		percentage = None
-	
-	kpi['teamwork']['year'] = {'percentage':percentage}
-	
-	# Partner KPI
-	kpi['partner'] = {'current':dict(), 'year':dict()}
-	kpis = MasterPlanKPI.objects.filter(master_plan=program.master_plan, category=MasterPlanKPI.PARTNER_CATEGORY)
-	
-	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date).aggregate(Sum('target_score'), Sum('result_score'))
-	percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
-	
-	marked_kpis = list()
-	for kpi_schedule in KPISchedule.objects.filter(kpi__in=kpis, project=program, start_date__lte=current_date, end_date__gte=current_date, result_score__lt=F('target_score')):
-		marked_kpis.append(kpi_schedule)
-	
-	kpi['partner']['current'] = {'percentage':percentage, 'kpi':marked_kpis}
-	
-	result = KPISchedule.objects.filter(kpi__in=kpis, project=program, year=current_year).aggregate(Sum('target_score'), Sum('result_score'))
-	
-	if result['target_score__sum']:
-		percentage = int(float(result['result_score__sum']) / float(result['target_score__sum']) * 100) if result['target_score__sum'] else 0
-	else:
-		percentage = None
-	
-	kpi['partner']['year'] = {'percentage':percentage}
-	
-	return render_response(request, "project_overview.html", {'project':program, 'kpi':kpi, 'current_year':current_year, 'current_projects':current_projects, 'report_schedules':report_schedules})
+	return render_response(request, "project_overview.html", {'project':project, 'current_projects':current_projects, 'report_schedules':report_schedules})
 
 @login_required
-def view_program_projects(request, program_id):
-	program = get_object_or_404(Project, pk=program_id)
+def view_project_projects(request, project_id):
+	project = get_object_or_404(Project, pk=project_id)
+	
+	projects = Project.objects.filter(parent_project=project).order_by('-start_date')
 
-	current_date = date.today()
-	current_projects = Project.objects.filter(parent_project=program, start_date__lte=current_date, end_date__gte=current_date)
-	future_projects = Project.objects.filter(parent_project=program, start_date__gt=current_date)
-	past_projects = Project.objects.filter(parent_project=program, end_date__lt=current_date)
-
-	return render_response(request, "project_projects.html", {'project':program, 'current_projects':current_projects, 'future_projects':future_projects, 'past_projects':past_projects})
+	return render_response(request, "project_projects.html", {'project':project, 'projects':projects})
 
 @login_required
-def view_program_reports(request, program_id):
-	program = get_object_or_404(Project, pk=program_id)
-
-	report_projects = ReportProject.objects.filter(project=program)
-
-	report_schedules = ReportSchedule.objects.filter(report_project__in=report_projects, is_submitted=True).order_by('-due_date')
-
-	year_list = set()
-	for report_schedule in report_schedules: year_list.add(report_schedule.due_date.year)
-
-	year_list = sorted(year_list, reverse=True)
-
-	return render_response(request, "project_reports.html", {'project':program, 'report_schedules':report_schedules, 'year_list':year_list})
+def view_project_add(request, project_id):
+	pass
 
 @login_required
-def view_program_reports_send(request, program_id):
-	program = get_object_or_404(Project, pk=program_id)
-	reports = report_functions.get_nextdue_and_overdue_reports(program_id)
+def view_project_reports(request, project_id):
+	project = get_object_or_404(Project, pk=project_id)
+	
+	report_projects = ReportProject.objects.filter(project=project)
+	
+	for report_project in report_projects:
+		report_project.schedules = ReportSchedule.objects.filter(report_project=report_project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_checkup=False))).order_by('-due_date')
+		
+		year_list = set()
+		for schedule in report_project.schedules: year_list.add(schedule.due_date.year)
+		year_list = sorted(year_list, reverse=True)
+		
+		report_project.year_list = year_list
+	
+	return render_response(request, "project_reports.html", {'project':project, 'report_projects':report_projects})
 
+@login_required
+def view_project_reports_add(request, project_id):
+	
+	pass
+
+@login_required
+def view_project_reports_send(request, project_id):
+	project = get_object_or_404(Project, pk=project_id)
+	reports = report_functions.get_nextdue_and_overdue_reports(project_id)
+	
 	for report in reports:
 		for schedule in report.schedules:
-			schedule.files = ReportScheduleFileResponse.objects.filter(schedule=schedule)
+			schedule.comment_count = Comment.objects.filter(object_name='report', object_id=schedule.id).count()
 
-	if request.method == "POST":
-		if request.POST.get("submit") == "schedule_upload":
-			schedule_id = request.POST.get("schedule_id")
-			due_date = request.POST.get("due_date")
-
-			schedule = ReportSchedule.objects.get(pk=schedule_id)
-
-			# Store uploading file
-			uploading_file = request.FILES['uploading_file']
-			uploading_directory = "%s/%d/%d/" % (settings.REPORT_SUBMIT_FILE_PATH, schedule.report_project.report.id, schedule.id)
-
-			if not os.path.exists(uploading_directory): os.makedirs(uploading_directory)
-
-			ReportScheduleFileResponse.objects.create(schedule=schedule, filename=uploading_file.name, uploaded_by=request.user.get_profile())
-
-			destination = open(uploading_directory + uploading_file.name, 'wb')
-			for chunk in request.FILES['uploading_file'].chunks(): destination.write(chunk)
-			destination.close()
-
-		elif request.POST.get("submit") == "schedule_submit":
-			schedule_id = request.POST.get("schedule_id")
-			due_date = request.POST.get("due_date")
-
-			schedule = ReportSchedule.objects.get(pk=schedule_id)
-			schedule.is_submitted = True
-			schedule.submitted = datetime.now()
-			schedule.save()
-
-
-		return redirect("/program/%d/reports/send/" % program.id)
-
-
-	return render_response(request, "project_reports_send.html", {'project':program, 'reports':reports, 'REPORT_SUBMIT_FILE_URL':settings.REPORT_SUBMIT_FILE_URL})
-
-@login_required
-def view_program_kpi(request, program_id):
-	program = get_object_or_404(Project, pk=program_id)
-	current_date = date.today()
-	current_year = current_date.year
-	
-	# Operation KPI
-	kpi_ids = KPISchedule.objects.filter(project=program, kpi__category=MasterPlanKPI.OPERATION_CATEGORY, year=current_year).values('kpi').distinct()
-	operation_kpis = list()
-	
-	for kpi_id in kpi_ids:
-		operation_kpi = MasterPlanKPI.objects.get(id=kpi_id['kpi'])
-		operation_kpi.schedules = KPISchedule.objects.filter(kpi=operation_kpi, project=program, year=current_year).order_by('-end_date')
-		
-		for schedule in operation_kpi.schedules:
-			schedule.revisions = KPIScheduleRevision.objects.filter(schedule=schedule).order_by('-revised_on')
-		
-		operation_kpis.append(operation_kpi)
-	
-	# Teamwork KPI
-	kpi_ids = KPISchedule.objects.filter(project=program, kpi__category=MasterPlanKPI.TEAMWORK_CATEGORY, year=current_year).values('kpi').distinct()
-	teamwork_kpis = list()
-	
-	for kpi_id in kpi_ids:
-		teamwork_kpi = MasterPlanKPI.objects.get(id=kpi_id['kpi'])
-		teamwork_kpi.schedules = KPISchedule.objects.filter(kpi=teamwork_kpi, project=program, year=current_year).order_by('-end_date')
-		
-		for schedule in teamwork_kpi.schedules:
-			schedule.revisions = KPIScheduleRevision.objects.filter(schedule=schedule).order_by('-revised_on')
-		
-		teamwork_kpis.append(teamwork_kpi)
-	
-	# Partner KPI
-	kpi_ids = KPISchedule.objects.filter(project=program, kpi__category=MasterPlanKPI.PARTNER_CATEGORY, year=current_year).values('kpi').distinct()
-	partner_kpis = list()
-	
-	for kpi_id in kpi_ids:
-		partner_kpi = MasterPlanKPI.objects.get(id=kpi_id['kpi'])
-		partner_kpi.schedules = KPISchedule.objects.filter(kpi=partner_kpi, project=program, year=current_year).order_by('-end_date')
-		
-		for schedule in partner_kpi.schedules:
-			schedule.revisions = KPIScheduleRevision.objects.filter(schedule=schedule).order_by('-revised_on')
-		
-		partner_kpis.append(partner_kpi)
-	
-	return render_response(request, "project_kpi.html", {'project':program, 'operation_kpis':operation_kpis, 'teamwork_kpis':teamwork_kpis, 'partner_kpis':partner_kpis})
-
-@login_required
-def view_program_finance(request, program_id):
-	program = get_object_or_404(Project, pk=program_id)
-	
-	year_ids = ProjectBudgetSchedule.objects.filter(project=program).values('year').distinct()
-	finance_years = list()
-	
-	for year_id in year_ids:
-		schedules = ProjectBudgetSchedule.objects.filter(project=program, year=year_id['year']).order_by('-scheduled_on')
-		
-		for schedule in schedules:
-			schedule.revisions = ProjectBudgetScheduleRevision.objects.filter(schedule=schedule).order_by('-revised_on')
-		
-		finance_years.append({'number':year_id['year'], 'schedules':schedules})
-	
-	return render_response(request, "project_finance.html", {'project':program, 'finance_years':finance_years})
+	return render_response(request, "project_reports_send.html", {'project':project, 'reports':reports})
 
 @login_required
 def view_program_comments(request, program_id):
@@ -756,17 +300,17 @@ def view_program_comments(request, program_id):
 #
 # PROJECT
 #
-@login_required
-def view_project_overview(request, project_id):
-	current_date = date.today()
-	project = get_object_or_404(Project, pk=project_id)
-
-	report_projects = ReportProject.objects.filter(project=project)
-	report_schedules = ReportSchedule.objects.filter(report_project__in=report_projects, is_submitted=True, last_activity=APPROVE_ACTIVITY).order_by('-due_date')
-	
-	current_activities = project.activity_set.filter(start_date__lte=current_date, end_date__gte=current_date).order_by('end_date')
-	future_activities = project.activity_set.filter(start_date__gt=current_date).order_by('start_date')
-	return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities, 'report_schedules':report_schedules})
+#@login_required
+#def view_project_overview(request, project_id):
+#	current_date = date.today()
+#	project = get_object_or_404(Project, pk=project_id)
+#
+#	report_projects = ReportProject.objects.filter(project=project)
+#	report_schedules = ReportSchedule.objects.filter(report_project__in=report_projects, is_submitted=True, last_activity=APPROVE_ACTIVITY).order_by('-due_date')
+#	
+#	current_activities = project.activity_set.filter(start_date__lte=current_date, end_date__gte=current_date).order_by('end_date')
+#	future_activities = project.activity_set.filter(start_date__gt=current_date).order_by('start_date')
+#	return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities, 'report_schedules':report_schedules})
 
 # Helper function to find previous and next month.
 def prev_month(year, month, num=1):
@@ -841,6 +385,7 @@ def view_project_activities_ajax(request, project_id, yearmonth):
 
 	return render_response(request, "project_activities_ajax.html", {'recent_activities':recent_activities,'prev_month':prev_month_,'next_month':next_month_})
 
+"""
 @login_required
 def view_project_reports(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
@@ -857,7 +402,7 @@ def view_project_reports_send(request, project_id):
 			schedule.files = ReportScheduleFileResponse.objects.filter(schedule=schedule)
 
 	return render_response(request, "project_reports_send.html", {'project':project, 'reports':reports, 'REPORT_SUBMIT_FILE_URL':settings.REPORT_SUBMIT_FILE_URL})
-
+"""
 @login_required
 def view_activity_add(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
@@ -877,7 +422,7 @@ def view_activity_add(request, project_id):
 			activity.result_real = form.cleaned_data['result_real']
 			activity.save()
 
-			set_message(request, 'Your activity has been create.')
+			utilities.set_message(request, 'Your activity has been create.')
 
 			return redirect("/activity/%d/" % activity.id)
 
@@ -958,7 +503,93 @@ def view_activity_comments(request, activity_id):
 @login_required
 def view_report_overview(request, report_id):
 	report_schedule = get_object_or_404(ReportSchedule, pk=report_id)
+	
+	if request.method == 'POST':
+		submit_type = request.POST.get('submit')
+		
+		if submit_type == 'submit-file':
+			schedule_id = request.POST.get("schedule_id")
+			schedule = ReportSchedule.objects.get(pk=schedule_id)
+			
+			file_response = ReportScheduleFileResponse.objects.create(schedule=schedule, uploaded_by=request.user.get_profile())
+			
+			# Uploading directory
+			uploading_directory = "%s/%d/" % (settings.REPORT_SUBMIT_FILE_PATH, schedule.id)
+			if not os.path.exists(uploading_directory): os.makedirs(uploading_directory)
+			
+			# Uploading file
+			uploading_file = request.FILES['uploading_file']
+			(file_name, separator, file_ext) = uploading_file.name.rpartition('.')
+			
+			unique_filename = '%s.%s' % (file_name, file_ext)
+			if os.path.isfile('%s%s' % (uploading_directory, unique_filename)):
+				# Duplicated filename
+				suffix_counter = 1
+				
+				while os.path.isfile('%s%s(%d).%s' % (uploading_directory, file_name, suffix_counter, file_ext)):
+					suffix_counter = suffix_counter + 1
+				
+				unique_filename = '%s(%d).%s' % (file_name, suffix_counter, file_ext)
+			
+			file_response.filename = unique_filename
+			file_response.save()
+			
+			destination = open(uploading_directory + unique_filename, 'wb')
+			for chunk in request.FILES['uploading_file'].chunks(): destination.write(chunk)
+			destination.close()
+		
+		elif submit_type == 'submit-text':
+			schedule_id = request.POST.get("schedule_id")
+			schedule = ReportSchedule.objects.get(pk=schedule_id)
+			
+			text = request.POST.get("text")
+			
+			try:
+				text_response = ReportScheduleTextResponse.objects.get(schedule=schedule)
+				
+			except ReportScheduleTextResponse.DoesNotExist:
+				text_response = ReportScheduleTextResponse.objects.create(schedule=schedule, submitted_by=request.user.get_profile())
+			
+			text_response.text = text
+			text_response.save()
+		
+		elif submit_type == 'submit-report':
+			schedule_id = request.POST.get("schedule_id")
+			schedule = ReportSchedule.objects.get(pk=schedule_id)
+			
+			schedule.state = SUBMIT_ACTIVITY
+			schedule.submitted_on = datetime.now()
+			schedule.approval_on = None
+			schedule.save()
+			
+		return redirect('/report/%d/' % schedule.id)
+	
+	current_date = date.today()
+	
+	if report_schedule.state == NO_ACTIVITY and report_schedule.due_date < current_date:
+		report_schedule.status_code = 'overdue'
+	elif report_schedule.state == NO_ACTIVITY:
+		report_schedule.status_code = 'not_submitted'
+	elif report_schedule.state == SUBMIT_ACTIVITY and not report_schedule.report_project.report.need_approval:
+		report_schedule.status_code = 'submitted'
+	elif report_schedule.state == SUBMIT_ACTIVITY and report_schedule.report_project.report.need_approval:
+		report_schedule.status_code = 'waiting'
+	elif report_schedule.state == APPROVE_ACTIVITY:
+		report_schedule.status_code = 'approved'
+	elif report_schedule.state == APPROVE_ACTIVITY:
+		report_schedule.status_code = 'rejected'
+	
+	report_schedule.allow_modifying = report_schedule.status_code in ('overdue', 'not_submitted', 'rejected')
+	
+	try:
+		report_schedule.text_response = ReportScheduleTextResponse.objects.get(schedule=report_schedule)
+	except ReportScheduleTextResponse.DoesNotExist:
+		report_schedule.text_response = ''
+	
 	report_schedule.files = ReportScheduleFileResponse.objects.filter(schedule=report_schedule)
+	
+	print report_schedule.files
+	
 	return render_response(request, "report_overview.html", {'report_schedule':report_schedule, 'REPORT_SUBMIT_FILE_URL':settings.REPORT_SUBMIT_FILE_URL, })
 
 @login_required

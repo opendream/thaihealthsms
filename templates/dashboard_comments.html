@@ -14,7 +14,7 @@
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
-			<li><a href="{% url view_frontpage %}">{% trans 'Frontpage' %}</a></li>
+			{% role user 'sector_manager_assistant' %}<li><a href="{% url view_frontpage %}">{% trans 'Frontpage' %}</a></li>{% endrole %}
 			<li class="selected">{% trans 'Comment Box' %}</li>
 		</ul>
 		<div class="clear"></div>

@@ -23,16 +23,22 @@ class UserRoleResponsibility(models.Model):
 # Organization
 #
 class Sector(models.Model):
-	ref_no = models.CharField(max_length=64, unique=True)
+	ref_no = models.IntegerField()
 	name = models.CharField(max_length=512)
 
 class MasterPlan(models.Model):
 	sector = models.ForeignKey('Sector')
-	ref_no = models.CharField(max_length=64)
+	ref_no = models.IntegerField()
 	name = models.CharField(max_length=512)
 	is_active = models.BooleanField(default=True)
 	start_year = models.IntegerField() # Master plan for ThaiHealth has 3 years-span
 	end_year = models.IntegerField()
+
+class MasterPlanYear(models.Model):
+	master_plan = models.ForeignKey('MasterPlan')
+	year = models.IntegerField()
+	start_month = models.DateField()
+	end_month = models.DateField()
 
 class Plan(models.Model):
 	master_plan = models.ForeignKey('MasterPlan')
@@ -65,9 +71,7 @@ class Project(models.Model): # Program, Project
 	start_date = models.DateField(null=True)
 	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0) # Not use yet
-	
-	budget = models.IntegerField(default=0)
-	
+
 class Activity(models.Model):
 	project = models.ForeignKey('Project')
 	name = models.CharField(max_length=512)
@@ -75,59 +79,4 @@ class Activity(models.Model):
 	start_date = models.DateField(null=True)
 	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0)
-
-	location = models.CharField(max_length=512)
-	result_goal = models.TextField()
-	result_real = models.TextField()
-
-#
-# Project Finance
-#
-class ProjectBudgetSchedule(models.Model):
-	project = models.ForeignKey('Project')
-	expected_budget = models.IntegerField()
-	used_budget = models.IntegerField(default=0)
-	year = models.IntegerField() # Gregorian calendar e.g. 2009 -- Fill when create KPI
-	scheduled_on = models.DateField()
-	claimed_on = models.DateField(null=True)
-
-class ProjectBudgetScheduleRevision(models.Model):
-	schedule = models.ForeignKey('ProjectBudgetSchedule')
-	expected_budget = models.IntegerField()
-	used_budget = models.IntegerField()
-	revised_on = models.DateTimeField(auto_now=True)
-	revised_by = models.ForeignKey('UserAccount')
-
-#
-# KPI
-#
-class MasterPlanKPI(models.Model):
-	ref_no = models.CharField(max_length=64)
-	name = models.CharField(max_length=512)
-	category = models.IntegerField() # Operation, Teamwork, Partner
-	master_plan = models.ForeignKey('MasterPlan')
-	created_on = models.DateTimeField(auto_now_add=True)
-	created_by = models.ForeignKey('UserAccount')
-	
-	OPERATION_CATEGORY = 1
-	TEAMWORK_CATEGORY = 2
-	PARTNER_CATEGORY = 3
-
-class KPISchedule(models.Model):
-	kpi = models.ForeignKey('MasterPlanKPI')
-	project = models.ForeignKey('Project')
-	year = models.IntegerField() # Gregorian calendar e.g. 2009 -- Fill when create KPI
-	target_score = models.IntegerField()
-	result_score = models.IntegerField()
-	start_date = models.DateField()
-	end_date = models.DateField()
-	last_update = models.DateTimeField(auto_now=True)
-	
-class KPIScheduleRevision(models.Model):
-	schedule = models.ForeignKey('KPISchedule')
-	target_score = models.IntegerField()
-	result_score = models.IntegerField()
-	revised_on = models.DateTimeField(auto_now_add=True)
-	revised_by = models.ForeignKey('UserAccount')
-
 

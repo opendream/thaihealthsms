@@ -1,4 +1,4 @@
-{% load interface_tags i18n %}
+{% load interface_tags i18n helper %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -24,25 +24,41 @@
 	
 <script type="text/javascript">
 $(document).ready(function() {
-	$("#post-comment-dialog button").click(function(e) {
-		e.preventDefault();
-		var message = $("#post-comment-dialog textarea").val();
-		
-		if(message != "") {
-			$("#post-comment-dialog .loading").show();
-			$.post("{% block post_comment_ajax_url %}{% endblock %}", {'message': message}, function(data) {
-				{% block post_comment_ajax_callback %}{% endblock %}
-				$("#post-comment-dialog .loading").hide();
-				$.fn.colorbox.close();
-			}, "json");
+	$("#post-comment-dialog textarea").keypress(function(e) {
+		if(e.which == 13) {
+			$(this).blur();
+			$("#post-comment-dialog button").focus().click();
 		}
 	});
 	
-	$(".post-comment").colorbox({width:"50%", scrolling:false, opacity:0.4, inline:true, href:"#post-comment-dialog", 
+	$("#post-comment-dialog button").click(function(e) {
+		e.preventDefault();
+		postComment();
+	});
+});
+
+function postComment() {
+	var message = $("#post-comment-dialog textarea").val();
+	
+	if(message != "") {
+		var comment_url = $("#post-comment-dialog input[name='comment_target']").val();
+		$("#post-comment-dialog .loading").show();
+		$.post("/post-comment/" + comment_url + "/", {'message': message}, function(data) {
+			$("#post-comment-dialog .loading").hide();
+			$.fn.colorbox.close();
+			{% block post_comment_ajax_callback %}{% endblock %}
+		}, "json");
+	}
+}
+
+function bindCommentBox(jqueryObject) {
+	jqueryObject.colorbox({width:"50%", scrolling:false, opacity:0.4, inline:true, href:"#post-comment-dialog", 
 		onOpen:function(){
 			$("#post-comment-dialog").css("display", "block");
 			$("#post-comment-dialog textarea").val("");
 			$("#post-comment-dialog .loading").hide();
+			
+			$("#post-comment-dialog input[name='comment_target']").val($.fn.colorbox.element().attr("rel"));
 			
 			$("#post-comment-receivers_feed").css("width", "auto");
 		},
@@ -51,10 +67,8 @@ $(document).ready(function() {
 			$("#post-comment-dialog").css("display", "none");
 		}
 	});
-	
-	$("#post-comment-receivers").fcbkcomplete({json_url:"{% url ajax_query_comment_receivers %}", cache:true, filter_case:false, filter_hide:true, newel:true});
-	
-});
+}
+
 </script>
 	
 	{% block html_head %}{% endblock %}
@@ -63,12 +77,18 @@ $(document).ready(function() {
 	<div class="body_header">
 		<div class="account_panel">
 			<span class="username">{{user_account.first_name}} {{user_account.last_name}}</span>
-			{% if not user.is_superuser %}
-				<span class="unread_comments">[ <a href="/dashboard/comments/"><img src="{{MEDIA_URL}}/images/icon_unread_comments.png"/> {% get_unread_comments user.get_profile.id %}</a> ]</span> <a href="/dashboard/">หน้าผู้ใช้</a> |
-				{% if user.is_staff %}<a href="/administer/">{% trans 'Administer' %}</a> |{% endif %}
-			{% else %}
+			
+			{% ifadmin user %}
+				{% role user 'sector_admin' %}
+				{% else %}
 				<a href="/administer/">{% trans 'Administer' %}</a> |
-			{% endif %}
+				{% endrole %}
+			{% else %}
+				<span class="unread_comments">[ <a href="/dashboard/comments/"><img src="{{MEDIA_URL}}/images/icon_unread_comments.png"/> {% get_unread_comments user.get_profile.id %}</a> ]</span>
+				{% role user 'sector_manager' %}<a href="/">หน้าสำนัก</a> |{% endrole %}
+				{% role user 'sector_manager_assistant' %}<a href="/dashboard/">หน้าผู้ใช้</a> |{% endrole %}
+				{% role user 'project_manager,project_manager_assistant' %}<a href="/">หน้าแผนงาน</a> |{% endrole %}
+			{% endifadmin %}
 			<a href="/accounts/logout/" class="logout-link">{% trans 'Sign out' %}</a>
 		</div>
 		<div class="logo_panel"><a href="/"><img src="{{MEDIA_URL}}/images/logo.png" /></a></div>
@@ -83,10 +103,9 @@ $(document).ready(function() {
 	</div>
 
 <div id="post-comment-dialog">
-<label>ผู้รับเพิ่มเติม (นอกเหนือจากผู้รับผิดชอบ):</label>
-<input type="text" id="post-comment-receivers"/>
 <label>{% trans 'Comment' %}</label>
 <textarea id="post-comment-textarea"></textarea>
+<input type="hidden" name="comment_target"/>
 <div class="button-panel"><button>{% trans 'Send a Comment' %}</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" />{% trans 'Sending...' %}</span></div>
 </div>
 </body>

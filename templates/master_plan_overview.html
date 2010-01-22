@@ -16,8 +16,7 @@
 	<div class="tabs">
 		<ul>
 			<li class="selected">ภาพรวม</li>
-			<li><a href="{% url view_master_plan_plans master_plan.id %}">แผนงาน/โครงการที่รับผิดชอบ</a></li>
-			<li><a href="{% url view_master_plan_kpi master_plan.id %}">ตัวชี้วัดองค์กร</a></li>
+			<li><a href="{% url view_master_plan_plans master_plan.id %}">แผนงาน/โครงการ</a></li>
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -25,119 +24,8 @@
 {% endblock %}
 
 {% block body_content %}
-<div class="overview_page">
-	<h2>ตัวชี้วัดองค์กร</h2>
-	<div class="kpi_section">
-		<table>
-			<tr>
-				<th colspan="4"><h3>แผนหลัก {{master_plan.ref_no}} {{master_plan.name}}</h3></th>
-			</tr>
-			<tr>
-				<td class="kpi">
-					<h4>การเงิน</h4>
-					{% if master_plan.finance_kpi %}
-					<div class="kpi-graph-container">
-						<div class="kpi-graph kpi-{% kpi_range_name master_plan.finance_kpi %}-bar-graph" style="width:{{master_plan.finance_kpi}}%;"></div>
-					</div>
-					<div class="percentage kpi-{% kpi_range_name master_plan.finance_kpi %}-percentage">{{master_plan.finance_kpi}}%</div>
-					{% else %}
-					<div class="kpi-graph-container">
-						<div class="kpi-graph" style="width:0%;"></div>
-					</div>
-					{% ifequal master_plan.finance_kpi 0 %}
-					<div class="percentage kpi-{% kpi_range_name master_plan.finance_kpi %}-percentage">{{master_plan.finance_kpi}}%</div>
-					{% else %}
-					<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
-					{% endifequal %}
-					{% endif %}
-					{% if master_plan.finance_projects %}
-					<ul class="marked_projects">
-						{% for project in master_plan.finance_projects %}
-						<li><a href="/program/{{project.project.id}}/">แผนงาน {{project.project.ref_no}}</a> &#187; <span class="finance_note">ยังไม่มีการเบิก</span><div class="bottom_note">เลยกำหนดมาแล้ว {{project.schedule.scheduled_on|timesince|truncatewords:2|cut:'.'|cut:','}}</div></li>
-						{% endfor %}
-					</ul>
-					{% endif %}
-				</td>
-				<td class="kpi">
-					<h4>การดำเนินงาน</h4>
-					{% if master_plan.operation_kpi %}
-					<div class="kpi-graph-container">
-						<div class="kpi-graph kpi-{% kpi_range_name master_plan.operation_kpi %}-bar-graph" style="width:{{master_plan.operation_kpi}}%;"></div>
-					</div>
-					<div class="percentage kpi-{% kpi_range_name master_plan.operation_kpi %}-percentage">{{master_plan.operation_kpi}}%</div>
-					{% else %}
-					<div class="kpi-graph-container">
-						<div class="kpi-graph" style="width:0%;"></div>
-					</div>
-					{% ifequal master_plan.operation_kpi 0 %}
-					<div class="percentage kpi-{% kpi_range_name master_plan.operation_kpi %}-percentage">{{master_plan.operation_kpi}}%</div>
-					{% else %}
-					<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
-					{% endifequal %}
-					{% endif %}
-					{% if master_plan.operation_projects %}
-					<ul class="marked_projects">
-						{% for project in master_plan.operation_projects %}
-						<li><a href="/program/{{project.project.id}}/">แผนงาน {{project.project.ref_no}}</a> &#187; <span class="kpi-{% kpi_range_name project.percentage %}-percentage">{{project.percentage}}%</span></li>
-						{% endfor %}
-					</ul>
-					{% endif %}
-				</td>
-				<td class="kpi">
-					<h4>ทีมงาน</h4>
-					{% if master_plan.teamwork_kpi %}
-					<div class="kpi-graph-container">
-						<div class="kpi-graph kpi-{% kpi_range_name master_plan.teamwork_kpi %}-bar-graph" style="width:{{master_plan.teamwork_kpi}}%;"></div>
-					</div>
-					<div class="percentage kpi-{% kpi_range_name master_plan.teamwork_kpi %}-percentage">{{master_plan.teamwork_kpi}}%</div>
-					{% else %}
-					<div class="kpi-graph-container">
-						<div class="kpi-graph" style="width:0%;"></div>
-					</div>
-					{% ifequal master_plan.teamwork_kpi 0 %}
-					<div class="percentage kpi-{% kpi_range_name master_plan.teamwork_kpi %}-percentage">{{master_plan.teamwork_kpi}}%</div>
-					{% else %}
-					<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
-					{% endifequal %}
-					{% endif %}
-					{% if master_plan.teamwork_projects %}
-					<ul class="marked_projects">
-						{% for project in master_plan.teamwork_projects %}
-						<li><a href="/program/{{project.project.id}}/">แผนงาน {{project.project.ref_no}}</a> &#187; <span class="kpi-{% kpi_range_name project.percentage %}-percentage">{{project.percentage}}%</span></li>
-						{% endfor %}
-					</ul>
-					{% endif %}
-				</td>
-				<td class="kpi">
-					<h4>ภาคี</h4>
-					{% if master_plan.partner_kpi %}
-					<div class="kpi-graph-container">
-						<div class="kpi-graph kpi-{% kpi_range_name master_plan.partner_kpi %}-bar-graph" style="width:{{master_plan.partner_kpi}}%;"></div>
-					</div>
-					<div class="percentage kpi-{% kpi_range_name master_plan.partner_kpi %}-percentage">{{master_plan.partner_kpi}}%</div>
-					{% else %}
-					<div class="kpi-graph-container">
-						<div class="kpi-graph" style="width:0%;"></div>
-					</div>
-					{% ifequal master_plan.partner_kpi 0 %}
-					<div class="percentage kpi-{% kpi_range_name master_plan.partner_kpi %}-percentage">{{master_plan.partner_kpi}}%</div>
-					{% else %}
-					<div class="percentage no_percentage">ไม่มีข้อมูลชี้วัด</div>
-					{% endifequal %}
-					{% endif %}
-					{% if master_plan.partner_projects %}
-					<ul class="marked_projects">
-						{% for project in master_plan.partner_projects %}
-						<li><a href="/program/{{project.project.id}}/">แผนงาน {{project.project.ref_no}}</a> &#187; <span class="kpi-{% kpi_range_name project.percentage %}-percentage">{{project.percentage}}%</span></li>
-						{% endfor %}
-					</ul>
-					{% endif %}
-				</td>
-			</tr>
-		</table>
-	</div>	
-	
-	<h2>แผนงาน/โครงการที่ดำเนินการอยู่ในปัจจุบัน</h2>
+<div class="overview_page">	
+	<h2>แผนงาน/โครงการ ในปี {{current_year.year|add:'543'}}</h2>
 	<div class="hierarchy_section master_plan_hierarchy_section">
 		{% for plan in master_plan.plans %}
 			<h3>{{plan.ref_no}} {{plan.name}}</h3>
@@ -148,7 +36,7 @@
 				<ul>
 					{% for project in plan.current_projects %}
 					<li>
-						<a href="{% url view_program_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
+						<a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
 						<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
 					</li>
 					{% endfor %}

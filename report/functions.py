@@ -12,44 +12,58 @@ from domain.models import Project
 from report.models import *
 from comments.models import *
 
-
-def get_submitted_and_overdue_reports(project): # For assistant
-	report_projects = ReportProject.objects.filter(project=project)
+def get_submitted_and_overdue_reports(project):
+	"""
+	For sector manager assistant
+	
+	- submitted reports that need approval
+	- overdue reports
+	- before-due submitted reports
+	"""
+	report_projects = ReportProject.objects.filter(project=project, report__need_checkup=True)
 	current_date = date.today()
 	
 	for report_project in report_projects:
-		next_due = ReportSchedule.objects.filter(report_project=report_project, due_date__gte=current_date).aggregate(Min('due_date'))['due_date__min']
-		last_due = ReportSchedule.objects.filter(report_project=report_project, due_date__lt=current_date).aggregate(Max('due_date'))['due_date__max']
-
-		schedules = ReportSchedule.objects.filter(report_project=report_project).filter((Q(is_submitted=False) & Q(due_date__lt=current_date)) | Q(due_date=last_due) | (Q(due_date=next_due) & Q(is_submitted=True))).exclude(last_activity=APPROVE_ACTIVITY).order_by('-due_date')
-
-		for schedule in schedules: 
-			schedule.overdue = schedule.due_date < current_date and not schedule.is_submitted
-			statuses = get_schedule_statuses(schedule)
-			schedule.statuses = ' '.join(statuses)
-			if 'overdue' in statuses:
-				schedule.late_ago = (current_date - schedule.due_date).days
+		
+		schedules = ReportSchedule.objects \
+			.filter(report_project=report_project) \
+			.filter((Q(report_project__report__need_approval=True) & Q(state=SUBMIT_ACTIVITY)) | (Q(state=NO_ACTIVITY) & Q(due_date__lt=current_date)) | Q(state=REJECT_ACTIVITY) | (Q(due_date__gte=current_date) & Q(state=SUBMIT_ACTIVITY))) \
+			.exclude(state=CANCEL_ACTIVITY).order_by('-due_date')
+		
+		for schedule in schedules:
+			schedule.need_approval = schedule.report_project.report.need_approval and schedule.state == SUBMIT_ACTIVITY
+			schedule.overdue = schedule.state == NO_ACTIVITY
 				
 		report_project.schedules = schedules
 
 	return report_projects
 
-def get_nextdue_and_overdue_reports(project): # For project manager
+def get_nextdue_and_overdue_reports(project):
+	"""
+	For project manager
+	- Next due reports
+	- Rejected reports
+	- Overdue reports
+	"""
+	
 	report_projects = ReportProject.objects.filter(project=project)
 	current_date = date.today()
-
+	
 	for report_project in report_projects:
 		next_due = ReportSchedule.objects.filter(report_project=report_project, due_date__gte=current_date).aggregate(Min('due_date'))['due_date__min']
+		
+		schedules = ReportSchedule.objects \
+			.filter(report_project=report_project) \
+			.filter((Q(state=NO_ACTIVITY) & Q(due_date__lt=current_date)) | Q(state=REJECT_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_approval=True)) | (Q(due_date=next_due) & Q(state=NO_ACTIVITY))).order_by('-due_date')
 
-		schedules = ReportSchedule.objects.filter(report_project=report_project).filter((Q(is_submitted=False) & Q(due_date__lt=current_date)) | Q(due_date=next_due)).order_by('-due_date')
-
-		for schedule in schedules: 
-			schedule.overdue = schedule.due_date < current_date and not schedule.is_submitted
-			statuses = get_schedule_statuses(schedule)
-			schedule.statuses = ' '.join(statuses)
-			if 'overdue' in statuses:
-				schedule.late_ago = (current_date - schedule.due_date).days
-				
+		for schedule in schedules:
+			schedule.waiting = schedule.state == SUBMIT_ACTIVITY
+			schedule.rejected = schedule.state == REJECT_ACTIVITY
+			
+			schedule.overdue = schedule.state == NO_ACTIVITY
+			if schedule.overdue: schedule.overdue_period = (current_date - schedule.due_date).days
+			
+			
 		report_project.schedules = schedules
 
 	return report_projects

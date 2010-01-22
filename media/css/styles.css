@@ -39,6 +39,9 @@ html, body {background-color:#F3F3F3;}
 
 .ss_no_information {font-size:116%;color:#666;margin:10px 0px 20px;}
 
+.ss_page_error_message {font-size:131%;color:#333;text-align:center;margin:30px 0px;}
+.ss_page_error_message img {margin-bottom:10px;}
+
 /* Content Header + Title */
 .ss_header {}
 .ss_header .container {margin:10px 15px 0px;background:url('../images/thaihealth.png') #F3F3F3 right top no-repeat;min-height:60px;}
@@ -80,7 +83,7 @@ h1.title {font-size:138.5%;font-weight:bold;color:#ED6912;margin-bottom:20px;bor
 .ss_control_panel {margin:5px 0px 15px;}
 .ss_control_panel ul {border-bottom:1px solid #CCC;background-color:#E5FFE6;}
 .ss_control_panel ul li {font-size:108%;color:#FFF;padding:8px 15px;display:inline-block;display:-moz-inline-stack;*display:inline;list-style:none;zoom:1;}
-.ss_control_panel ul li img {margin-right:5px;}
+.ss_control_panel ul li img {margin-right:5px;vertical-align:text-bottom;}
 
 /* Form Styles */
 .ss_form {}
@@ -107,7 +110,7 @@ POST COMMENT DIALOG
 #post-comment-dialog {padding:0px 10px;display:none;}
 #post-comment-dialog label {font-size:108%;margin:10px 0px 5px;color:#555;display:block;margin-bottom:5px;}
 #post-comment-dialog textarea {height:80px;width:98%;}
-#post-comment-dialog .button-panel {margin:10px 0px 40px;}
+#post-comment-dialog .button-panel {margin:10px 0px 10px;}
 #post-comment-dialog .button-panel .loading {margin-left:10px;display:none;}
 #post-comment-dialog .button-panel .loading img {vertical-align:text-bottom;}
 #post-comment-dialog .autosuggest {}

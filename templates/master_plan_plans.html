@@ -17,7 +17,6 @@
 		<ul>
 			<li><a href="{% url view_master_plan_overview master_plan.id %}">ภาพรวม</a></li>
 			<li class="selected">แผนงาน/โครงการที่รับผิดชอบ</li>
-			<li><a href="{% url view_master_plan_kpi master_plan.id %}">ตัวชี้วัดองค์กร</a></li>
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -36,8 +35,19 @@
 			<ul>
 				{% for project in plan.current_projects %}
 				<li>
-					<a href="{% url view_program_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
+					<a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
 					<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
+				</li>
+				{% endfor %}
+			</ul>
+			{% endif %}
+			{% if plan.unscheduled_projects %}
+			<h3>แผนงาน/โครงการที่ยังไม่กำหนดเวลา</h3>
+			<ul>
+				{% for project in plan.unscheduled_projects %}
+				<li>
+					<a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
+					<div class="item_overview"><span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
 				</li>
 				{% endfor %}
 			</ul>
@@ -47,7 +57,7 @@
 			<ul>
 				{% for project in plan.future_projects %}
 				<li>
-					<a href="{% url view_program_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
+					<a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
 					<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
 				</li>
 				{% endfor %}
@@ -58,7 +68,7 @@
 			<ul>
 				{% for project in plan.past_projects %}
 				<li>
-					<a href="{% url view_program_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
+					<a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
 					<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
 				</li>
 				{% endfor %}
