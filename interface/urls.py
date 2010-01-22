@@ -5,19 +5,20 @@ urlpatterns = patterns('interface.views',
 	url(r'^/$', 'view_frontpage', name='view_frontpage'),
 	url(r'^dashboard/$', 'view_frontpage', name='view_frontpage'),
 	url(r'^dashboard/comments/$', 'view_dashboard_comments', name='view_dashboard_comments'),
-
+	url(r'^dashboard/comments/outbox/$', 'view_dashboard_comments_outbox', name='view_dashboard_comments_outbox'),
+	
 	url(r'^administer/$', 'view_administer', name='view_administer'),
 	url(r'^administer/organization/$', 'view_administer_organization', name='view_administer_organization'),
 	url(r'^administer/organization/sector$', 'view_administer_organization_sector', name='view_administer_organization_sector'),
 	url(r'^administer/organization/add/sector$', 'view_administer_organization_add_sector', name='view_administer_organization_add_sector'),
 	url(r'^administer/users/$', 'view_administer_users', name='view_administer_users'),
 	url(r'^administer/users/(?P<user_id>\d+)/delete/$', 'view_administer_users_delete', name="view_administer_users_delete"),
-
+	
 	# Sector
 	url(r'^sector/(?P<sector_id>\d+)/$', 'view_sector_overview', name='view_sector_overview'),
 	url(r'^sector/(?P<sector_id>\d+)/reports/$', 'view_sector_reports', name='view_sector_reports'),
 	url(r'^sectors/$', 'view_sectors', name='view_sectors'),
-
+	
 	# Master Plan
 	url(r'^master_plan/(?P<master_plan_id>\d+)/$', 'view_master_plan_overview', name='view_master_plan_overview'),
 	url(r'^master_plan/(?P<master_plan_id>\d+)/plans/$', 'view_master_plan_plans', name='view_master_plan_plans'),

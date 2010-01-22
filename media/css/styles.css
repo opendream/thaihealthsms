@@ -136,7 +136,14 @@ REPLY COMMENT DIALOG
 
 /* Activity Calendar */
 .yui-skin-sam {overflow:hidden}
-.yui-calendar .has-event {background-color:#99FF99 !important;}
+.yui-calendar .has-event {background-color:#FFA !important;}
+
+#activity-calendar .calheader {color:#096;}
+#activity-calendar .calweekdaycell {background:none;color:#666;font-weight:normal;}
+#activity-calendar .calbody td.selected a:link,#activity-calendar .calbody td.selected a:visited ,#activity-calendar .calbody td.selected a:active {background-color:#096;color:#FFF;}
+
+/*#activity-calendar .calheader {color:#333;}
+#activity-calendar .calweekdaycell {background-color:#096;font-weight:normal;color:#FFF;}*/
 
 .qtip-content ul li a:link, .qtip-content ul li a:visited, .qtip-content ul li a:active {color:#FFC;}
 .qtip-content ul li a:hover {background:none;color:#9CF;}

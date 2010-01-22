@@ -220,12 +220,17 @@ $(document).ready(function() {
 	{% if activities %}
 	<table>
 		<tr>
+			<th class="controls"></th>
 			<th class="name">ชื่อกิจกรรม</th>
 			<th class="start_date">วันที่เริ่ม</th>
 			<th class="end_date">วันที่สิ้นสุด</th>
 		</tr>
 		{% for activity in activities %}
 		<tr>
+			<td class="controls">
+				<a href="{% url view_activity_edit activity.id %}" title="แก้ไขกลุ่มแผนงาน"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+				<a href="{% url view_activity_delete activity.id %}" title="ลบกลุ่มแผนงาน"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+			</td>
 			<td class="name"><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></td>
 			<td class="start_date">{{activity.start_date|thai_abbr_date}}</td>
 			<td class="end_date">{{activity.end_date|thai_abbr_date}}</td>

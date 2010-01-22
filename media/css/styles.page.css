@@ -139,18 +139,17 @@ ACTIVITY TABLE PAGE
 */
 .activities_table_page {}
 
-.activities_table_page .activity_calendar {}
-
 .activities_table_page table {width:100%;margin-top:20px;}
 .activities_table_page table th {border:1px solid #999;padding:10px 10px;background-color:#666;color:white;font-size:116%;}
 .activities_table_page table td {border:1px solid #999;padding:8px 10px;font-size:108%;}
 
+.activities_table_page table .controls {width:55px;text-align:center;}
+.activities_table_page table .controls img {margin-right:7px;}
+.activities_table_page table .controls a:hover {background:none !important;}
+
 .activities_table_page table .name {}
 .activities_table_page table .start_date {width:120px;text-align:center;}
 .activities_table_page table .end_date {width:120px;text-align:center;}
-
-
-
 
 /*
 HIERARCHY PAGE

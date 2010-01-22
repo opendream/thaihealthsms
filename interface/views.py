@@ -124,6 +124,10 @@ def view_dashboard_comments(request):
 
 	return render_response(request, "dashboard_comments.html", {'objects':objects})
 
+@login_required
+def view_dashboard_comments_outbox(request):
+	return render_response(request, "dashboard_comments_outbox.html", {'objects':objects})
+
 #
 # ADMIN
 #
