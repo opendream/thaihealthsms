@@ -112,6 +112,24 @@ PROJECTS TABLE PAGE
 .projects_table_page table .end_date {width:100px;text-align:center;}
 
 /*
+ACTIVITY TABLE PAGE
+*/
+.activities_table_page {}
+
+.activities_table_page .activity_calendar {}
+
+.activities_table_page table {width:100%;margin-top:20px;}
+.activities_table_page table th {border:1px solid #999;padding:10px 10px;background-color:#666;color:white;}
+.activities_table_page table td {border:1px solid #999;padding:8px 10px;}
+
+.activities_table_page table .name {}
+.activities_table_page table .start_date {width:100px;text-align:center;}
+.activities_table_page table .end_date {width:100px;text-align:center;}
+
+
+
+
+/*
 HIERARCHY PAGE
 */
 .hierarchy_page h2 {font-size:138.5%;margin:5px 0px 10px;color:#333;padding:0px 10px 5px 0px;border-bottom:3px solid #9CC;}

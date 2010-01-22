@@ -230,14 +230,16 @@ def view_project_overview(request, project_id):
 	
 	if not project.parent_project:
 		current_projects = Project.objects.filter(parent_project=project, start_date__lte=current_date, end_date__gte=current_date)
+		
+		report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
+		
+		return render_response(request, "project_overview.html", {'project':project, 'current_projects':current_projects, 'report_schedules':report_schedules})
 	
 	else:
-		pass # Find current activities
+		current_activities = Activity.objects.filter(project=project, start_date__lte=current_date, end_date__gte=current_date)
+		
+		return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities})
 	
-	report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
-	
-	return render_response(request, "project_overview.html", {'project':project, 'current_projects':current_projects, 'report_schedules':report_schedules})
-
 @login_required
 def view_project_projects(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
@@ -337,12 +339,10 @@ def next_month(year, month, num=1):
 @login_required
 def view_project_activities(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-
 	current_date = date.today()
-	current_activities = Activity.objects.filter(project=project, start_date__lte=current_date, end_date__gte=current_date)
-	future_activities = Activity.objects.filter(project=project, start_date__gt=current_date)
-	past_activities = Activity.objects.filter(project=project, end_date__lt=current_date)
-
+	
+	activities = Activity.objects.filter(project=project).order_by('-start_date')
+	
 	# Find activities in past month, current month and next month.
 	num = 3
 	prev_month_ = prev_month(current_date.year, current_date.month, num)
@@ -358,7 +358,7 @@ def view_project_activities(request, project_id):
 		Q(start_date__lte=end) & Q(start_date__gte=start) | \
 		Q(end_date__lte=end) & Q(end_date__gte=start))
 
-	return render_response(request, "project_activities.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities, 'past_activities':past_activities,'recent_activities':recent_activities,'prev_month':prev_month_,'next_month':next_month_})
+	return render_response(request, "project_activities.html", {'project':project, 'activities':activities, 'recent_activities':recent_activities,'prev_month':prev_month_,'next_month':next_month_})
 
 @login_required
 def view_project_activities_ajax(request, project_id, yearmonth):

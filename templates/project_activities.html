@@ -4,87 +4,7 @@
 
 {% block html_head %}
 <link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/scripts/yui/calendar/assets/skins/sam/calendar.css">
-{% endblock %}
 
-{% block post_comment_ajax_url %}/post-comment/object/project/{{project.id}}/{% endblock %}
-{% block post_comment_ajax_callback %}{% endblock %}
-
-{% block body_title %}
-<div class="ss_header">
-<div class="container">
-	{% print_project_header project %}
-</div>
-</div>
-<div class="ss_tab_navi">
-	<div class="tabs">
-		<ul>
-			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
-			<li class="selected">กิจกรรม</li>
-			<li><a href="{% url view_project_reports project.id %}">รายงานโครงการ</a></li>
-			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
-		</ul>
-		<div class="clear"></div>
-	</div>
-</div>
-{% endblock %}
-
-{% block body_content %}
-<div class="ss_control_panel">
-	<ul>
-		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_activity_add project.id %}">เพิ่มกิจกรรม</a></li>
-	</ul>
-	<div class="clear"></div>
-</div>
-
-<div class="yui-skin-sam">
-	<div id="activity-calendar" class="html-calendar activity three-month"></div>
-</div>
-
-<div class="hierarchy_page hierarchy_activity_page">
-	<h2>กิจกรรมในอนาคต</h2>
-	{% if future_activities %}
-	<ul>
-	{% for activity in future_activities %}
-		<li>
-			<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
-			<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
-		</li>
-	{% endfor %}
-	</ul>
-	{% else %}
-	<div class="ss_no_information">ไม่มีกิจกรรมในอนาคต</div>
-	{% endif %}
-
-	<h2>กิจกรรมที่ดำเนินอยู่</h2>
-	{% if current_activities %}
-	<ul>
-		{% for activity in current_activities %}
-		<li>
-			<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
-			<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
-		</li>
-		{% endfor %}
-	</ul>
-	{% else %}
-	<div class="ss_no_information">ไม่มีกิจกรรมที่ดำเนินอยู่</div>
-	{% endif %}
-
-	<h2>กิจกรรมที่ผ่านมา</h2>
-	{% if past_activities %}
-	<ul>
-		{% for activity in past_activities %}
-		<li>
-			<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
-			<div class="item_overview"><span>ช่วงเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
-		</li>
-		{% endfor %}
-	</ul>
-	{% else %}
-	<div class="ss_no_information">ไม่มีกิจกรรมที่ผ่านมา</div>
-	{% endif %}
-</div>
-
-<!-- scripts -->
 <script type="text/javascript" src="{{MEDIA_URL}}/scripts/jquery.qtip.min.js"></script>
 
 <script type="text/javascript" src="{{MEDIA_URL}}/scripts/yui/yahoo/yahoo-min.js"></script>
@@ -93,7 +13,9 @@
 <script type="text/javascript" src="{{MEDIA_URL}}/scripts/yui/calendar/calendar-min.js"></script>
 
 <script type="text/javascript">
-  // Change to calculate by javascript, not the one provided by django.
+$(document).ready(function() {
+	
+	// Change to calculate by javascript, not the one provided by django.
   var prev_month = "{{prev_month}}";
   var next_month = "{{next_month}}";
 
@@ -233,7 +155,6 @@
   }
 
   function init_qtip() {
-
   	$('.has-event:not([processed])').each(function (e) {
 		$(this).qtip({
 		    content: {
@@ -256,7 +177,66 @@
   }
 
   YAHOO.util.Event.onDOMReady(YAHOO.activity.calendar.init);
-
+	
+	
+});
 </script>
-<!-- /scripts -->
+{% endblock %}
+
+{% block post_comment_ajax_url %}/post-comment/object/project/{{project.id}}/{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
+			<li class="selected">กิจกรรม</li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_control_panel">
+	<ul>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_activity_add project.id %}">เพิ่มกิจกรรม</a></li>
+	</ul>
+	<div class="clear"></div>
+</div>
+
+<div class="activities_table_page">
+	<div class="activity_calendar yui-skin-sam">
+		<div id="activity-calendar" class="html-calendar activity three-month"></div>
+	</div>
+	<div class="clear"></div>
+	
+	{% if activities %}
+	<table>
+		<tr>
+			<th class="name">ชื่อกิจกรรม</th>
+			<th class="start_date">วันที่เริ่ม</th>
+			<th class="end_date">วันที่สิ้นสุด</th>
+		</tr>
+		{% for activity in activities %}
+		<tr>
+			<td class="name"><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></td>
+			<td class="start_date">{{activity.start_date|thai_abbr_date}}</td>
+			<td class="end_date">{{activity.end_date|thai_abbr_date}}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	{% else %}
+	<div class="ss_no_information">ไม่มีกิจกรรม</div>
+	{% endif %}
+</div>
+
+
 {% endblock %}

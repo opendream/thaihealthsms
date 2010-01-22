@@ -79,4 +79,8 @@ class Activity(models.Model):
 	start_date = models.DateField(null=True)
 	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0)
+	
+	location = models.CharField(max_length=512, null=True)
+	result_goal = models.TextField(null=True)
+	result_real = models.TextField(null=True)
 
