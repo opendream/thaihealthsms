@@ -9,8 +9,6 @@ urlpatterns = patterns('interface.views',
 	url(r'^administer/$', 'view_administer', name='view_administer'),
 	url(r'^administer/organization/$', 'view_administer_organization', name='view_administer_organization'),
 	url(r'^administer/users/$', 'view_administer_users', name='view_administer_users'),
-	url(r'^administer/users/(?P<sector_id>\d+)/programs/$', 'view_administer_users_programs', name='view_administer_users_programs'),
-	url(r'^administer/users/(?P<sector_id>\d+)/projects/$', 'view_administer_users_projects', name='view_administer_users_projects'),
 
 	# Sector
 	url(r'^sector/(?P<sector_id>\d+)/$', 'view_sector_overview', name='view_sector_overview'),
