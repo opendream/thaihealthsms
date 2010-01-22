@@ -174,14 +174,26 @@ def view_administer_users(request):
 		resps = UserRoleResponsibility.objects.filter(user=user.get_profile())
 
 		projects = []
+		roles = []
 		for resp in resps:
 			projects += [project.name for project in resp.projects.all()]
-
+			roles += [resp.role.name]
 		user.projects = ', '.join(projects)
+		user.roles = ', '.join(roles)
 
 
 	return render_response(request, "administer_users.html", {'users': users})
 
+@login_required
+def view_administer_users_delete(request, user_id):
+	user = User.objects.get(pk=user_id)
+	user_account = user.get_profile()
+	UserRoleResponsibility.objects.filter(user=user_account).delete()
+	user_account.delete()
+	user.delete()
+	
+	return HttpResponse(simplejson.dumps({'status': 'complete'}))
+	
 #
 # SECTOR
 #

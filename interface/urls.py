@@ -11,6 +11,7 @@ urlpatterns = patterns('interface.views',
 	url(r'^administer/organization/sector$', 'view_administer_organization_sector', name='view_administer_organization_sector'),
 	url(r'^administer/organization/add/sector$', 'view_administer_organization_add_sector', name='view_administer_organization_add_sector'),
 	url(r'^administer/users/$', 'view_administer_users', name='view_administer_users'),
+	url(r'^administer/users/(?P<user_id>\d+)/delete/$', 'view_administer_users_delete', name="view_administer_users_delete"),
 
 	# Sector
 	url(r'^sector/(?P<sector_id>\d+)/$', 'view_sector_overview', name='view_sector_overview'),
@@ -46,6 +47,7 @@ urlpatterns = patterns('interface.views',
 )
 
 urlpatterns += patterns('',
-	(r'^administer/users/add/$', UserAccountWizard([UserAccountFormStart, UserAccountFormSecond]))
-
+	url(r'^administer/users/add/$', UserAccountWizard([UserAccountFormStart, UserAccountFormSecond]), name="view_administer_users_add"),
+	url(r'^administer/users/(?P<user_id>\d+)/edit/$', UserAccountWizard([UserAccountFormStart, UserAccountFormSecond]), name="view_administer_users_edit"),
+	
 )

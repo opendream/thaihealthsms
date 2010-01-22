@@ -2,6 +2,20 @@
 {% load helper %}
 
 {% block html_head %}
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('.user-delete').click(function(e) {
+			e.preventDefault()
+			if(window.confirm("Confirm?")) {
+				var this_row = $(this)
+				$.getJSON($(this).attr('href'), {}, function(resp) {
+					this_row.parent().parent().remove();
+				})
+			}
+		})
+	})
+	
+</script>
 {% endblock %}
 
 {% block body_title %}
@@ -22,9 +36,17 @@
 {% endblock %}
 
 {% block body_content %}
+<div class="ss_control_panel">
+	<ul>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_administer_users_add %}">เพิ่มผู้ใช้</a></li>
+	</ul>
+	<div class="clear"></div>
+</div>
 
 <table>
 	<thead>
+		<td>แก้ไข</td>
+		<td>ลบ</td>
 		<td>ชื่อ-นามสกุล</td>
 		<td>ตำแหน่ง</td>
 		<td>สังกัดสำนัก</td>
@@ -32,8 +54,10 @@
 	</thead>
 	{% for user in users %}
     <tr>
+		<td><a href="{% url view_administer_users_edit user.id %}">แก้ไข</a></td>
+		<td><a class="user-delete" href="{% url view_administer_users_delete user.id %}">ลบ</a></td>
 		<td>{{user.get_profile.first_name}} {{user.get_profile.last_name}}</td>
-		<td>{{user.resp.role.name}}</td>
+		<td>{{user.roles}}</td>
 		<td>{{user.get_profile.sector.ref_no}}</td>
 		<td>{{user.projects}}</td>
 	</tr>

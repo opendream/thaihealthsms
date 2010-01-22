@@ -249,6 +249,9 @@ def after_syncdb(sender, **kwargs):
 		project1201_1_005 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=program1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-005", name="โครงการทดลองที่ห้า", start_date=date(2010,4,1), end_date=date(2010,8,1))
 		project1201_1_006 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=program1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-006", name="โครงการทดลองที่หก", start_date=date(2010,8,1), end_date=date(2010,12,1))
 		
+		project1201_1_005 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=None, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-007", name="โครงการทดลองที่เจ็ด", start_date=date(2010,9,1), end_date=date(2010,10,1))
+		project1201_1_006 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=None, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-008", name="โครงการทดลองที่แปด", start_date=date(2010,8,1), end_date=date(2010,10,1))
+		
 		# Activity ##################
 		activity1 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่หนึ่ง", start_date=date(2008,12,16), end_date=date(2009,3,15))
 		activity2 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สอง", start_date=date(2009,3,1), end_date=date(2009,3,16))
