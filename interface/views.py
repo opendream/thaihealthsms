@@ -232,38 +232,68 @@ def view_sector_reports(request, sector_id):
 def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	current_date = date.today()
-<<<<<<< Updated upstream:interface/views.py
-	current_year = utilities.current_year_number(master_plan)
-
-=======
-	current_year = utilities.what_is_current_year(master_plan)
-
-	master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
-
->>>>>>> Stashed changes:interface/views.py
+	current_year = utilities.current_year_number()
+	
 	# Plans
 	plans = Plan.objects.filter(master_plan=master_plan)
 	for plan in plans:
 		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-
+	
 	master_plan.plans = plans
-
+	
 	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, 'current_year':current_year})
 
 @login_required
 def view_master_plan_plans(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
-	current_date = date.today()
-
+	
 	plans = Plan.objects.filter(master_plan=master_plan)
 
 	for plan in plans:
-		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-		plan.future_projects = Project.objects.filter(plan=plan, start_date__gt=current_date)
-		plan.past_projects = Project.objects.filter(plan=plan, end_date__lt=current_date)
-		plan.unscheduled_projects = Project.objects.filter(plan=plan, start_date=None, end_date=None)
-
+		plan.projects = Project.objects.filter(plan=plan).order_by('-start_date')
+		
 	return render_response(request, "master_plan_plans.html", {'master_plan':master_plan, 'plans':plans})
+
+@login_required
+def view_master_plan_organization(request, master_plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	
+	plans = Plan.objects.filter(master_plan=master_plan)
+
+	for plan in plans:
+		plan.projects = Project.objects.filter(plan=plan).order_by('-start_date')
+	
+	return render_response(request, "master_plan_organization.html", {'master_plan':master_plan, 'plans':plans})
+
+@login_required
+def view_master_plan_add_plan(request, master_plan_id):
+	
+	return render_response(request, "master_plan_add_plan.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_edit_plan(request, master_plan_id, plan_id):
+	
+	return render_response(request, "master_plan_edit_plan.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_delete_plan(request, master_plan_id, plan_id):
+	
+	pass
+
+@login_required
+def view_master_plan_add_project(request, master_plan_id):
+	
+	return render_response(request, "master_plan_add_project.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_edit_project(request, master_plan_id, project_id):
+	
+	return render_response(request, "master_plan_edit_project.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_delete_project(request, master_plan_id, project_id):
+	
+	pass
 
 #
 # PROJECT
@@ -275,7 +305,6 @@ def view_project_overview(request, project_id):
 
 	if not project.parent_project:
 		current_projects = Project.objects.filter(parent_project=project, start_date__lte=current_date, end_date__gte=current_date)
-<<<<<<< Updated upstream:interface/views.py
 
 		report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
 
@@ -286,16 +315,6 @@ def view_project_overview(request, project_id):
 
 		return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities})
 
-=======
-
-	else:
-		pass # Find current activities
-
-	report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
-
-	return render_response(request, "project_overview.html", {'project':project, 'current_projects':current_projects, 'report_schedules':report_schedules})
-
->>>>>>> Stashed changes:interface/views.py
 @login_required
 def view_project_projects(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)

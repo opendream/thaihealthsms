@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load interface_tags %}
+{% load helper %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_master_plan_header master_plan %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_master_plan_overview master_plan.id %}">ภาพรวม</a></li>
+			<li class="selected">แผนงาน/โครงการ</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_child_page_header">จัดการโครงสร้างแผนหลัก <a href="{% url view_master_plan_plans master_plan.id %}">กลับไปหน้าแผนงาน/โครงการ &#187;</a></div>
+
+<div class="ss_control_panel">
+	<ul>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_master_plan_add_plan master_plan.id %}">เพิ่มกลุ่มแผนงาน</a></li>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_master_plan_add_project master_plan.id %}">เพิ่มแผนงาน/โครงการ</a></li>
+	</ul>
+</div>
+
+<div class="master_plan_table_page">
+	{% if plans %}
+	<table>
+		<tr>
+			<th class="controls"></th>
+			<th class="ref_no">รหัส</th>
+			<th class="name">ชื่อ</th>
+			<th class="start_date">วันที่เริ่มต้น</th>
+			<th class="end_date">วันที่สิ้นสุด</th>
+		</tr>
+		{% for plan in plans %}
+			<tr class="plan">
+				<td class="controls">
+					<a href="{% url view_master_plan_edit_plan master_plan.id plan.id %}" title="แก้ไขกลุ่มแผนงาน"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+					<a href="{% url view_master_plan_delete_plan master_plan.id plan.id %}" title="ลบกลุ่มแผนงาน"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+				</td>
+				<td class="ref_no">{{plan.ref_no}}</td>
+				<td colspan="3" class="name">{{plan.name}}</td>
+			</tr>
+			{% for project in plan.projects %}
+				<tr>
+					<td class="controls">
+					<a href="{% url view_master_plan_edit_project master_plan.id project.id %}" title="แก้ไขแผนงาน/โครงการ"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+					<a href="{% url view_master_plan_delete_project master_plan.id project.id %}" title="แก้ไขแผนงาน/โครงการ"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+				</td>
+					<td class="ref_no">{{project.ref_no}}</td>
+					<td class="name">{{project.name}}</td>
+					<td class="start_date">{% if project.start_date %}{{project.start_date|thai_date}}{% else %}ยังไม่กำหนด{% endif %}</td>
+					<td class="end_date">{% if project.end_date %}{{project.end_date|thai_date}}{% else %}ยังไม่กำหนด{% endif %}</td>
+				</tr>
+			{% endfor %}
+		{% endfor %}
+	</table>
+	{% else %}
+	<div class="ss_no_information">ไม่มีข้อมูล</div>
+	{% endif %}
+	
+</div>
+
+
+{% endblock %}

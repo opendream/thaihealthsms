@@ -85,6 +85,10 @@ h1.title {font-size:138.5%;font-weight:bold;color:#ED6912;margin-bottom:20px;bor
 .ss_control_panel ul li {font-size:108%;color:#FFF;padding:8px 15px;display:inline-block;display:-moz-inline-stack;*display:inline;list-style:none;zoom:1;}
 .ss_control_panel ul li img {margin-right:5px;vertical-align:text-bottom;}
 
+/* Child Page */
+.ss_child_page_header {font-size:146.5%;margin-bottom:20px;padding-bottom:5px;border-bottom:5px solid #CCC;}
+.ss_child_page_header a:link, .ss_child_page_header a:visited, .ss_child_page_header a:active {font-size:0.7em;margin-left:15px;}
+
 /* Form Styles */
 .ss_form {}
 .ss_form ul {margin-left:30px;}
@@ -137,20 +141,5 @@ REPLY COMMENT DIALOG
 .qtip-content ul li a:link, .qtip-content ul li a:visited, .qtip-content ul li a:active {color:#FFC;}
 .qtip-content ul li a:hover {background:none;color:#9CF;}
 
-/* KPI Color */
-
-/* KPI Graph */
-.kpi-graph-container {margin:2px 0px 15px;width:200px;height:20px;background-color:#999;}
-.kpi-graph-container .kpi-graph {height:20px;border-right:2px solid #FFF;}
-
-.kpi-lowest-percentage {color:#C33;}
-.kpi-low-percentage {color:#C90;}
-.kpi-expect-percentage {color:#090;}
-.kpi-above-percentage {color:#090;}
-
-.kpi-lowest-bar-graph {background-color:#C33;}
-.kpi-low-bar-graph {background-color:#C90;}
-.kpi-expect-bar-graph {background-color:#090;}
-.kpi-above-bar-graph {background-color:#090;}
 
 

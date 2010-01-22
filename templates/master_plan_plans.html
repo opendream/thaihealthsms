@@ -24,56 +24,26 @@
 {% endblock %}
 
 {% block body_content %}
+<div class="ss_control_panel">
+	<ul>
+		<li><img src="{{MEDIA_URL}}/images/icon_organization.png" class="icon"/><a href="{% url view_master_plan_organization master_plan.id %}">จัดการโครงสร้างแผนหลัก</a></li>
+	</ul>
+</div>
+
 <div class="hierarchy_page hierarchy_master_plan_page">
 	{% for plan in plans %}
 		<h2>{{plan.ref_no}} {{plan.name}}</h2>
-		{% if not plan.current_projects and not plan.future_projects and not plan.past_projects %}
+		{% if not plan.projects %}
 			<div class="ss_no_information">ไม่มีแผนงาน/โครงการ</div>
 		{% else %}
-			{% if plan.current_projects %}
-			<h3 class="em">แผนงาน/โครงการในปัจจุบัน</h3>
 			<ul>
-				{% for project in plan.current_projects %}
+				{% for project in plan.projects %}
 				<li>
 					<a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
-					<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
+					<div class="item_overview"><span>ระยะเวลา {% if project.start_date and project.end_date %}<em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em>{% else %}<em>ยังไม่กำหนดระยะเวลา</em>{% endif %}</span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
 				</li>
 				{% endfor %}
 			</ul>
-			{% endif %}
-			{% if plan.unscheduled_projects %}
-			<h3>แผนงาน/โครงการที่ยังไม่กำหนดเวลา</h3>
-			<ul>
-				{% for project in plan.unscheduled_projects %}
-				<li>
-					<a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
-					<div class="item_overview"><span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
-				</li>
-				{% endfor %}
-			</ul>
-			{% endif %}
-			{% if plan.future_projects %}
-			<h3>แผนงาน/โครงการในอนาคต</h3>
-			<ul>
-				{% for project in plan.future_projects %}
-				<li>
-					<a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
-					<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
-				</li>
-				{% endfor %}
-			</ul>
-			{% endif %}
-			{% if plan.past_projects %}
-			<h3>แผนงาน/โครงการที่ผ่านมาแล้ว</h3>
-			<ul>
-				{% for project in plan.past_projects %}
-				<li>
-					<a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
-					<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
-				</li>
-				{% endfor %}
-			</ul>
-			{% endif %}
 		{% endif %}
 	{% endfor %}
 </div>
