@@ -30,15 +30,18 @@ class MasterPlan(models.Model):
 	sector = models.ForeignKey('Sector')
 	ref_no = models.IntegerField()
 	name = models.CharField(max_length=512)
-	is_active = models.BooleanField(default=True)
-	start_year = models.IntegerField() # Master plan for ThaiHealth has 3 years-span
-	end_year = models.IntegerField()
+	year_period = models.ForeignKey('MasterPlanYearPeriod')
 
-class MasterPlanYear(models.Model):
-	master_plan = models.ForeignKey('MasterPlan')
-	year = models.IntegerField()
-	start_month = models.DateField()
-	end_month = models.DateField()
+class MasterPlanYearPeriod(models.Model):
+	start = models.DateField()
+	end = models.DateField()
+	month_period = models.ForeignKey('MasterPlanMonthPeriod')
+
+class MasterPlanMonthPeriod(models.Model):
+	start_month = models.IntegerField()
+	end_month = models.IntegerField()
+	is_default = models.BooleanField(default=False)
+	use_lower_year_number = models.BooleanField(default=False) # e.g. Oct 2008 - Sep 2009 use 2009 as a year number
 
 class Plan(models.Model):
 	master_plan = models.ForeignKey('MasterPlan')

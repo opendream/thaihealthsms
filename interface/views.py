@@ -91,9 +91,9 @@ def _view_project_manager_assistant_frontpage(request):
 @login_required
 def view_dashboard_comments(request):
 	user_account = request.user.get_profile()
-
+	
 	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), is_read=False).order_by("-sent_on")
-
+	
 	object_list = list()
 	object_dict = dict()
 
@@ -162,40 +162,30 @@ def view_administer_users(request):
 @login_required
 def view_sectors(request):
 	sectors = Sector.objects.all().order_by('ref_no')
-
+	current_date = date.today().replace(day=1)
+	
 	for sector in sectors:
-		sector.master_plans = MasterPlan.objects.filter(sector=sector, is_active=True).order_by('ref_no')
+		sector.master_plans = MasterPlan.objects.filter(sector=sector, year_period__start__lte=current_date, year_period__end__gte=current_date).order_by('ref_no')
 
 	return render_response(request, "sectors_overview.html", {'sectors':sectors})
-	
+
 @login_required
 def view_sector_overview(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
 	current_date = date.today()
 	current_year = current_date.year
-
-	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True, start_year__lte=current_year, end_year__gte=current_year).order_by('ref_no')
+	
+	master_plans = MasterPlan.objects.filter(sector=sector, year_period__start__lte=current_date, year_period__end__gte=current_date).order_by('ref_no')
 	
 	return render_response(request, "sector_overview.html", {'sector':sector, 'master_plans':master_plans,})
 
 @login_required
-def view_sector_master_plans(request, sector_id):
+def view_sector_reports(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
-	current_date = date.today()
-
-	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True)
-
-	for master_plan in master_plans:
-		master_plan.plans = Plan.objects.filter(master_plan=master_plan)
-
-		for plan in master_plan.plans:
-			plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-			plan.future_projects = Project.objects.filter(plan=plan, start_date__gt=current_date)
-			plan.past_projects = Project.objects.filter(plan=plan, end_date__lt=current_date)
-
-		master_plan.projects = Project.objects.filter(master_plan=master_plan, plan=None, parent_project=None)
-
-	return render_response(request, "sector_master_plans.html", {'sector':sector, 'master_plans':master_plans})
+	
+	
+	
+	return render_response(request, "sector_reports.html", {'sector':sector, })
 
 #
 # MASTER PLAN
@@ -204,15 +194,13 @@ def view_sector_master_plans(request, sector_id):
 def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	current_date = date.today()
-	current_year = utilities.what_is_current_year(master_plan)
-	
-	master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
+	current_year = utilities.current_year_number(master_plan)
 	
 	# Plans
 	plans = Plan.objects.filter(master_plan=master_plan)
 	for plan in plans:
 		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-
+	
 	master_plan.plans = plans
 	
 	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, 'current_year':current_year})

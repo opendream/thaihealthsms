@@ -12,13 +12,14 @@ urlpatterns = patterns('interface.views',
 
 	# Sector
 	url(r'^sector/(?P<sector_id>\d+)/$', 'view_sector_overview', name='view_sector_overview'),
+	url(r'^sector/(?P<sector_id>\d+)/reports/$', 'view_sector_reports', name='view_sector_reports'),
 	url(r'^sectors/$', 'view_sectors', name='view_sectors'),
 	
 	# Master Plan
 	url(r'^master_plan/(?P<master_plan_id>\d+)/$', 'view_master_plan_overview', name='view_master_plan_overview'),
 	url(r'^master_plan/(?P<master_plan_id>\d+)/plans/$', 'view_master_plan_plans', name='view_master_plan_plans'),
-	#url(r'^master_plan/(?P<master_plan_id>\d+)/edit/$', 'view_master_plan_edit', name='view_master_plan_edit'),
-
+	url(r'^master_plan/(?P<master_plan_id>\d+)/edit/$', 'view_master_plan_edit', name='view_master_plan_edit'),
+	
 	url(r'^project/(?P<project_id>\d+)/$', 'view_project_overview', name='view_project_overview'),
 	url(r'^project/(?P<project_id>\d+)/projects/$', 'view_project_projects', name='view_project_projects'),
 	url(r'^project/(?P<project_id>\d+)/projects/add/$', 'view_project_add', name='view_project_add'),
@@ -35,7 +36,6 @@ urlpatterns = patterns('interface.views',
 	url(r'^activity/(?P<activity_id>\d+)/$', 'view_activity_overview', name="view_activity_overview"),
 	url(r'^activity/(?P<activity_id>\d+)/edit/$', 'view_activity_edit', name="view_activity_edit"),
 	url(r'^activity/(?P<activity_id>\d+)/delete/$', 'view_activity_delete', name="view_activity_delete"),
-	url(r'^activity/(?P<activity_id>\d+)/pictures/$', 'view_activity_pictures', name="view_activity_pictures"),
 	url(r'^activity/(?P<activity_id>\d+)/comments/$', 'view_activity_comments', name="view_activity_comments"),
 	
 	# Report
