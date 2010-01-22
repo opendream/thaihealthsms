@@ -287,14 +287,16 @@ def view_project_reports_send(request, project_id):
 def view_program_comments(request, program_id):
 	program = get_object_or_404(Project, pk=program_id)
 
-	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='program', comment__object_id=program_id).order_by("-sent_on")
+	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='program', \
+		comment__object_id=program_id).order_by("-sent_on")
 
 	for comment in comments:
 		comment.receivers = CommentReceiver.objects.filter(comment=comment.comment)
 		comment.already_read = comment.is_read
 
-	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='program', comment__object_id=program_id).update(is_read=True)
-
+	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='program', \
+		comment__object_id=program_id).update(is_read=True)
+	
 	return render_response(request, "project_comments.html", {'project':program, 'comments':comments})
 
 #
@@ -469,7 +471,15 @@ def view_activity_delete(request, activity_id):
 def view_project_comments(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 
-	comments = Comment.objects.filter(object_name="project", object_id=project_id).order_by("-sent_on")
+	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='project', \
+		comment__object_id=project_id).order_by("-sent_on")
+
+	for comment in comments:
+		comment.receivers = CommentReceiver.objects.filter(comment=comment.comment)
+		comment.already_read = comment.is_read
+
+	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='project', \
+		comment__object_id=project_id).update(is_read=True)
 
 	return render_response(request, "project_comments.html", {'project':project, 'comments':comments})
 
@@ -492,9 +502,17 @@ def view_activity_pictures(request, activity_id):
 def view_activity_comments(request, activity_id):
 	activity = get_object_or_404(Activity, pk=activity_id)
 
-	comments = Comment.objects.filter(object_name="activity", object_id=activity_id).order_by("-sent_on")
+	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='activity', \
+		comment__object_id=activity_id).order_by("-sent_on")
 
-	return render_response(request, "activity_comments.html", {'activity':activity, 'comments':comments, })
+	for comment in comments:
+		comment.receivers = CommentReceiver.objects.filter(comment=comment.comment)
+		comment.already_read = comment.is_read
+
+	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='activity', \
+		comment__object_id=activity_id).update(is_read=True)
+
+	return render_response(request, "activity_comments.html", {'activity':activity, 'comments':comments,})
 
 #
 # REPORT

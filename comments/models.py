@@ -11,7 +11,7 @@ class Comment(models.Model):
 	sent_by = models.ForeignKey('domain.UserAccount')
 
 class CommentReceiverRole(models.Model):
-	comment_type = models.CharField(max_length=64)
+	object_name = models.CharField(max_length=64)
 	role = models.ForeignKey(Group)
 
 class CommentReceiver(models.Model):
@@ -25,3 +25,6 @@ class CommentReply(models.Model):
 	content = models.CharField(max_length=1024)
 	sent_on = models.DateTimeField(auto_now_add=True)
 	sent_by = models.ForeignKey('domain.UserAccount')
+
+	class Meta:
+		ordering = ['sent_on']
