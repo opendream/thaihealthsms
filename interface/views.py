@@ -139,42 +139,53 @@ def view_administer(request):
 def view_administer_organization(request):
 	user_account = request.user.get_profile()
 	if not request.user.is_superuser: return access_denied(request)
-
-	return render_response(request, "administer_organization.html")
-
-@login_required
-def view_administer_organization_sector(request):
-	sectors = Sector.objects.all()
-	return render_response(request, "administer_organization_sector.html", {'sectors':sectors})
+	
+	sectors = Sector.objects.all().order_by('ref_no')
+	for sector in sectors:
+		sector.has_child = MasterPlan.objects.filter(sector=sector).count() > 0
+	
+	master_plans = MasterPlan.objects.all().order_by('ref_no')
+	for master_plan in master_plans:
+		master_plan.has_child = Plan.objects.filter(master_plan=master_plan).count() > 0 or Project.objects.filter(master_plan=master_plan).count()
+	
+	return render_response(request, "administer_organization.html", {'sectors':sectors, 'master_plans':master_plans})
 
 @login_required
 def view_administer_organization_add_sector(request):
 	if request.method == 'POST':
-		form = AddSectorForm(request.POST)
+		form = SectorForm(request.POST)
 		if form.is_valid():
-			ref_no = form.cleaned_data['ref_no']
-			name = form.cleaned_data['name']
-
-			# Not allow creation if there's existing sector.
-			try:
-				Sector.objects.get(ref_no=ref_no)
-				utilities.set_message(request, "Cannot create '%s' (duplicated ref_no)." % name)
-			except Sector.DoesNotExist:
-				sector = Sector(ref_no=ref_no, name=name)
-				sector.save()
-
-				utilities.set_message(request, "Sector '%s' created successful." % name)
-				return HttpResponseRedirect(reverse('interface.views.view_administer_organization_sector'))
-
+			Sector.objects.create(ref_no=form.cleaned_data['ref_no'], name=form.cleaned_data['name'])
+			
+			return redirect('view_administer_organization')
 	else:
-		form = AddSectorForm()
+		form = SectorForm()
 
 	return render_response(request, "administer_organization_add_sector.html", {'form':form})
 
 @login_required
-def view_administer_organization_masterplan(request):
-	masterplans = MasterPlan.objects.all()
-	return render_response(request, "administer_organization_masterplan.html", {'masterplans':masterplans})
+def view_administer_organization_edit_sector(request, sector_id):
+	sector = get_object_or_404(Sector, pk=sector_id)
+	
+	if request.method == 'POST':
+		form = SectorForm(request.POST)
+		if form.is_valid():
+			sector.ref_no = form.cleaned_data['ref_no']
+			sector.name = form.cleaned_data['name']
+			sector.save()
+			
+			return redirect('view_administer_organization')
+
+	else:
+		form = SectorForm(initial={'ref_no':sector.ref_no, 'name':sector.name})
+
+	return render_response(request, "administer_organization_edit_sector.html", {'form':form})
+
+@login_required
+def view_administer_organization_delete_sector(request, sector_id):
+	sector = get_object_or_404(Sector, pk=sector_id)
+	sector.delete()
+	return redirect('view_administer_organization')
 
 @login_required
 def view_administer_organization_add_masterplan(request):
@@ -183,27 +194,44 @@ def view_administer_organization_add_masterplan(request):
 		if form.is_valid():
 			ref_no = form.cleaned_data['ref_no']
 			name = form.cleaned_data['name']
-			sector = Sector.objects.get(id=form.cleaned_data['sector'])
+			sector = Sector.objects.get(pk=form.cleaned_data['sector'])
 			year_start = form.cleaned_data['year_start']
 			year_end = form.cleaned_data['year_end']
+			
+			# TODO Get year period object
+			
+			MasterPlan.objects.create(sector=sector, ref_no=ref_no, name=name, year_period=year_period)
 
-			# Not allow creation if there's existing master plan.
-			try:
-				MasterPlan.objects.get(ref_no=ref_no)
-				utilities.set_message(request, "Cannot create '%s' (duplicated ref_no)." % name)
-			except MasterPlan.DoesNotExist:
-				masterplan = MasterPlan(ref_no=ref_no,
-										name=name,
-										sector = sector)
-				masterplan.save()
-
-				utilities.set_message(request, "MasterPlan '%s' created successful." % name)
-				return HttpResponseRedirect(reverse('interface.views.view_administer_organization_masterplan'))
-
+			return redirect('view_administer_organization')
+	
 	else:
 		form = AddMasterPlanForm()
-
+	
 	return render_response(request, "administer_organization_add_masterplan.html", {'form':form})
+
+@login_required
+def view_administer_organization_edit_masterplan(request, master_plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	
+	if request.method == 'POST':
+		form = EditMasterPlanForm(request.POST)
+		if form.is_valid():
+			master_plan.sector = Sector.objects.get(pk=form.cleaned_data['sector'])
+			master_plan.ref_no = form.cleaned_data['ref_no']
+			master_plan.name = form.cleaned_data['name']
+			
+			return redirect('view_administer_organization')
+	
+	else:
+		form = EditMasterPlanForm(initial={'sector':master_plan.sector.id, 'ref_no':master_plan.ref_no, 'name':master_plan.name})
+	
+	return render_response(request, "administer_organization_edit_masterplan.html", {'form':form})
+
+@login_required
+def view_administer_organization_delete_masterplan(request, master_plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	master_plan.delete()
+	return redirect('view_administer_organization')
 
 @login_required
 def view_administer_users(request):
@@ -261,10 +289,60 @@ def view_sector_overview(request, sector_id):
 @login_required
 def view_sector_reports(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
+	reports = Report.objects.filter(sector=sector).order_by('created')
+	
+	for report in reports:
+		report.project_count = ReportProject.objects.filter(report=report).count()
+	
+	return render_response(request, "sector_reports.html", {'sector':sector, 'reports':reports})
 
+@login_required
+def view_sector_add_report(request, sector_id):
+	sector = get_object_or_404(Sector, pk=sector_id)
+	
+	if request.method == 'POST':
+		form = SectorReportForm(request.POST)
+		if form.is_valid():
+			report_name = form.cleaned_data['name']
+			need_approval = form.cleaned_data['need_approval']
+			
+			Report.objects.create(name=report_name, need_approval=need_approval, need_checkup=True, sector=sector, created_by=request.user.get_profile())
+			
+			return redirect('view_sector_reports', (sector.id))
+			
+	else:
+		form = SectorReportForm()
+	
+	return render_response(request, "sector_report_add.html", {'sector':sector, 'form':form})
 
+@login_required
+def view_sector_edit_report(request, sector_id, report_id):
+	sector = get_object_or_404(Sector, pk=sector_id)
+	report = get_object_or_404(Report, pk=report_id)
+	
+	if request.method == 'POST':
+		form = SectorReportForm(request.POST)
+		if form.is_valid():
+			report.name = form.cleaned_data['name']
+			report.need_approval = form.cleaned_data['need_approval']
+			report.save()
+			
+			return redirect('view_sector_reports', (sector.id))
+			
+	else:
+		form = SectorReportForm(initial={'name':report.name, 'need_approval':report.need_approval})
+	
+	return render_response(request, "sector_report_edit.html", {'sector':sector, 'form':form})
 
-	return render_response(request, "sector_reports.html", {'sector':sector, })
+@login_required
+def view_sector_delete_report(request, sector_id, report_id):
+	sector = get_object_or_404(Sector, pk=sector_id)
+	report = get_object_or_404(Report, pk=report_id)
+	
+	project_count = ReportProject.objects.filter(report=report).count()
+	if not project_count: report.delete()
+	
+	return redirect('view_sector_reports', (sector.id))
 
 #
 # MASTER PLAN

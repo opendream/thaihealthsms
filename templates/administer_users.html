@@ -43,24 +43,28 @@
 	<div class="clear"></div>
 </div>
 
-<table>
-	<thead>
-		<td>แก้ไข</td>
-		<td>ลบ</td>
-		<td>ชื่อ-นามสกุล</td>
-		<td>ตำแหน่ง</td>
-		<td>สังกัดสำนัก</td>
-		<td>แผนงาน/โครงการ ที่รับผิดชอบ</td>
-	</thead>
-	{% for user in users %}
-    <tr>
-		<td><a href="{% url view_administer_users_edit user.id %}">แก้ไข</a></td>
-		<td><a class="user-delete" href="{% url view_administer_users_delete user.id %}">ลบ</a></td>
-		<td>{{user.get_profile.first_name}} {{user.get_profile.last_name}}</td>
-		<td>{{user.roles}}</td>
-		<td>{{user.get_profile.sector.ref_no}}</td>
-		<td>{{user.projects}}</td>
-	</tr>
-	{% endfor %}
-</table>
+<div class="user_management_page">
+	<table>
+		<tr>
+			<th></th>
+			<th class="fullname">ชื่อ-นามสกุล</th>
+			<th class="sector">สังกัดสำนัก</th>
+			<th class="role">ตำแหน่ง</th>
+			<th class="projects">หน่วยงานที่รับผิดชอบ</th>
+			<th class="status">สถานะผู้ใช้</th>
+		</tr>
+		{% for user in users %}
+	    <tr>
+			<td class="controls">
+				<a href="{% url view_administer_users_edit user.id %}" title="แก้ไขข้อมูลผู้ใช้"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+			</td>
+			<td class="fullname">{{user.get_profile.first_name}} {{user.get_profile.last_name}}</td>
+			<td class="sector">{{user.get_profile.sector.ref_no}}</td>
+			<td class="role">{{user.roles}}</td>
+			<td class="projects">{{user.projects}}</td>
+			<td class="status"></td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
 {% endblock %}

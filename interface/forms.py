@@ -19,8 +19,9 @@ class AddActivityForm(forms.Form):
 	result_goal 	= forms.CharField(max_length=2000, required=False, widget=forms.Textarea(), label='ผลลัพธ์ที่ต้องการ')
 	result_real 	= forms.CharField(max_length=2000, required=False, widget=forms.Textarea(), label='ผลลัพธ์ที่เกิดขึ้น')
 
-sectors = [(sector.id, '%s %s' % (sector.ref_no, sector.name)) for sector in Sector.objects.all()]
+sectors = [(sector.id, '%s %s' % (sector.ref_no, sector.name)) for sector in Sector.objects.all().order_by('ref_no')]
 roles = [(group.name, group.name) for group in Group.objects.all()]
+
 class UserAccountFormStart(forms.Form):
 	username = forms.CharField(max_length=500, label='ชื่อผู้ใช้')
 	email = forms.EmailField()
@@ -159,10 +160,13 @@ class UserAccountWizard(FormWizard):
 			
 		return HttpResponseRedirect('/administer/users/')
 
-class AddSectorForm(forms.Form):
-	'''Sector adding form'''
-	ref_no = forms.IntegerField(label='รหัส')
+class SectorForm(forms.Form):
+	ref_no = forms.IntegerField(label='เลขสำนัก')
 	name = forms.CharField(max_length=512, label='ชื่อสำนัก')
+
+class SectorReportForm(forms.Form):
+	name = forms.CharField(max_length=512, label='ชื่อรายงาน')
+	need_approval = forms.BooleanField(required=False, label='ต้องรับรองรายงาน')
 
 class AddMasterPlanForm(forms.Form):
 	'''MasterPlan adding form'''
@@ -192,3 +196,9 @@ class AddMasterPlanForm(forms.Form):
 			raise forms.ValidationError("Year is not valid.")
 
 		return cleaned_data
+
+class EditMasterPlanForm(forms.Form):
+	ref_no = forms.IntegerField(label='รหัส')
+	name = forms.CharField(max_length=512, label='ชื่อแผน')
+	sector = forms.IntegerField(widget=forms.Select(choices=sectors), label='สังกัดสำนัก')
+	

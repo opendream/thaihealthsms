@@ -25,12 +25,14 @@ class UserRoleResponsibility(models.Model):
 class Sector(models.Model):
 	ref_no = models.IntegerField()
 	name = models.CharField(max_length=512)
+	created = models.DateTimeField(auto_now_add=True)
 
 class MasterPlan(models.Model):
 	sector = models.ForeignKey('Sector')
 	ref_no = models.IntegerField()
 	name = models.CharField(max_length=512)
 	year_period = models.ForeignKey('MasterPlanYearPeriod')
+	created = models.DateTimeField(auto_now_add=True)
 
 class MasterPlanYearPeriod(models.Model):
 	start = models.DateField()
@@ -47,6 +49,7 @@ class Plan(models.Model):
 	master_plan = models.ForeignKey('MasterPlan')
 	ref_no = models.CharField(max_length=64)
 	name = models.CharField(max_length=512)
+	created = models.DateTimeField(auto_now_add=True)
 
 class Project(models.Model): # Program, Project
 	
@@ -74,6 +77,7 @@ class Project(models.Model): # Program, Project
 	start_date = models.DateField(null=True)
 	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0) # Not use yet
+	created = models.DateTimeField(auto_now_add=True)
 
 class Activity(models.Model):
 	project = models.ForeignKey('Project')
@@ -82,6 +86,7 @@ class Activity(models.Model):
 	start_date = models.DateField(null=True)
 	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0)
+	created = models.DateTimeField(auto_now_add=True)
 	
 	location = models.CharField(max_length=512, null=True)
 	result_goal = models.TextField(null=True)

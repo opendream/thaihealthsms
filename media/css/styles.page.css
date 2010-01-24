@@ -28,6 +28,44 @@ DASHBOARD PAGE
 .dashboard_page .report_checkup .ss_no_information {margin-left:15px;}
 
 /*
+ADMIN USER MANAGEMENT
+*/
+.user_management_page table {width:100%;}
+.user_management_page table th {border:1px solid #999;padding:10px 10px;background-color:#666;color:white;font-size:116%;}
+.user_management_page table td {border:1px solid #999;padding:8px 10px;font-size:108%;}
+
+.user_management_page table .controls {width:35px;text-align:center;}
+.user_management_page table .controls a:hover {background:none !important;}
+
+.user_management_page table .fullname {width:280px;}
+.user_management_page table .sector {width:70px;text-align:center;}
+.user_management_page table .role {width:240px;text-align:center;}
+.user_management_page table .status {width:120px;text-align:center;}
+.user_management_page table .projects {}
+
+/*
+ADMIN ORGANIZATION
+*/
+.organization_page h2 {font-size:138.5%;margin-bottom:10px;color:#2D8659;}
+
+.organization_page table {width:100%;margin-bottom:20px;}
+.organization_page table th {border:1px solid #999;padding:10px 10px;background-color:#666;color:white;font-size:116%;}
+.organization_page table td {border:1px solid #999;padding:8px 10px;font-size:108%;}
+
+.organization_page table .controls {width:55px;text-align:center;}
+.organization_page table .controls img {margin:0px 4px;}
+.organization_page table .controls a:hover {background:none !important;}
+
+.organization_page table .sector_number {width:80px;text-align:center;}
+.organization_page table .sector_name {}
+
+.organization_page table .ref_no {width:80px;text-align:center;}
+.organization_page table .sector {width:100px;text-align:center;}
+.organization_page table .name {}
+.organization_page table .year {width:120px;text-align:center;}
+
+
+/*
  * SECTORS PAGE
  */
 .sectors_page h2 {font-size:138.5%;margin:5px 0px 10px;color:#FFF;padding:8px 10px 4px;background-color:#399;border-bottom:3px solid #9CC;}
@@ -111,7 +149,7 @@ MASTER PLAN TABLE PAGE
 .master_plan_table_page table td {border:1px solid #999;padding:8px 10px;font-size:108%;}
 
 .master_plan_table_page table .controls {width:55px;text-align:center;}
-.master_plan_table_page table .controls img {margin-right:7px;}
+.master_plan_table_page table .controls img {margin:0px 4px;}
 .master_plan_table_page table .controls a:hover {background:none !important;}
 
 .master_plan_table_page table .plan {background-color:#DDD;}
@@ -144,7 +182,7 @@ ACTIVITY TABLE PAGE
 .activities_table_page table td {border:1px solid #999;padding:8px 10px;font-size:108%;}
 
 .activities_table_page table .controls {width:55px;text-align:center;}
-.activities_table_page table .controls img {margin-right:7px;}
+.activities_table_page table .controls img {margin:0px 4px;}
 .activities_table_page table .controls a:hover {background:none !important;}
 
 .activities_table_page table .name {}
@@ -177,6 +215,21 @@ HIERARCHY PAGE
 .hierarchy_activity_page ul {margin:10px 0px 10px 10px;}
 .hierarchy_activity_page li {margin:10px 0px 15px;}
 .hierarchy_activity_page li a:link, .hierarchy_activity_page li a:visited, .hierarchy_activity_page li a:active {font-size:116%;margin-top:10px;}
+
+/*
+REPORT SECTOR PAGE
+*/
+.report_sector_page table {width:100%;}
+.report_sector_page table th {border:1px solid #999;padding:10px 10px;background-color:#666;color:white;font-size:116%;}
+.report_sector_page table td {border:1px solid #999;padding:8px 10px;font-size:108%;}
+
+.report_sector_page table .controls {width:55px;text-align:center;}
+.report_sector_page table .controls img {margin:0px 4px;}
+.report_sector_page table .controls a:hover {background:none !important;}
+
+.report_sector_page table .report_name {}
+.report_sector_page table .projects {width:210px;text-align:center;}
+.report_sector_page table .approval {width:150px;text-align:center;}
 
 /*
 REPORT LIST PAGE

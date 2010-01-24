@@ -19,23 +19,17 @@
 		</ul>
 		<div class="clear"></div>
 	</div>
-
-	<div class="tabs sub-tabs">
-		<ul>
-			<li><a href="{% url view_administer_organization_sector %}">สำนัก</a></li>
-			<li><a href="{% url view_administer_organization_masterplan %}">แผนหลัก</a></li>
-		</ul>
-	</div>
 </div>
 {% endblock %}
 
 {% block body_content %}
-<div class="form">
-	<form action="" method="post">
-		<ul class="form-elements">
-		{{ form.as_ul }}
-		<li class="form-element"><input type="submit" value="Create" /></li>
-		</ul>
-	</form>
-</div>
+<div class="ss_child_page_header">เพิ่มสำนัก <a href="{% url view_administer_organization %}">กลับไปหน้าโครงสร้างองค์กร &#187;</a></div>
+
+<form action="." method="post" class="ss_form">
+	<ul>
+		<li><label for="id_ref_no">{{form.ref_no.label}}</label><div class="input SHORT">{{form.ref_no}}</div></li>
+		<li><label for="id_name">{{form.name.label}}</label><div class="input LONG">{{form.name}}</div></li>
+	</ul>
+	<div class="button_panel"><button>ตกลง</button></div>
+</form>
 {% endblock %}
