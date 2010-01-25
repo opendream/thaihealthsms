@@ -53,7 +53,7 @@
 		</tr>
 		{% endfor %}
 	</table>
-	
+
 	<h2>แผนหลัก</h2>
 	<table class="master_plans_table">
 		<tr>
@@ -76,7 +76,7 @@
 			<td class="ref_no">{{master_plan.ref_no}}</td>
 			<td class="name">{{master_plan.name}}</td>
 			<td class="sector">{{master_plan.sector.ref_no}}</td>
-			<td class="year">1234 - 5678</td>
+			<td class="year">{{master_plan.start}} - {{master_plan.end}}</td>
 		</tr>
 		{% endfor %}
 	</table>

@@ -19,6 +19,10 @@ class UserRoleResponsibility(models.Model):
 	projects = models.ManyToManyField('Project', null=True)
 	activities = models.ManyToManyField('Activity', null=True)
 
+class GroupName(models.Model):
+	group = models.ForeignKey(Group, unique=True)
+	name = models.CharField(max_length=512)
+
 #
 # Organization
 #
@@ -52,7 +56,7 @@ class Plan(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 
 class Project(models.Model): # Program, Project
-	
+
 	"""
 	- [sector] and [master_plan] always have a valid value
 	- [plan] is present, [parent_project] is not --> Project object is a PROGRAM or PROJECT that reported directly under a PLAN
@@ -60,17 +64,17 @@ class Project(models.Model): # Program, Project
 	- [plan] is not present, [parent_project] is not present too --> Project object is a PROGRAM that reported directly under MASTER PLAN, without any PLAN
 	- [type] is to determine whether a Project object should be called a PROGRAM or PROJECT, it has no affect on organization hierarchy
 	"""
-	
+
 	sector = models.ForeignKey('Sector')
 	master_plan = models.ForeignKey('MasterPlan')
 	plan = models.ForeignKey('Plan', null=True)
 	parent_project = models.ForeignKey('self', null=True)
-	
+
 	prefix_name = models.IntegerField(default=0)
 	PROJECT_IS_PROGRAM = 1
 	PROJECT_IS_PROJECT = 2
 	PROJECT_IS_SUB_PROJECT = 3
-	
+
 	ref_no = models.CharField(max_length=64, null=True)
 	name = models.CharField(max_length=512)
 	description = models.TextField(null=True)
@@ -87,8 +91,7 @@ class Activity(models.Model):
 	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0)
 	created = models.DateTimeField(auto_now_add=True)
-	
+
 	location = models.CharField(max_length=512, null=True)
 	result_goal = models.TextField(null=True)
 	result_real = models.TextField(null=True)
-

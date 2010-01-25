@@ -16,8 +16,7 @@ urlpatterns = patterns('interface.views',
 	url(r'^administer/organization/masterplan/(?P<master_plan_id>\d+)/edit/$', 'view_administer_organization_edit_masterplan', name='view_administer_organization_edit_masterplan'),
 	url(r'^administer/organization/masterplan/(?P<master_plan_id>\d+)/delete/$', 'view_administer_organization_delete_masterplan', name='view_administer_organization_delete_masterplan'),
 	url(r'^administer/users/$', 'view_administer_users', name='view_administer_users'),
-	url(r'^administer/users/(?P<user_id>\d+)/delete/$', 'view_administer_users_delete', name="view_administer_users_delete"),
-	
+	url(r'^administer/users/(?P<user_id>\d+)/status/$', 'view_administer_users_status', name="view_administer_users_status"),	
 	# Sector
 	url(r'^sector/(?P<sector_id>\d+)/$', 'view_sector_overview', name='view_sector_overview'),
 	url(r'^sector/(?P<sector_id>\d+)/reports/$', 'view_sector_reports', name='view_sector_reports'),

@@ -20,7 +20,7 @@ class AddActivityForm(forms.Form):
 	result_real 	= forms.CharField(max_length=2000, required=False, widget=forms.Textarea(), label='ผลลัพธ์ที่เกิดขึ้น')
 
 sectors = [(sector.id, '%s %s' % (sector.ref_no, sector.name)) for sector in Sector.objects.all().order_by('ref_no')]
-roles = [(group.name, group.name) for group in Group.objects.all()]
+roles = [(group_name.group.name, group_name.name) for group_name in GroupName.objects.all()]
 
 class UserAccountFormStart(forms.Form):
 	username = forms.CharField(max_length=500, label='ชื่อผู้ใช้')
@@ -48,85 +48,88 @@ class UserAccountFormSecond(forms.Form):
 
 class UserAccountWizard(FormWizard):
 	def parse_params(self, request, *args, **kwargs):
-		current_step = self.determine_step(request, *args, **kwargs)
-		form = self.get_form(current_step, request.POST)
 		user_id = kwargs.get('user_id', 0)
-		
+
 		self.user = False
 		if user_id:
 			user = User.objects.get(pk=user_id)
 			self.user = user
 			user_account = user.get_profile()
 			user_responsibility = UserRoleResponsibility.objects.get(user=user_account)
-			
-			initial = user.__dict__.copy()
-			initial.update(user_account.__dict__.copy())
-			initial.update(user_responsibility.__dict__.copy())
-			
-			initial['password'] = ''
-			initial['sector'] = user_account.sector.id
-			initial['role'] = user_responsibility.role.name
-			initial['program'] = [str(project.id).decode('utf-8') for project in user_responsibility.projects.all()]
-			initial['project'] = [str(project.id).decode('utf-8') for project in user_responsibility.projects.all()]
-			
-			self.initial[(current_step)] = initial
-	
+
+			initial = {}
+
+			initial[0] = user.__dict__.copy()
+			initial[0].update(user_account.__dict__.copy())
+			initial[0].update(user_responsibility.__dict__.copy())
+
+			initial[0]['password'] = ''
+			initial[0]['sector'] = user_account.sector.id
+			initial[0]['role'] = user_responsibility.role.name
+
+			initial[1] = {}
+			if user_responsibility.projects.count():
+				initial[1]['program'] = user_responsibility.projects.all()[0].id
+				initial[1]['project'] = [project.id for project in user_responsibility.projects.all()]
+
+			self.initial = initial
+
 	def get_template(self, step):
 		return 'administer_users_add.html'
-	
+
 	def process_step(self, request, form, step):
 		if step == 0 and form.is_valid():
 			group_name = form.cleaned_data.get('role', '')
 			sector_id = form.cleaned_data.get('sector', 0)
-			
-			if group_name == 'sector_manager':
+
+			if group_name == 'sector_admin' or group_name == 'sector_manager':
 				if len(self.form_list) > 1:
 					del(self.form_list[1])
-					
+
 			elif group_name == 'sector_manager_assistant':
 				projects_obj = Project.objects.filter(sector__id=sector_id, prefix_name=Project.PROJECT_IS_PROJECT, parent_project=None)
 				projects = [(project.id, '%s %s' % (project.ref_no, project.name)) for project in projects_obj]
-				
+
 				class UserAccountFormForSector(forms.Form):
 					project = forms.MultipleChoiceField(choices=projects, required=False, label='โครงการ')
-				
+
 				if len(self.form_list) == 1:
 					self.form_list.append(UserAccountFormForSector)
 				else:
 					self.form_list[1] = UserAccountFormForSector
-				
+
 			elif group_name in ('project_manager', 'project_manager_assistant'):
 				programs_obj = Project.objects.filter(sector__id=sector_id, prefix_name=Project.PROJECT_IS_PROGRAM)
 				programs = [(program.id, '%s %s' % (program.ref_no, program.name)) for program in programs_obj]
-				
+
 				class UserAccountFormForProgram(forms.Form):
 					program = forms.IntegerField(widget=forms.Select(choices=programs), required=False, label='แผนงาน')
-				
+
 				if len(self.form_list) == 1:
 					self.form_list.append(UserAccountFormForProgram)
 				else:
 					self.form_list[1] = UserAccountFormForProgram
-					
+
 	def done(self, request, form_list):
 		form = {}
 		for form_item in form_list:
 			form.update(form_item.cleaned_data)
 
 		sector = Sector.objects.get(id=form.get('sector', 0))
-		
+
 		if self.user:
 			user = self.user
 			user.username = form.get('username', '')
 			user.email = form.get('email', '')
-			
+
 			password = form.get('password', '')
 			if password:
 				user.set_password(password)
-			
+
 			user.save()
 		else:
 			user = User.objects.create_user(form.get('username', ''), form.get('email', ''), form.get('password', ''))
-		
+
 		user_account = user.get_profile()
 		user_account.first_name = form.get('first_name', ''),
 		user_account.last_name = form.get('last_name', ''),
@@ -136,14 +139,14 @@ class UserAccountWizard(FormWizard):
 		group_name = form.get('role', '')
 		if self.user:
 			user_responsibility = UserRoleResponsibility.objects.filter(user=user_account).delete()
-		
+
 		user_responsibility = UserRoleResponsibility.objects.create(
 			user = user_account,
 			role = Group.objects.get(name=group_name)
 		)
-		
 
-		if group_name == 'sector_manager':
+
+		if group_name == 'sector_admin' or group_name == 'sector_manager':
 			user_responsibility.sectors.add(sector)
 		elif group_name == 'sector_manager_assistant':
 			user_responsibility.sectors.add(sector)
@@ -152,12 +155,12 @@ class UserAccountWizard(FormWizard):
 		elif group_name in ('project_manager', 'project_manager_assistant'):
 			program = Project.objects.get(pk=form.get('program', 0))
 			user_responsibility.projects.add(program)
-		
+
 		if self.user:
-			set_message(request, 'Your user has been create.')
-		else:
 			set_message(request, 'Your user has been update.')
-			
+		else:
+			set_message(request, 'Your user has been create.')
+
 		return HttpResponseRedirect('/administer/users/')
 
 class SectorForm(forms.Form):
@@ -168,11 +171,16 @@ class SectorReportForm(forms.Form):
 	name = forms.CharField(max_length=512, label='ชื่อรายงาน')
 	need_approval = forms.BooleanField(required=False, label='ต้องรับรองรายงาน')
 
-class AddMasterPlanForm(forms.Form):
+class SectorChoiceField(forms.ModelChoiceField):
+	def label_from_instance(self, obj):
+		return "%d %s" % (obj.id, obj.name)
+
+class MasterPlanForm(forms.Form):
 	'''MasterPlan adding form'''
+
 	ref_no = forms.IntegerField(label='รหัส')
 	name = forms.CharField(max_length=512, label='ชื่อแผน')
-	sector = forms.IntegerField(widget=forms.Select(choices=sectors), label='สังกัดสำนัก')
+	sector = SectorChoiceField(required=True, queryset=Sector.objects.all().order_by('ref_no'), empty_label=None, label='สังกัดสำนัก')
 	year_start = forms.IntegerField(label='ช่วงปี')
 	year_end = forms.IntegerField(label='ถึง')
 
@@ -196,9 +204,3 @@ class AddMasterPlanForm(forms.Form):
 			raise forms.ValidationError("Year is not valid.")
 
 		return cleaned_data
-
-class EditMasterPlanForm(forms.Form):
-	ref_no = forms.IntegerField(label='รหัส')
-	name = forms.CharField(max_length=512, label='ชื่อแผน')
-	sector = forms.IntegerField(widget=forms.Select(choices=sectors), label='สังกัดสำนัก')
-	
