@@ -14,7 +14,7 @@ html, body {background-color:#F3F3F3;}
 .login_page form {margin:0px auto;width:400px;border:1px solid #CCC;padding:10px 15px;background-color:#FFF;}
 .login_page form ul {}
 .login_page form li {margin:15px;font-size:108%;list-style:none;}
-.login_page form li label {display:block;margin-bottom:4px;font-size:100%;}
+.login_page form li label {display:block;margin-bottom:4px;font-size:93%;}
 .login_page form li input {width:250px;}
 .login_page form li.button_panel {}
 .login_page form li.button_panel button {padding:3px 15px;font-size:85%;}
