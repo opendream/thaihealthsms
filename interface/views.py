@@ -273,22 +273,23 @@ def view_administer_users(request):
 		roles = []
 		for resp in resps:
 			projects += [project.name for project in resp.projects.all()]
-			roles += [resp.role.name]
+			group_name = GroupName.objects.get(group=resp.role)
+			roles += [group_name.name]
 		user.projects = ', '.join(projects)
 		user.roles = ', '.join(roles)
 
 
 	return render_response(request, "administer_users.html", {'users': users})
-	
+
 @login_required
 def view_administer_users_status(request, user_id):
 	user_account = request.user.get_profile()
 	if not request.user.is_superuser: return access_denied(request)
-	
+
 	user = User.objects.get(pk=user_id)
 	user.is_active = not user.is_active
 	user.save()
-	
+
 	return HttpResponse(simplejson.dumps({'status': 'complete'}))
 
 #

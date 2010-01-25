@@ -20,7 +20,7 @@ class AddActivityForm(forms.Form):
 	result_real 	= forms.CharField(max_length=2000, required=False, widget=forms.Textarea(), label='ผลลัพธ์ที่เกิดขึ้น')
 
 sectors = [(sector.id, '%s %s' % (sector.ref_no, sector.name)) for sector in Sector.objects.all().order_by('ref_no')]
-roles = [(group.name, group.name) for group in Group.objects.all()]
+roles = [(group_name.group.name, group_name.name) for group_name in GroupName.objects.all()]
 
 class UserAccountFormStart(forms.Form):
 	username = forms.CharField(max_length=500, label='ชื่อผู้ใช้')
@@ -56,9 +56,9 @@ class UserAccountWizard(FormWizard):
 			self.user = user
 			user_account = user.get_profile()
 			user_responsibility = UserRoleResponsibility.objects.get(user=user_account)
-			
+
 			initial = {}
-			
+
 			initial[0] = user.__dict__.copy()
 			initial[0].update(user_account.__dict__.copy())
 			initial[0].update(user_responsibility.__dict__.copy())
@@ -66,14 +66,14 @@ class UserAccountWizard(FormWizard):
 			initial[0]['password'] = ''
 			initial[0]['sector'] = user_account.sector.id
 			initial[0]['role'] = user_responsibility.role.name
-			
+
 			initial[1] = {}
 			if user_responsibility.projects.count():
 				initial[1]['program'] = user_responsibility.projects.all()[0].id
 				initial[1]['project'] = [project.id for project in user_responsibility.projects.all()]
-			
+
 			self.initial = initial
-	
+
 	def get_template(self, step):
 		return 'administer_users_add.html'
 
@@ -81,7 +81,7 @@ class UserAccountWizard(FormWizard):
 		if step == 0 and form.is_valid():
 			group_name = form.cleaned_data.get('role', '')
 			sector_id = form.cleaned_data.get('sector', 0)
-			
+
 			if group_name == 'sector_admin' or group_name == 'sector_manager':
 				if len(self.form_list) > 1:
 					del(self.form_list[1])
@@ -160,7 +160,7 @@ class UserAccountWizard(FormWizard):
 			set_message(request, 'Your user has been update.')
 		else:
 			set_message(request, 'Your user has been create.')
-			
+
 		return HttpResponseRedirect('/administer/users/')
 
 class SectorForm(forms.Form):

@@ -22,15 +22,22 @@ def after_syncdb(sender, **kwargs):
 
 	# User Roles ##################
 	sector_admin_role, created = Group.objects.get_or_create(name='sector_admin')
+	GroupName.objects.get_or_create(group=sector_admin_role, name='ผู้ดูแลระบบของสำนัก')
 
 	sector_manager_role, created = Group.objects.get_or_create(name='sector_manager')
+	GroupName.objects.get_or_create(group=sector_manager_role, name='ผู้อำนวยการสำนัก')
 	sector_manager_assistant_role, created = Group.objects.get_or_create(name='sector_manager_assistant')
+	GroupName.objects.get_or_create(group=sector_manager_assistant_role, name='ผู้ช่วยผู้อำนวยการสำนัก')
 
 	plan_manager_role, created = Group.objects.get_or_create(name='plan_manager')
+	GroupName.objects.get_or_create(group=plan_manager_role, name='ผู้จัดการแผนงาน')
 	plan_manager_assistant_role, created = Group.objects.get_or_create(name='plan_manager_assistant')
+	GroupName.objects.get_or_create(group=plan_manager_assistant_role, name='ผู้ช่วยผู้จัดการแผนงาน')
 
 	project_manager_role, created = Group.objects.get_or_create(name='project_manager')
+	GroupName.objects.get_or_create(group=project_manager_role, name='ผู้จัดการโครงการ')
 	project_manager_assistant_role, created = Group.objects.get_or_create(name='project_manager_assistant')
+	GroupName.objects.get_or_create(group=project_manager_assistant_role, name='ผู้ช่วยผู้จัดการโครงการ')
 
 	# Permission ##################
 	# Permission.objects.get_or_create(name='View other projects reports', content_type=ContentType.objects.get_for_model(ReportSchedule), codename='view_others_project_report')
@@ -59,10 +66,10 @@ def after_syncdb(sender, **kwargs):
 			admin_account.first_name = "Administration"
 			admin_account.last_name = ""
 			admin_account.save()
-	
+
 	# Master Plan
 	default_month_period, created = MasterPlanMonthPeriod.objects.get_or_create(start_month=10, end_month=9, is_default=True)
-	
+
 	"""
 	END HERE
 	"""
@@ -83,19 +90,19 @@ def after_syncdb(sender, **kwargs):
 		sector7, created = Sector.objects.get_or_create(ref_no=7, name='สำนักสนับสนุนการพัฒนาระบบสุขภาพและบริการสุขภาพ')
 
 		# Users ##################
-		
+
 		# Sector Admin
 		sector_admin1 = User.objects.create_user("sector_admin1", "sector_admin1@example.com", "password")
 		sector_admin1.groups.add(sector_admin_role)
-		
+
 		sector_admin_account1 = sector_admin1.get_profile()
 		sector_admin_account1.sector = sector7
 		sector_admin_account1.first_name = "Sector"
 		sector_admin_account1.last_name = "Admin"
 		sector_admin_account1.save()
-		
+
 		user_responsibility = UserRoleResponsibility.objects.create(user=sector_admin_account1, role=sector_admin_role)
-		
+
 		# Sector Managers
 		sector_manager1 = User.objects.create_user("sector7", "sector1@example.com", "password")
 		sector_manager1.groups.add(sector_manager_role)
@@ -165,11 +172,11 @@ def after_syncdb(sender, **kwargs):
 		project_manager_assistant_account2.first_name = "Project2"
 		project_manager_assistant_account2.last_name = "Assistant"
 		project_manager_assistant_account2.save()
-		
+
 		# Master Plan ##################
-		
+
 		year_period = MasterPlanYearPeriod.objects.create(start=date(2008, 10, 1), end=date(2011, 9, 1), month_period=default_month_period)
-		
+
 		master_plan1 = MasterPlan.objects.create(sector=sector1, ref_no=1, name="แผนควบคุมการบริโภคยาสูบ", year_period=year_period)
 		master_plan2 = MasterPlan.objects.create(sector=sector1, ref_no=2, name="แผนควบคุมการบริโภคเครื่องดื่มแอลกอฮอล์", year_period=year_period)
 		master_plan3 = MasterPlan.objects.create(sector=sector1, ref_no=3, name="แผนสนับสนุนการป้องกันอุบัตเหตุทางถนนและอุบัติภัย", year_period=year_period)
@@ -183,13 +190,13 @@ def after_syncdb(sender, **kwargs):
 		master_plan11 = MasterPlan.objects.create(sector=sector6, ref_no=11, name="แผนสนับสนุนโครงสร้างทั่วไปและนวัตกรรม", year_period=year_period)
 		master_plan12 = MasterPlan.objects.create(sector=sector7, ref_no=12, name="แผนสนับสนุนการสร้างเสริมสุขภาพผ่านระบบบริการสุขภาพ", year_period=year_period)
 		master_plan13 = MasterPlan.objects.create(sector=sector7, ref_no=13, name="แผนพัฒนาระบบและกลไกสนับสนุนเพื่อการสร้างเสริมสุขภาพ", year_period=year_period)
-		
+
 		# Plan ##################
 		plan1201 = Plan.objects.create(master_plan=master_plan12, ref_no="1201", name="กลุ่มแผนงานพัฒนาระบบบริการสุชภาพระดับชุมชน")
 		plan1202 = Plan.objects.create(master_plan=master_plan12, ref_no="1202", name="กลุ่มแผนงานพัฒนาระบบกำลังคน")
 		plan1203 = Plan.objects.create(master_plan=master_plan12, ref_no="1203", name="กลุ่มแผนงานพัฒนาระบบการสร้างและจัดการความรู้")
 		plan1204 = Plan.objects.create(master_plan=master_plan12, ref_no="1204", name="กลุ่มแผนงานการสร้างเสริมสุขภาพและการป้องกันโรค")
-		
+
 		# Project ##################
 		project1201_1 = Project.objects.create(sector=sector7, master_plan=master_plan12, plan=plan1201, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="21-00001", name="แผนงานที่หนึ่ง", start_date=date(2008,12,16), end_date=date(2011,12,15))
 		project1201_2 = Project.objects.create(sector=sector7, master_plan=master_plan12, plan=plan1201, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="21-00002", name="แผนงานที่สอง", start_date=date(2009,12,16), end_date=date(2011,12,15))
@@ -237,12 +244,12 @@ def after_syncdb(sender, **kwargs):
 		user_responsibility.projects.add(project1201_5)
 		user_responsibility.projects.add(project1203_1)
 		user_responsibility.projects.add(project1203_2)
-		
+
 		user_responsibility = UserRoleResponsibility.objects.create(user=sector_manager_assistant_account1, role=sector_manager_assistant_role)
 		user_responsibility.projects.add(project1201_1)
 		user_responsibility.projects.add(project1201_2)
 		user_responsibility.projects.add(project1201_3)
-		
+
 		# Project ##################
 		project1201_1_001 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=project1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-001", name="โครงการทดลองที่หนึ่ง", start_date=date(2008,12,16), end_date=date(2009,4,1))
 		project1201_1_002 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=project1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-002", name="โครงการทดลองทีสอง", start_date=date(2009,4,1), end_date=date(2009,8,1))
@@ -250,10 +257,10 @@ def after_syncdb(sender, **kwargs):
 		project1201_1_004 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=project1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-004", name="โครงการทดลองที่สี่", start_date=date(2009,12,1), end_date=date(2010,4,1))
 		project1201_1_005 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=project1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-005", name="โครงการทดลองที่ห้า", start_date=date(2010,4,1), end_date=date(2010,8,1))
 		project1201_1_006 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=project1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-006", name="โครงการทดลองที่หก", start_date=date(2010,8,1), end_date=date(2010,12,1))
-		
+
 		project1201_1_005 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=None, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-007", name="โครงการทดลองที่เจ็ด", start_date=date(2010,9,1), end_date=date(2010,10,1))
 		project1201_1_006 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=None, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-008", name="โครงการทดลองที่แปด", start_date=date(2010,8,1), end_date=date(2010,10,1))
-		
+
 		# Activity ##################
 		activity1 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่หนึ่ง", start_date=date(2008,12,16), end_date=date(2009,3,15))
 		activity2 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สอง", start_date=date(2009,3,1), end_date=date(2009,3,16))
@@ -279,30 +286,30 @@ def after_syncdb(sender, **kwargs):
 										created_by=sector_manager_account1,
 										sector=sector7,
 										need_checkup=True,)
-		
+
 		report_project11 = ReportProject.objects.create(report=report1, project=project1201_1)
 		report_project12 = ReportProject.objects.create(report=report2, project=project1201_1)
-		
-		
+
+
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(21))
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(14))
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(7), submitted_on=datetime.now(), state=SUBMIT_ACTIVITY)
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(-7), submitted_on=datetime.now(), state=SUBMIT_ACTIVITY)
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(-14), submitted_on=datetime.now(), state=SUBMIT_ACTIVITY)
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(-21), submitted_on=datetime.now(), state=APPROVE_ACTIVITY, approval_on=datetime.now())
-		
-		
+
+
 		"""
 		# Next due
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(16))
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(32))
 		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() + timedelta(16))
 		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() + timedelta(32))
-		
+
 		# Late
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(16))
 		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(16))
-		
+
 		# Rejected
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(4), submitted_on=date.today(), last_activity=REJECT_ACTIVITY)
 		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(4), submitted_on=date.today(), last_activity=REJECT_ACTIVITY)
@@ -402,7 +409,7 @@ def after_syncdb(sender, **kwargs):
 		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(120), submitted_on=date.today() - timedelta(121), last_activity=APPROVE_ACTIVITY)
 		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(150), submitted_on=date.today() - timedelta(151), last_activity=APPROVE_ACTIVITY)
 		"""
-		
+
 		# Comment Receiver by Role
 		CommentReceiverRole.objects.create(object_name='project', role=project_manager_role)
 		CommentReceiverRole.objects.create(object_name='project', role=project_manager_assistant_role)
