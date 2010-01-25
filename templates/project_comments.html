@@ -7,6 +7,35 @@
 {% block html_head %}
 <script type="text/javascript">
 $(document).ready(function() {
+	$("#reply-comment-dialog button").click(function(e) {
+		e.preventDefault();
+		var message = $("#reply-comment-dialog textarea").val();
+		var comment_id = $("#reply-comment-dialog #comment-id").val();
+		
+		if(message != "") {
+			$("#reply-comment-dialog .loading").show();
+			$.post("/reply-comment/" + comment_id + "/", {'message': message}, function(data) {
+				$("#reply-comment-dialog .loading").hide();
+				$.fn.colorbox.close();
+			}, "json");
+		}
+	});
+
+	$(".reply-comment").colorbox({width:"50%", scrolling:false, opacity:0.4, inline:true, href:"#reply-comment-dialog", 
+		onOpen:function(){
+			$("#reply-comment-dialog").css("display", "block");
+			$("#reply-comment-dialog textarea").val("");
+			$("#reply-comment-dialog #comment-id").val($(this).attr("id").substring(8));
+			$("#reply-comment-dialog .loading").hide();
+			
+			$("#reply-comment-receivers_feed").css("width", "auto");
+		},
+		onComplete:function(){ $("#reply-comment-dialog textarea").focus(); },
+		onCleanup:function() {
+			$("#reply-comment-dialog").css("display", "none");
+		}
+	});
+
 	bindCommentBox($(".post-project-comment"));
 });
 </script>
@@ -79,45 +108,10 @@ $(document).ready(function() {
 </div>
 
 <div id="reply-comment-dialog">
-	<label>ผู้รับเพิ่มเติม (นอกเหนือจากผู้รับผิดชอบ):</label>
-	<input type="hidden" id="comment-id"/>
-	<input type="text" id="reply-comment-receivers"/> <label>{% trans 'Comment' %}</label>
-	<textarea id="reply-comment-textarea"></textarea>
-	<div class="button-panel"><button>{% trans 'Send a Comment' %}</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" />{% trans 'Sending...' %}</span></div>
+<label>{% trans 'Comment' %}</label>
+<textarea id="reply-comment-textarea"></textarea>
+<input type="hidden" id="comment-id"/>
+<input type="hidden" name="comment_target"/>
+<div class="button-panel"><button>{% trans 'Send a Comment' %}</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" />{% trans 'Sending...' %}</span></div>
 </div>
-{% endblock %}
-
-{% block js %}
-<script type="text/javascript">
-$(document).ready(function() {
-	$("#reply-comment-dialog button").click(function(e) {
-		e.preventDefault();
-		var message = $("#reply-comment-dialog textarea").val();
-		var comment_id = $("#reply-comment-dialog #comment-id").val();
-		
-		if(message != "") {
-			$("#reply-comment-dialog .loading").show();
-			$.post("/reply-comment/" + comment_id + "/", {'message': message}, function(data) {
-				$("#reply-comment-dialog .loading").hide();
-				$.fn.colorbox.close();
-			}, "json");
-		}
-	});
-
-	$(".reply-comment").colorbox({width:"50%", scrolling:false, opacity:0.4, inline:true, href:"#reply-comment-dialog", 
-		onOpen:function(){
-			$("#reply-comment-dialog").css("display", "block");
-			$("#reply-comment-dialog textarea").val("");
-			$("#reply-comment-dialog #comment-id").val($(this).attr("id").substring(8));
-			$("#reply-comment-dialog .loading").hide();
-			
-			$("#reply-comment-receivers_feed").css("width", "auto");
-		},
-		onComplete:function(){ $("#reply-comment-dialog textarea").focus(); },
-		onCleanup:function() {
-			$("#reply-comment-dialog").css("display", "none");
-		}
-	});
-});
-</script>
 {% endblock %}
