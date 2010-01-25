@@ -37,22 +37,20 @@ def ajax_post_object_comment(request, object_name, object_id):
 		comment = Comment.objects.create(message=message, object_id=object_id, object_name=object_name, \
 			sent_by=request.user.get_profile())
 		
+		comment_receiver_roles = CommentReceiverRole.objects.filter(object_name=object_name)
+		roles = [r.role for r in comment_receiver_roles]
+
 		if object_name == "activity":
 			activity = Activity.objects.get(pk=object_id)
-			comment_receiver_roles = CommentReceiverRole.objects.filter(object_name='project')
-			roles = [r.role for r in comment_receiver_roles]
 			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(activity.project,))
 		
 		elif object_name == "project":
 			project = Project.objects.get(pk=object_id)
-			comment_receiver_roles = CommentReceiverRole.objects.filter(object_name=object_name)
-			roles = [r.role for r in comment_receiver_roles]
 			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(project,))
-			print len(role_resps)
 
-		#elif object_name == "report":
-		#	report_schedule = ReportSchedule.objects.get(pk=object_id)
-		#	role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(report_schedule,))
+		elif object_name == "report":
+			report_schedule = ReportSchedule.objects.get(pk=object_id)
+			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(report_schedule,))
 
 		for r in role_resps:
 			CommentReceiver.objects.create(comment=comment, receiver=r.user, sent_on=comment.sent_on)

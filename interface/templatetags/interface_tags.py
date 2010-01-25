@@ -46,7 +46,7 @@ def print_project_header(project):
 	
 	if not project.parent_project:
 		html += '<div class="title"><span>%s %s</span> %s</div>' % (unicode(PROJECT_TYPE_TEXT[project.prefix_name], "utf-8"), project.ref_no, project.name)
-		html += ('<div class="info"><span>' + _('Responsible By') + ': %s</span><a href="#" class="post-comment" rel="project/' + str(project.id) + '">' + _('submit a comment') + '</a></div>') % managers
+		html += ('<div class="info"><span>' + _('Responsible By') + ': %s</span><a href="#" class="post-project-comment" rel="project/' + str(project.id) + '">' + _('Submit a comment to manager') + '</a></div>') % managers
 	
 	else:
 		html += '<div class="parent"><a href="/project/%s/">%s %s</a></div>' % (project.parent_project.id, project.parent_project.ref_no, project.parent_project.name)

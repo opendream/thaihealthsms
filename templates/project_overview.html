@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
-{% load helper %}
-{% load interface_tags i18n %}
+{% load interface_tags i18n helper %}
 
 {% block post_comment_ajax_url %}{% if not project.parent_project %}/post-comment/object/program/{{project.id}}/{% else %}/post-comment/object/project/{{project.id}}/{% endif %}{% endblock %}
 {% block post_comment_ajax_callback %}{% endblock %}
 
 {% block html_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+	bindCommentBox($(".post-project-comment"));
+});
+</script>
 {% endblock %}
 
 {% block body_title %}
@@ -20,7 +24,7 @@
 			<li class="selected">{% trans 'Overview' %}</li>
 			{% if not project.parent_project %}
 			<li><a href="{% url view_project_projects project.id %}">{% trans 'Projects' %}</a></li>
-			<li><a href="{% url view_project_reports project.id %}">รายงาน</a></li>
+			<li><a href="{% url view_project_reports project.id %}">{% trans 'Reports' %}</a></li>
 			{% else %}
 			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
 			{% endif %}
@@ -33,7 +37,7 @@
 
 {% block body_content %}
 <div class="overview_page">
-	<h2>รายงานล่าสุด</h2>
+	<h2>{% trans 'Recent Reports' %}</h2>
 	<div class="reports_section">
 		<ul>
 			{% for report_schedule in report_schedules %}
