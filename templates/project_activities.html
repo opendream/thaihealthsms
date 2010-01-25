@@ -14,7 +14,8 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
-	
+	bindCommentBox($(".post-project-comment"));
+
 	// Change to calculate by javascript, not the one provided by django.
   var prev_month = "{{prev_month}}";
   var next_month = "{{next_month}}";
@@ -228,8 +229,8 @@ $(document).ready(function() {
 		{% for activity in activities %}
 		<tr>
 			<td class="controls">
-				<a href="{% url view_activity_edit report.id %}" title="แก้ไขกิจกรรม"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
-				<a href="{% url view_activity_delete report.id %}" title="ลบกิจกรรม"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+				<a href="{% url view_activity_edit activity.id %}" title="แก้ไขกิจกรรม"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+				<a href="{% url view_activity_delete activity.id %}" title="ลบกิจกรรม"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
 			</td>
 			<td class="name"><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></td>
 			<td class="start_date">{{activity.start_date|thai_abbr_date}}</td>

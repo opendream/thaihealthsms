@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% load interface_tags i18n helper %}
 
-{% block post_comment_ajax_url %}{% if not project.parent_project %}/post-comment/object/program/{{project.id}}/{% else %}/post-comment/object/project/{{project.id}}/{% endif %}{% endblock %}
 {% block post_comment_ajax_callback %}{% endblock %}
 
 {% block html_head %}
 <script type="text/javascript">
 $(document).ready(function() {
+	bindCommentBox($(".post-project-comment"));
+
 	$("#reply-comment-dialog button").click(function(e) {
 		e.preventDefault();
 		var message = $("#reply-comment-dialog textarea").val();
@@ -35,8 +36,6 @@ $(document).ready(function() {
 			$("#reply-comment-dialog").css("display", "none");
 		}
 	});
-
-	bindCommentBox($(".post-project-comment"));
 });
 </script>
 {% endblock %}

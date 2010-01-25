@@ -40,17 +40,21 @@ def ajax_post_object_comment(request, object_name, object_id):
 		comment_receiver_roles = CommentReceiverRole.objects.filter(object_name=object_name)
 		roles = [r.role for r in comment_receiver_roles]
 
-		if object_name == "activity":
+		if object_name == 'activity':
 			activity = Activity.objects.get(pk=object_id)
-			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(activity.project,))
+			if activity.project.parent_project:
+				target_project = activity.project.parent_project
+			else:
+				target_project = activity.project
+			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(target_project,))
 		
-		elif object_name == "project":
+		elif object_name == 'project':
 			project = Project.objects.get(pk=object_id)
 			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(project,))
 
-		elif object_name == "report":
+		elif object_name == 'report':
 			report_schedule = ReportSchedule.objects.get(pk=object_id)
-			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(report_schedule,))
+			#role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(,))
 
 		for r in role_resps:
 			CommentReceiver.objects.create(comment=comment, receiver=r.user, sent_on=comment.sent_on)

@@ -259,13 +259,6 @@ def after_syncdb(sender, **kwargs):
 		activity4 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สี่", start_date=date(2010,6,15), end_date=date(2010, 6,16))
 		activity5 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่ห้า", start_date=date(2011,6,14), end_date=date(2011,8,16))
 
-		user_responsibility.activities.add(activity1)
-		user_responsibility.activities.add(activity2)
-		user_responsibility.activities.add(activity3)
-		user_responsibility.activities.add(activity4)
-		user_responsibility.activities.add(activity5)
-
-
 		# Report ##################
 		report1 = Report.objects.create(name="รายงานความก้าวหน้าประจำเดือน",
 										created_by=sector_manager_account1,

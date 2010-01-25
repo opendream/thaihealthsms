@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
-{% load helper %}
-{% load interface_tags %}
+{% load interface_tags i18n helper %}
 
-{% block post_comment_ajax_url %}/post-comment/object/activity/{{activity.id}}/{% endblock %}
 {% block post_comment_ajax_callback %}{% endblock %}
 
 {% block html_head %}
@@ -16,8 +14,9 @@
 				return false;
 			}
 		});
+
+		bindCommentBox($(".post-activity-comment"));
 	});
-	
 </script>
 {% endblock %}
 
