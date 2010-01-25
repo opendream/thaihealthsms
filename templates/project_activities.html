@@ -13,16 +13,15 @@
 <script type="text/javascript" src="{{MEDIA_URL}}/scripts/yui/calendar/calendar-min.js"></script>
 
 <script type="text/javascript">
-$(document).ready(function() {
-	
+$(document).ready(function() {	
 	$(".delete-activity").click(function(e) {
 		if(!window.confirm("ยืนยันการลบกิจกรรม?")) {
 			e.preventDefault();
 		}
 	});
 	
-	
-	
+	bindCommentBox($(".post-project-comment"));
+
 	// Change to calculate by javascript, not the one provided by django.
   var prev_month = "{{prev_month}}";
   var next_month = "{{next_month}}";

@@ -31,28 +31,34 @@ def ajax_post_user_comment(request, user_id):
 @login_required
 def ajax_post_object_comment(request, object_name, object_id):
 	if request.method == "POST":
-		if object_name not in ('activity', 'project', 'program', 'report'): raise Http404
+		if object_name not in ('activity', 'project', 'report'): raise Http404
 
 		message = request.POST['message'].strip()
 		comment = Comment.objects.create(message=message, object_id=object_id, object_name=object_name, \
 			sent_by=request.user.get_profile())
 		
-		if object_name == "activity":
-			activity = Activity.objects.get(pk=object_id)
-			comment_receiver_roles = CommentReceiverRole.objects.filter(object_name='program')
-			roles = [r.role for r in comment_receiver_roles]
-			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(activity.project,))
-		
-		elif object_name == "project" or object_name == "program":
-			project = Project.objects.get(pk=object_id)
-			comment_receiver_roles = CommentReceiverRole.objects.filter(object_name=object_name)
-			roles = [r.role for r in comment_receiver_roles]
-			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(project,))
-			print len(role_resps)
+		comment_receiver_roles = CommentReceiverRole.objects.filter(object_name=object_name)
+		roles = [r.role for r in comment_receiver_roles]
 
-		#elif object_name == "report":
-		#	report_schedule = ReportSchedule.objects.get(pk=object_id)
-		#	role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(report_schedule,))
+		if object_name == 'activity':
+			activity = Activity.objects.get(pk=object_id)
+			if activity.project.parent_project:
+				target_project = activity.project.parent_project
+			else:
+				target_project = activity.project
+			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(target_project,))
+		
+		elif object_name == 'project':
+			project = Project.objects.get(pk=object_id)
+			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(project,))
+
+		elif object_name == 'report':
+			report_schedule = ReportSchedule.objects.get(pk=object_id)
+			if report_schedule.report_project.project.parent_project:
+				target_project = report_schedule.report_project.project.parent_project
+			else:
+				target_project = report_schedule.report_project.project
+			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(target_project,))
 
 		for r in role_resps:
 			CommentReceiver.objects.create(comment=comment, receiver=r.user, sent_on=comment.sent_on)

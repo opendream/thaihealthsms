@@ -23,6 +23,9 @@ def format_date(datetime):
 def format_month_year(datetime):
 	return "%s %d" % (unicode(THAI_MONTH_NAME[datetime.month], "utf-8"), datetime.year + 543)
 
+def format_abbr_month_year(datetime):
+	return "%s %d" % (unicode(THAI_MONTH_ABBR_NAME[datetime.month], "utf-8"), datetime.year + 543)
+
 # Current Year
 from datetime import date
 from domain.models import MasterPlanMonthPeriod
@@ -30,7 +33,7 @@ from domain.models import MasterPlanMonthPeriod
 def current_year_number():
 	today = date.today().replace(day=1)
 	month_period = MasterPlanMonthPeriod.objects.get(is_default=True)
-	
+
 	if month_period.start_month == 1 and month_period.end_month == 12:
 		current_year = today.year
 	else:
@@ -38,7 +41,7 @@ def current_year_number():
 			current_year = today.year if month_period.use_lower_year_number else (today.year + 1)
 		else:
 			current_year = (today.year - 1) if month_period.use_lower_year_number else today.year
-	
+
 	return current_year
 
 
@@ -48,13 +51,13 @@ from domain.models import UserRoleResponsibility
 # Roles
 def user_has_role(user, roles):
 	user_groups = user.groups.all()
-	
+
 	if user_groups:
 		user_roles = set([group.name for group in user_groups])
 		roles = set(roles)
-		
+
 		if user_roles.intersection(roles): return True
-	
+
 	return False
 
 def responsible(user, roles, dept_obj):
@@ -75,15 +78,15 @@ def responsible(user, roles, dept_obj):
 def who_responsible(department):
 	if type(department).__name__ == 'Sector':
 		responsibility = UserRoleResponsibility.objects.filter(role__name='sector_manager', sectors__in=(department,))
-	
+
 	elif type(department).__name__ == 'Project':
 		responsibility = UserRoleResponsibility.objects.filter(role__name='project_manager', projects__in=(department,))
 		if not responsibility: responsibility = UserRoleResponsibility.objects.filter(role__name='project_manager', plans__in=(department.plan,))
-	
+
 	users = list()
 	for responsibility_item in responsibility:
 		users.append(responsibility_item.user)
-	
+
 	return users
 
 def set_message(request, text, status='message'):

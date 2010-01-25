@@ -1,11 +1,14 @@
 {% extends 'base.html' %}
-{% load helper %}
-{% load interface_tags i18n %}
+{% load interface_tags i18n helper %}
 
-{% block post_comment_ajax_url %}{% if not project.parent_project %}/post-comment/object/program/{{project.id}}/{% else %}/post-comment/object/project/{{project.id}}/{% endif %}{% endblock %}
 {% block post_comment_ajax_callback %}{% endblock %}
 
 {% block html_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+	bindCommentBox($(".post-project-comment"));
+});
+</script>
 {% endblock %}
 
 {% block body_title %}
@@ -20,7 +23,7 @@
 			<li class="selected">{% trans 'Overview' %}</li>
 			{% if not project.parent_project %}
 			<li><a href="{% url view_project_projects project.id %}">{% trans 'Projects' %}</a></li>
-			<li><a href="{% url view_project_reports project.id %}">รายงาน</a></li>
+			<li><a href="{% url view_project_reports project.id %}">{% trans 'Reports' %}</a></li>
 			{% else %}
 			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
 			{% endif %}
@@ -33,20 +36,16 @@
 
 {% block body_content %}
 <div class="overview_page">
+	<h2>{% trans 'Recent Reports' %}</h2>
+	<div class="reports_section">
+		<ul>
+			{% for report_schedule in report_schedules %}
+			<li><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.report_project.report.name}} งวดวันที่ {{report_schedule.due_date|thai_date}}</a></li>
+			{% endfor %}
+		</ul>
+	</div>
+	
 	{% if not project.parent_project %}
-		<h2>รายงานล่าสุด</h2>
-		<div class="reports_section">
-			{% if report_schedules %}
-			<ul>
-				{% for report_schedule in report_schedules %}
-				<li><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.report_project.report.name}} งวดวันที่ {{report_schedule.due_date|thai_date}}</a></li>
-				{% endfor %}
-			</ul>
-			{% else %}
-			<div class="ss_no_information">ไม่มีรายงาน</div>
-			{% endif %}
-		</div>
-		
 		<h2>โครงการที่ดำเนินอยู่</h2>
 		{% if current_projects %}
 		<div class="hierarchy_section project_hierarchy_section">

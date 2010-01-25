@@ -2,6 +2,7 @@
 
 from django import template
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
 
 from domain.constants import PROJECT_TYPE_TEXT
 from domain.models import Project, UserAccount, UserRoleResponsibility
@@ -45,12 +46,12 @@ def print_project_header(project):
 	
 	if not project.parent_project:
 		html += '<div class="title"><span>%s %s</span> %s</div>' % (unicode(PROJECT_TYPE_TEXT[project.prefix_name], "utf-8"), project.ref_no, project.name)
-		html += unicode('<div class="info"><span>รับผิดชอบโดย %s</span> <a href="#" class="post-comment">ความคิดเห็นถึงผู้ดูแล</a></div>', "utf-8") % managers
+		html += ('<div class="info"><span>' + _('Responsible By') + ': %s</span><a href="#" class="post-project-comment" rel="project/' + str(project.id) + '">' + _('Submit a comment to manager') + '</a></div>') % managers
 	
 	else:
 		html += '<div class="parent"><a href="/project/%s/">%s %s</a></div>' % (project.parent_project.id, project.parent_project.ref_no, project.parent_project.name)
 		html += '<div class="title"><span>%s %s</span> %s</div>' % (unicode(PROJECT_TYPE_TEXT[project.prefix_name], "utf-8"), project.ref_no, project.name)
-		html += unicode('<div class="info"><span>รับผิดชอบโดย %s</span> <a href="#" class="post-comment">ความคิดเห็น &#187; โครงการ</a></div>', "utf-8") % managers
+		html += ('<div class="info"><span>' + _('Responsible By') + ': %s</span><a href="#" class="post-project-comment" rel="project/' + str(project.id) + '">' + _('Comment') + ' &raquo; ' + _('Project') + '</a></div>') % managers
 	
 	return html
 
@@ -60,8 +61,8 @@ def print_activity_header(activity):
 	
 	html += '<div class="parent"><a href="/project/%d/">%s %s</a> &#187; <a href="/project/%d/">%s %s</a></div>' % (activity.project.parent_project.id, activity.project.parent_project.ref_no, activity.project.parent_project.name, activity.project.id, activity.project.ref_no, activity.project.name)
 	
-	html += unicode('<div class="title"><span>กิจกรรม</span> ', "utf-8") + activity.name + '</div>'
-	html += unicode('<div class="info"><a href="#" class="post-comment">ความคิดเห็น &#187; กิจกรรม</a></div>', "utf-8")
+	html += '<div class="title"><span>' + _('Activity') + ':</span> ' + activity.name + '</div>'
+	html += '<div class="info"><a href="#" class="post-activity-comment" rel="activity/' + str(activity.id) + '">' + _('Comment') + ' &raquo; ' + _('Activity') + '</a></div>'
 	
 	return html
 
@@ -71,8 +72,8 @@ def print_report_header(report_schedule):
 	
 	html += '<div class="parent"><a href="/project/%s/">%s %s</a></div>' % (report_schedule.report_project.project.id, report_schedule.report_project.project.ref_no, report_schedule.report_project.project.name)
 	
-	html += unicode('<div class="title"><span>รายงาน</span> %s</div>', "utf-8") % report_schedule.report_project.report.name
-	html += unicode('<div class="info"><span>งวดวันที่ %s</span> <a href="#" class="post-comment">ความคิดเห็น &#187; รายงาน</a></div>', "utf-8") % format_date(report_schedule.due_date)
+	html += ('<div class="title"><span>' + _('Report') + ':</span> %s</div>') % report_schedule.report_project.report.name
+	html += ('<div class="info"><span>' + _('Due date') + ': %s</span><a href="#" class="post-report-comment" rel="report/' + str(report_schedule.id) + '">' + _('Comment') + ' &raquo; ' + _('Report') + '</a></div>') % format_date(report_schedule.due_date)
 	
 	return html
 
