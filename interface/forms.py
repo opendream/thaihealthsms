@@ -10,10 +10,12 @@ from domain.models import *
 from django.http import HttpResponseRedirect
 from helper.utilities import set_message
 
-class AddActivityForm(forms.Form):
+from widgets import YUICalendar
+
+class ActivityForm(forms.Form):
 	name 			= forms.CharField(max_length=500, label='ชื่อกิจกรรม')
-	start_date 		= forms.DateField(widget=widgets.AdminDateWidget, label='เริ่ม')
-	end_date 		= forms.DateField(widget=widgets.AdminDateWidget, label='ถึง')
+	start_date      = forms.DateField(widget=YUICalendar(attrs={'id':'id_start_date'}), label='เริ่มตั้งแต่วันที่', required=False)
+	end_date        = forms.DateField(widget=YUICalendar(attrs={'id':'id_end_date'}), label='ถึง', required=False)
 	description 	= forms.CharField(max_length=2000, required=False, widget=forms.Textarea(), label='รายละเอียด')
 	location 		= forms.CharField(max_length=2000, required=False, label='สถานที่')
 	result_goal 	= forms.CharField(max_length=2000, required=False, widget=forms.Textarea(), label='ผลลัพธ์ที่ต้องการ')
@@ -201,4 +203,22 @@ class EditMasterPlanForm(forms.Form):
 	ref_no = forms.IntegerField(label='รหัส')
 	name = forms.CharField(max_length=512, label='ชื่อแผน')
 	sector = forms.IntegerField(widget=forms.Select(choices=sectors), label='สังกัดสำนัก')
-	
+
+month_cycle = [(i,i) for i in range(1,13)]
+date_cycle = [(i,i) for i in range(1,32)]
+
+class AddProjectReportForm(forms.Form):
+	name = forms.CharField(max_length=512, label='ชื่อรายงาน')
+	need_checkup = forms.BooleanField(required=False, label='ส่งรายงานถึงผู้ประสานงานสำนัก')
+	need_approval = forms.BooleanField(required=False, label='ต้องรับรองรายงาน')
+	month_cycle = forms.ChoiceField(label='ส่งรายงานทุกๆ', choices=month_cycle)
+	on_every = forms.CharField(widget=forms.HiddenInput())
+	on_every_date = forms.ChoiceField(required=False, choices=date_cycle)
+	start_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_start_date'}), label='เริ่มตั้งแต่วันที่')
+	end_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_end_date'}), label='ถึง')
+
+class EditProjectReportForm(forms.Form):
+	name = forms.CharField(max_length=512, label='ชื่อรายงาน')
+	need_checkup = forms.BooleanField(required=False, label='ส่งรายงานถึงผู้ประสานงานสำนัก')
+	need_approval = forms.BooleanField(required=False, label='ต้องรับรองรายงาน')
+

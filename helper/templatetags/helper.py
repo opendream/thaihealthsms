@@ -5,6 +5,7 @@ from django.template import NodeList
 from django.template.defaultfilters import stringfilter
 
 from thaihealthsms.helper.utilities import format_abbr_datetime, format_datetime, format_abbr_date, format_date, format_month_year, format_display_datetime
+from thaihealthsms.helper.utilities import responsible as utilities_responsible
 from thaihealthsms.helper.utilities import who_responsible as utilities_who_responsible
 
 from domain.models import UserRoleResponsibility
@@ -143,18 +144,7 @@ class ResponsibleNode(template.Node):
 		roles = self.roles.split(',')
 		dept_obj = self.dept_obj.resolve(context)
 		
-		has_responsibility = False
-		
-		for responsibility_item in UserRoleResponsibility.objects.filter(user=user):
-			if responsibility_item.role.name in roles:
-				if type(dept_obj).__name__ == 'Project':
-					if dept_obj in responsibility_item.projects.all():
-						has_responsibility = True
-				elif type(dept_obj).__name__ == 'Project':
-					if dept_obj in responsibility_item.projects.all():
-						has_responsibility = True
-		
-		if has_responsibility:
+		if utilities_responsible(user, roles, dept_obj):
 			output = self.nodelist_true.render(context)
 			return output
 		else:

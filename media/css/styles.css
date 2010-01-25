@@ -13,11 +13,11 @@ html, body {background-color:#F3F3F3;}
 .login_page h1 {text-align:center;font-size:197%;margin:30px 0px 20px;color:#017c54;font-weight:bold;}
 .login_page form {margin:0px auto;width:400px;border:1px solid #CCC;padding:10px 15px;background-color:#FFF;}
 .login_page form ul {}
-.login_page form li {margin:15px;font-size:108%;}
-.login_page form li label {width:80px;float:left;display:block;}
+.login_page form li {margin:15px;font-size:108%;list-style:none;}
+.login_page form li label {display:block;margin-bottom:4px;font-size:100%;}
 .login_page form li input {width:250px;}
-.login_page form li.button_panel {padding-left:80px;}
-.login_page form li.button_panel button {padding:3px 15px;}
+.login_page form li.button_panel {}
+.login_page form li.button_panel button {padding:3px 15px;font-size:85%;}
 
 /* Base Template */
 .body_header {background:url('../images/html_header_bg.gif') #666 repeat-x;border-bottom:1px solid #999;height:40px;}
@@ -36,6 +36,8 @@ html, body {background-color:#F3F3F3;}
 .body_body {background-color:#F3F3F3;border-bottom:1px solid #CCC;}
 .body_content {padding:15px 15px;background-color:#FFF;}
 .body_footer {text-align:center;font-size:108%;margin-top:15px;color:#666;margin-bottom:30px;}
+
+.body_content_message {font-size:108%;background-color:#FFC;border:1px solid #CCC;padding:5px 10px;margin-bottom:15px;color:#333;}
 
 .ss_no_information {font-size:116%;color:#666;margin:10px 0px 20px;}
 
@@ -96,6 +98,7 @@ h1.title {font-size:138.5%;font-weight:bold;color:#ED6912;margin-bottom:20px;bor
 .ss_form li label {display:block;margin-bottom:5px;font-size:116%;color:#333;}
 .ss_form li .input {}
 .ss_form li .comment {margin-top:3px;color:#555;}
+.ss_form li .errorlist {margin:3px 0px 0px 0px;color:#C30;}
 .ss_form .button_panel {margin:20px 0px 20px 30px;}
 
 .ss_form .LONG input {width:500px;}
@@ -108,6 +111,11 @@ h1.title {font-size:138.5%;font-weight:bold;color:#ED6912;margin-bottom:20px;bor
 .ss_form .DATE_PICKER img {vertical-align:middle;cursor:pointer;}
 .ss_form .DATE_PICKER a:link, .ss_form .DATE_PICKER a:visited, .ss_form .DATE_PICKER a:active {}
 .ss_form .DATE_PICKER a:hover {background:none;color:#369;}
+
+.ss_form .date_period .to {margin:0px 15px;color:#555;}
+
+.yui_date_picker_panel input {color:#333;width:160px;}
+.yui_date_picker_panel img {vertical-align:middle;cursor:pointer;margin-left:5px;}
 
 /*
 POST COMMENT DIALOG

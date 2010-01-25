@@ -41,6 +41,10 @@ def current_year_number():
 	
 	return current_year
 
+
+
+from domain.models import UserRoleResponsibility
+
 # Roles
 def user_has_role(user, roles):
 	user_groups = user.groups.all()
@@ -53,9 +57,21 @@ def user_has_role(user, roles):
 	
 	return False
 
-# Who responsible
-from domain.models import UserRoleResponsibility
+def responsible(user, roles, dept_obj):
+	has_responsibility = False
+	
+	for responsibility_item in UserRoleResponsibility.objects.filter(user=user):
+		if responsibility_item.role.name in roles:
+			if type(dept_obj).__name__ == 'Project':
+				if dept_obj in responsibility_item.projects.all():
+					has_responsibility = True
+			elif type(dept_obj).__name__ == 'Project':
+				if dept_obj in responsibility_item.projects.all():
+					has_responsibility = True
+	
+	return has_responsibility
 
+# Who responsible
 def who_responsible(department):
 	if type(department).__name__ == 'Sector':
 		responsibility = UserRoleResponsibility.objects.filter(role__name='sector_manager', sectors__in=(department,))

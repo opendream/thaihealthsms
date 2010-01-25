@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
-{% load helper %}
-{% load interface_tags %}
+{% load helper interface_tags %}
 
 {% block post_comment_ajax_url %}/post-comment/object/activity/{{activity.id}}/{% endblock %}
 {% block post_comment_ajax_callback %}{% endblock %}
@@ -39,6 +38,7 @@
 {% endblock %}
 
 {% block body_content %}
+{% responsible user 'project_manager,project_manager_assistant' activity.project.parent_project %}
 <div class="ss_control_panel">
 	<ul>
 		<li><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon"/><a href="{% url view_activity_edit activity.id %}">แก้ไข</a></li>
@@ -46,18 +46,20 @@
 	</ul>
 	<div class="clear"></div>
 </div>
+{% endresponsible %}
+
 <div class="activity_page">
 	<div class="headline">
-		<div><em>ช่วงเวลา:</em> {{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</div>
-		<div><em>สถานที่:</em> {{activity.location|default:'<span class="no_information">ไม่มีข้อมูล</span>'}}</div>
+		<div><em>ช่วงเวลา:</em> {% if activity.start_date and activity.end_date %}{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}{% else %}<span class="no_information">ยังไม่ได้กำหนดช่วงเวลา</span>{% endif %}</div>
+		<div><em>สถานที่:</em> {% if activity.location %}{{activity.location}}{% else %}<span class="no_information">ไม่มีข้อมูล</span>{% endif %}</div>
 	</div>
 	
 	<div class="content">
-		<div class="description">{{activity.description|default:""}}</div>
+		<div class="description">{% if activity.description %}{{activity.description}}{% else %}<span class="no_information">ไม่มีข้อมูล</span>{% endif %}</div>
 		<h3>ผลลัพธ์ที่ตั้งเป้าไว้</h3>
-		<div class="description">{{activity.result_goal|default:'<span class="no_information">ไม่มีข้อมูล</span>'}}</div>
+		<div class="description">{% if activity.result_goal %}{{activity.result_goal}}{% else %}<span class="no_information">ไม่มีข้อมูล</span>{% endif %}</div>
 		<h3>ผลลัพธ์ที่เกิดขึ้น</h3>
-		<div class="description">{{activity.result_real|default:'<span class="no_information">ไม่มีข้อมูล</span>'}}</div>
+		<div class="description">{% if activity.result_real %}{{activity.result_real}}{% else %}<span class="no_information">ไม่มีข้อมูล</span>{% endif %}</div>
 	</div>
 </div>
 {% endblock %}

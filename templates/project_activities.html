@@ -15,6 +15,14 @@
 <script type="text/javascript">
 $(document).ready(function() {
 	
+	$(".delete-activity").click(function(e) {
+		if(!window.confirm("ยืนยันการลบกิจกรรม?")) {
+			e.preventDefault();
+		}
+	});
+	
+	
+	
 	// Change to calculate by javascript, not the one provided by django.
   var prev_month = "{{prev_month}}";
   var next_month = "{{next_month}}";
@@ -205,35 +213,41 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block body_content %}
+{% responsible user 'project_manager,project_manager_assistant' project.parent_project %}
 <div class="ss_control_panel">
 	<ul>
 		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_activity_add project.id %}">เพิ่มกิจกรรม</a></li>
 	</ul>
 </div>
+{% endresponsible %}
 
 <div class="activities_table_page">
+	{% if activities %}
 	<div class="activity_calendar yui-skin-sam">
 		<div id="activity-calendar" class="html-calendar activity three-month"></div>
 	</div>
 	<div class="clear"></div>
 	
-	{% if activities %}
 	<table>
 		<tr>
+			{% responsible user 'project_manager,project_manager_assistant' project.parent_project %}
 			<th class="controls"></th>
+			{% endresponsible %}
 			<th class="name">ชื่อกิจกรรม</th>
 			<th class="start_date">วันที่เริ่ม</th>
 			<th class="end_date">วันที่สิ้นสุด</th>
 		</tr>
 		{% for activity in activities %}
 		<tr>
+			{% responsible user 'project_manager,project_manager_assistant' project.parent_project %}
 			<td class="controls">
-				<a href="{% url view_activity_edit report.id %}" title="แก้ไขกิจกรรม"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
-				<a href="{% url view_activity_delete report.id %}" title="ลบกิจกรรม"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+				<a href="{% url view_activity_edit activity.id %}" title="แก้ไขกิจกรรม"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+				<a href="{% url view_activity_delete activity.id %}" title="ลบกิจกรรม" class="delete-activity"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
 			</td>
+			{% endresponsible %}
 			<td class="name"><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></td>
-			<td class="start_date">{{activity.start_date|thai_abbr_date}}</td>
-			<td class="end_date">{{activity.end_date|thai_abbr_date}}</td>
+			<td class="start_date">{% if activity.start_date %}{{activity.start_date|thai_abbr_date}}{% else %}ไม่กำหนด{% endif %}</td>
+			<td class="end_date">{% if activity.end_date %}{{activity.end_date|thai_abbr_date}}{% else %}ไม่กำหนด{% endif %}</td>
 		</tr>
 		{% endfor %}
 	</table>

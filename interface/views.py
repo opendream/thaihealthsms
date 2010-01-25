@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 import calendar
 from datetime import datetime, date
 import os
@@ -464,9 +466,53 @@ def view_project_reports(request, project_id):
 	return render_response(request, "project_reports.html", {'project':project, 'report_projects':report_projects})
 
 @login_required
-def view_project_reports_add(request, project_id):
+def view_project_reports_list(request, project_id):
+	project = get_object_or_404(Project, pk=project_id)
+	report_projects = ReportProject.objects.filter(project=project)
+	
+	sector_reports = list()
+	project_reports = list()
+	
+	for report_project in report_projects:
+		if report_project.report.sector:
+			sector_reports.append(report_project.report)
+		else:
+			project_reports.append(report_project.report)
+	
+	return render_response(request, "project_reports_list.html", {'project':project, 'sector_reports':sector_reports, 'project_reports':project_reports})
 
-	pass
+@login_required
+def view_project_reports_add(request, project_id):
+	project = get_object_or_404(Project, pk=project_id)
+	
+	if request.method == 'POST':
+		form = AddProjectReportForm(request.POST)
+		if form.is_valid():
+			form.cleaned_data['name']
+			form.cleaned_data['name']
+			
+			
+			pass
+		
+	else:
+		form = AddProjectReportForm()
+	
+	return render_response(request, "project_reports_add.html", {'project':project, 'form':form})
+
+@login_required
+def view_project_report_edit(request, project_id, report_id):
+	project = get_object_or_404(Project, pk=project_id)
+	report = get_object_or_404(Report, pk=report_id)
+	
+	if request.method == 'POST':
+		form = EditProjectReportForm(request.POST)
+		if form.is_valid():
+			pass
+		
+	else:
+		form = EditProjectReportForm(initial={})
+	
+	return render_response(request, "project_reports_edit.html", {'project':project, 'form':form})
 
 @login_required
 def view_project_reports_send(request, project_id):
@@ -582,84 +628,76 @@ def view_project_activities_ajax(request, project_id, yearmonth):
 
 	return render_response(request, "project_activities_ajax.html", {'recent_activities':recent_activities,'prev_month':prev_month_,'next_month':next_month_})
 
-"""
-@login_required
-def view_project_reports(request, project_id):
-	project = get_object_or_404(Project, pk=project_id)
-
-	return render_response(request, "project_reports.html", {'project':project})
-
-@login_required
-def view_project_reports_send(request, project_id):
-	project = get_object_or_404(Project, pk=project_id)
-	reports = report_functions.get_nextdue_and_overdue_reports(project_id)
-
-	for report in reports:
-		for schedule in report.schedules:
-			schedule.files = ReportScheduleFileResponse.objects.filter(schedule=schedule)
-
-	return render_response(request, "project_reports_send.html", {'project':project, 'reports':reports, 'REPORT_SUBMIT_FILE_URL':settings.REPORT_SUBMIT_FILE_URL})
-"""
 @login_required
 def view_activity_add(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-	message = ''
-	if request.method == "POST":
-		form = AddActivityForm(request.POST)
-		if form.is_valid():
-			activity = Activity()
-
-			activity.project     = project
-			activity.name        = form.cleaned_data['name']
-			activity.start_date  = form.cleaned_data['start_date']
-			activity.end_date    = form.cleaned_data['end_date']
-			activity.description = form.cleaned_data['description']
-			activity.location    = form.cleaned_data['location']
-			activity.result_goal = form.cleaned_data['result_goal']
-			activity.result_real = form.cleaned_data['result_real']
-			activity.save()
-
-			utilities.set_message(request, 'Your activity has been create.')
-
-			return redirect("/activity/%d/" % activity.id)
-
+	
+	head_project = project.parent_project if project.parent_project else project
+	
+	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
+		if request.method == "POST":
+			form = ActivityForm(request.POST)
+			if form.is_valid():
+				activity = Activity()
+				
+				activity.project     = project
+				activity.name        = form.cleaned_data['name']
+				activity.start_date  = form.cleaned_data['start_date']
+				activity.end_date    = form.cleaned_data['end_date']
+				activity.description = form.cleaned_data['description']
+				activity.location    = form.cleaned_data['location']
+				activity.result_goal = form.cleaned_data['result_goal']
+				activity.result_real = form.cleaned_data['result_real']
+				activity.save()
+				
+				return redirect('view_activity_overview', (activity.id))
+	
+		else:
+			form = ActivityForm()
 	else:
-		form = AddActivityForm()
+		return redirect('view_project_activities', (project.id))
 
-	return render_response(request, "project_activity_add.html", {'project':project, 'form':form, 'message': message})
+	return render_response(request, "project_activity_add.html", {'project':project, 'form':form})
 
 @login_required
 def view_activity_edit(request, activity_id):
-	activity = Activity.objects.get(pk=activity_id)
+	activity = get_object_or_404(Activity, pk=activity_id)
 	project = activity.project
+	
+	head_project = project.parent_project if project.parent_project else project
+	
+	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
+		if request.method == "POST":
+			form = ActivityForm(request.POST)
+			if form.is_valid():
+				activity.name        = form.cleaned_data['name']
+				activity.start_date  = form.cleaned_data['start_date']
+				activity.end_date    = form.cleaned_data['end_date']
+				activity.description = form.cleaned_data['description']
+				activity.location    = form.cleaned_data['location']
+				activity.result_goal = form.cleaned_data['result_goal']
+				activity.result_real = form.cleaned_data['result_real']
+				activity.save()
+				
+				return redirect('view_activity_overview', (activity.id))
+	
+	else:
+		return redirect('view_activity_overview', (activity.id))
 
-	if request.method == "POST":
-		form = AddActivityForm(request.POST)
-		if form.is_valid():
-			activity.name        = form.cleaned_data['name']
-			activity.start_date  = form.cleaned_data['start_date']
-			activity.end_date    = form.cleaned_data['end_date']
-			activity.description = form.cleaned_data['description']
-			activity.location    = form.cleaned_data['location']
-			activity.result_goal = form.cleaned_data['result_goal']
-			activity.result_real = form.cleaned_data['result_real']
-			activity.save()
-
-			set_message(request, 'Your activity has been update.')
-
-			return redirect("/activity/%d/" % activity.id)
-
-	form = AddActivityForm(activity.__dict__)
-	return render_response(request, "project_activity_edit.html", {'project':project, 'form':form})
+	form = ActivityForm(activity.__dict__)
+	return render_response(request, "project_activity_edit.html", {'activity':activity, 'form':form})
 
 @login_required
 def view_activity_delete(request, activity_id):
 	activity = Activity.objects.get(pk=activity_id)
 	project = activity.project
-	activity.delete()
-
-	set_message(request, 'Your activity has been delete.')
-
+	
+	head_project = project.parent_project if project.parent_project else project
+	
+	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
+		activity.delete()
+		set_message(request, 'ลบกิจกรรมเรียบร้อย')
+	
 	return redirect("/project/%d/activities/" % project.id)
 
 @login_required
@@ -686,12 +724,6 @@ def view_project_comments(request, project_id):
 def view_activity_overview(request, activity_id):
 	activity = get_object_or_404(Activity, pk=activity_id)
 	return render_response(request, "activity_overview.html", {'activity':activity,})
-
-@login_required
-def view_activity_pictures(request, activity_id):
-	activity = get_object_or_404(Activity, pk=activity_id)
-
-	return render_response(request, "activity_pictures.html", {'activity':activity, })
 
 @login_required
 def view_activity_comments(request, activity_id):

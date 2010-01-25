@@ -8,13 +8,15 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
 	
 	<script type="text/javascript" src="{{MEDIA_URL}}/scripts/jquery.min.js"></script>
-	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/yui/reset-fonts.css">
+	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/yui/reset-fonts/reset-fonts.css">
 	
 	<link type="text/css" media="screen" rel="stylesheet" href="{{MEDIA_URL}}/colorbox/colorbox.css" /> 
 	<script type="text/javascript" src="{{MEDIA_URL}}/colorbox/jquery.colorbox-min.js"></script>
 	
-	<link type="text/css" media="screen" rel="stylesheet" href="{{MEDIA_URL}}/fcbkcomplete/style.css" /> 
-	<script type="text/javascript" src="{{MEDIA_URL}}/fcbkcomplete/jquery.fcbkcomplete.min.js"></script>
+	<!--<link type="text/css" media="screen" rel="stylesheet" href="{{MEDIA_URL}}/fcbkcomplete/style.css" /> 
+	<script type="text/javascript" src="{{MEDIA_URL}}/fcbkcomplete/jquery.fcbkcomplete.min.js"></script> -->
+	
+	
 	
 	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/css/styles.css">
 	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/css/styles.page.css">
@@ -75,7 +77,7 @@ function bindCommentBox(jqueryObject) {
 {% block html_head %}{% endblock %}
 
 </head>
-<body>
+<body class="yui-skin-sam">
 	<div class="body_header">
 		<div class="account_panel">
 			<span class="username">{{user_account.first_name}} {{user_account.last_name}}</span>
@@ -97,7 +99,7 @@ function bindCommentBox(jqueryObject) {
 	</div>
 	<div class="body_body">
 		<div class="body_title">{% block body_title %}{% endblock %}</div>
-		<div class="body_content">{{messages|safe}}{% block body_content %}{% endblock %}</div>
+		<div class="body_content">{% if messages %}<div class="body_content_message">{{messages|safe}}</div>{% endif %}{% block body_content %}{% endblock %}</div>
 	</div>
 	<div class="body_footer">
 		<div>สำนักงานกองทุนสนับสนุนการสร้างเสริมสุขภาพ (สสส.)</div>

@@ -294,10 +294,44 @@ REPORT PAGE
 #upload-file-dialog label {margin-bottom:10px;font-size:116%;display:block;}
 #upload-file-dialog button {margin-top:10px;}
 
+
+/*
+PROJECT ###############################################################################
+*/
+.project_report_list {}
+.project_report_list h2 {font-size:138.5%;margin-bottom:10px;color:#2D8659;}
+
+.project_report_list table {width:100%;margin-bottom:20px;}
+.project_report_list table th {border:1px solid #999;padding:10px 10px;background-color:#666;color:white;font-size:116%;}
+.project_report_list table td {border:1px solid #999;padding:8px 10px;font-size:108%;}
+
+.project_report_list table .controls {width:35px;text-align:center;}
+.project_report_list table .controls a:hover {background:none !important;}
+
+.project_report_list table .name {}
+
+
+/*
+Project Report Modify
+*/
+.project_report_modify .inline label {display:inline;}
+.project_report_modify .inline select {margin:0px 10px;}
+.project_report_modify .month_cycle {margin-top:30px;}
+.project_report_modify .radio_choice {margin-bottom:30px;}
+.project_report_modify .radio_choice div {margin-bottom:10px;}
+.project_report_modify .radio_choice select {margin:0px 10px;}
+.project_report_modify .radio_choice label {font-size:1em;display:inline;}
+
+/*
+ACTIVITY ###############################################################################
+*/
+
+
+
 /*
 ACTIVITY PAGE
 */
-.activity_page .headline {border-bottom:1px solid #CCC;padding-bottom:5px;}
+.activity_page .headline {border-bottom:1px solid #CCC;padding-bottom:5px;margin-bottom:20px;}
 .activity_page .headline div {margin-right:15px;display:inline;font-size:116%;display:inline;}
 .activity_page .headline em {color:#2D8659;margin-bottom:5px;}
 .activity_page .headline .no_information {color:#666;}
