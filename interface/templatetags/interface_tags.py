@@ -2,6 +2,7 @@
 
 from django import template
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
 
 from domain.constants import PROJECT_TYPE_TEXT
 from domain.models import Project, UserAccount, UserRoleResponsibility
@@ -45,7 +46,7 @@ def print_project_header(project):
 	
 	if not project.parent_project:
 		html += '<div class="title"><span>%s %s</span> %s</div>' % (unicode(PROJECT_TYPE_TEXT[project.prefix_name], "utf-8"), project.ref_no, project.name)
-		html += unicode('<div class="info"><span>รับผิดชอบโดย %s</span> <a href="#" class="post-comment">ความคิดเห็นถึงผู้ดูแล</a></div>', "utf-8") % managers
+		html += ('<div class="info"><span>' + _('Responsible By') + ': %s</span><a href="#" class="post-comment" rel="project/' + str(project.id) + '">' + _('submit a comment') + '</a></div>') % managers
 	
 	else:
 		html += '<div class="parent"><a href="/project/%s/">%s %s</a></div>' % (project.parent_project.id, project.parent_project.ref_no, project.parent_project.name)
