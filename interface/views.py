@@ -157,6 +157,9 @@ def view_administer_organization(request):
 
 @login_required
 def view_administer_organization_add_sector(request):
+	user_account = request.user.get_profile()
+	if not request.user.is_superuser: return access_denied(request)
+
 	if request.method == 'POST':
 		form = SectorForm(request.POST)
 		if form.is_valid():
@@ -170,6 +173,9 @@ def view_administer_organization_add_sector(request):
 
 @login_required
 def view_administer_organization_edit_sector(request, sector_id):
+	user_account = request.user.get_profile()
+	if not request.user.is_superuser: return access_denied(request)
+
 	sector = get_object_or_404(Sector, pk=sector_id)
 
 	if request.method == 'POST':
@@ -188,12 +194,18 @@ def view_administer_organization_edit_sector(request, sector_id):
 
 @login_required
 def view_administer_organization_delete_sector(request, sector_id):
+	user_account = request.user.get_profile()
+	if not request.user.is_superuser: return access_denied(request)
+
 	sector = get_object_or_404(Sector, pk=sector_id)
 	sector.delete()
 	return redirect('view_administer_organization')
 
 @login_required
 def view_administer_organization_add_masterplan(request):
+	user_account = request.user.get_profile()
+	if not request.user.is_superuser: return access_denied(request)
+
 	if request.method == 'POST':
 		form = MasterPlanForm(request.POST)
 		if form.is_valid():
@@ -221,6 +233,9 @@ def view_administer_organization_add_masterplan(request):
 
 @login_required
 def view_administer_organization_edit_masterplan(request, master_plan_id):
+	user_account = request.user.get_profile()
+	if not request.user.is_superuser: return access_denied(request)
+
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
 	if request.method == 'POST':
@@ -256,6 +271,9 @@ def view_administer_organization_edit_masterplan(request, master_plan_id):
 
 @login_required
 def view_administer_organization_delete_masterplan(request, master_plan_id):
+	user_account = request.user.get_profile()
+	if not request.user.is_superuser: return access_denied(request)
+
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	master_plan.delete()
 	return redirect('view_administer_organization')
@@ -283,6 +301,9 @@ def view_administer_users(request):
 
 @login_required
 def view_administer_users_status(request, user_id):
+	user_account = request.user.get_profile()
+	if not request.user.is_superuser: return access_denied(request)
+
 	user_account = request.user.get_profile()
 	if not request.user.is_superuser: return access_denied(request)
 
