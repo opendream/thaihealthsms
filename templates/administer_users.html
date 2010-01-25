@@ -4,14 +4,21 @@
 {% block html_head %}
 <script type="text/javascript">
 	$(document).ready(function() {
-		$('.user-delete').click(function(e) {
+		$('.user-status').click(function(e) {
 			e.preventDefault()
-			if(window.confirm("Confirm?")) {
-				var this_row = $(this)
-				$.getJSON($(this).attr('href'), {}, function(resp) {
-					this_row.parent().parent().remove();
-				})
-			}
+			var a = $(this);
+			$.getJSON($(this).attr('href'), {}, function(resp) {
+				if (a.hasClass('disable')) {
+					a.children('img').attr('src', '{{MEDIA_URL}}/images/user_active.png');
+					a.children('img').attr('title', 'สถานะพร้อมใช้งาน');
+				}
+				else {
+					a.children('img').attr('src', '{{MEDIA_URL}}/images/user_disable.png');
+					a.children('img').attr('title', 'สถานะถูกระงับ');
+				}
+				a.toggleClass('disable');
+				
+			})
 		})
 	})
 	
@@ -62,7 +69,13 @@
 			<td class="sector">{{user.get_profile.sector.ref_no}}</td>
 			<td class="role">{{user.roles}}</td>
 			<td class="projects">{{user.projects}}</td>
-			<td class="status"></td>
+			<td class="status">
+				{% if user.is_active %}
+				<a class="user-status" href="{% url view_administer_users_status user.id %}" title="สถานะพร้อมใช้งาน"><img src="{{MEDIA_URL}}/images/user_active.png" class="icon" /></a>
+				{% else %}
+				<a class="user-status disable" href="{% url view_administer_users_status user.id %}" title="สถานะถูกระงับ"><img src="{{MEDIA_URL}}/images/user_disable.png" class="icon" /></a>
+				{% endif %}
+			</td>
 		</tr>
 		{% endfor %}
 	</table>

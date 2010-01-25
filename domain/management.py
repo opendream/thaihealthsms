@@ -94,6 +94,8 @@ def after_syncdb(sender, **kwargs):
 		sector_admin_account1.last_name = "Admin"
 		sector_admin_account1.save()
 		
+		user_responsibility = UserRoleResponsibility.objects.create(user=sector_admin_account1, role=sector_admin_role)
+		
 		# Sector Managers
 		sector_manager1 = User.objects.create_user("sector7", "sector1@example.com", "password")
 		sector_manager1.groups.add(sector_manager_role)

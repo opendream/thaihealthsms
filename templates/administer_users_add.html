@@ -5,7 +5,7 @@
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('#id_0-role').change(function() {
-			if ($(this).val() == 'sector_manager') {
+			if ($(this).val() == 'sector_admin' || $(this).val() == 'sector_manager') {
 				$('#submit-form').val('Submit');
 			}
 			else {

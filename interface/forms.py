@@ -48,8 +48,6 @@ class UserAccountFormSecond(forms.Form):
 
 class UserAccountWizard(FormWizard):
 	def parse_params(self, request, *args, **kwargs):
-		current_step = self.determine_step(request, *args, **kwargs)
-		form = self.get_form(current_step, request.POST)
 		user_id = kwargs.get('user_id', 0)
 		
 		self.user = False
@@ -59,17 +57,22 @@ class UserAccountWizard(FormWizard):
 			user_account = user.get_profile()
 			user_responsibility = UserRoleResponsibility.objects.get(user=user_account)
 			
-			initial = user.__dict__.copy()
-			initial.update(user_account.__dict__.copy())
-			initial.update(user_responsibility.__dict__.copy())
+			initial = {}
 			
-			initial['password'] = ''
-			initial['sector'] = user_account.sector.id
-			initial['role'] = user_responsibility.role.name
-			initial['program'] = [str(project.id).decode('utf-8') for project in user_responsibility.projects.all()]
-			initial['project'] = [str(project.id).decode('utf-8') for project in user_responsibility.projects.all()]
+			initial[0] = user.__dict__.copy()
+			initial[0].update(user_account.__dict__.copy())
+			initial[0].update(user_responsibility.__dict__.copy())
+
+			initial[0]['password'] = ''
+			initial[0]['sector'] = user_account.sector.id
+			initial[0]['role'] = user_responsibility.role.name
 			
-			self.initial[(current_step)] = initial
+			initial[1] = {}
+			if user_responsibility.projects.count():
+				initial[1]['program'] = user_responsibility.projects.all()[0].id
+				initial[1]['project'] = [project.id for project in user_responsibility.projects.all()]
+			
+			self.initial = initial
 	
 	def get_template(self, step):
 		return 'administer_users_add.html'
@@ -79,7 +82,7 @@ class UserAccountWizard(FormWizard):
 			group_name = form.cleaned_data.get('role', '')
 			sector_id = form.cleaned_data.get('sector', 0)
 			
-			if group_name == 'sector_manager':
+			if group_name == 'sector_admin' or group_name == 'sector_manager':
 				if len(self.form_list) > 1:
 					del(self.form_list[1])
 					
@@ -143,7 +146,7 @@ class UserAccountWizard(FormWizard):
 		)
 		
 
-		if group_name == 'sector_manager':
+		if group_name == 'sector_admin' or group_name == 'sector_manager':
 			user_responsibility.sectors.add(sector)
 		elif group_name == 'sector_manager_assistant':
 			user_responsibility.sectors.add(sector)
@@ -154,9 +157,9 @@ class UserAccountWizard(FormWizard):
 			user_responsibility.projects.add(program)
 		
 		if self.user:
-			set_message(request, 'Your user has been create.')
-		else:
 			set_message(request, 'Your user has been update.')
+		else:
+			set_message(request, 'Your user has been create.')
 			
 		return HttpResponseRedirect('/administer/users/')
 

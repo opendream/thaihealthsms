@@ -238,7 +238,7 @@ def view_administer_users(request):
 	user_account = request.user.get_profile()
 	if not request.user.is_superuser: return access_denied(request)
 
-	users = User.objects.all()
+	users = User.objects.filter(is_superuser=False)
 	for user in users:
 		resps = UserRoleResponsibility.objects.filter(user=user.get_profile())
 
@@ -252,14 +252,15 @@ def view_administer_users(request):
 
 
 	return render_response(request, "administer_users.html", {'users': users})
-
+	
 @login_required
-def view_administer_users_delete(request, user_id):
+def view_administer_users_status(request, user_id):
+	user_account = request.user.get_profile()
+	if not request.user.is_superuser: return access_denied(request)
+	
 	user = User.objects.get(pk=user_id)
-	user_account = user.get_profile()
-	UserRoleResponsibility.objects.filter(user=user_account).delete()
-	user_account.delete()
-	user.delete()
+	user.is_active = not user.is_active
+	user.save()
 	
 	return HttpResponse(simplejson.dumps({'status': 'complete'}))
 	
