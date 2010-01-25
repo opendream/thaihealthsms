@@ -807,8 +807,16 @@ def view_report_overview(request, report_id):
 
 @login_required
 def view_report_comments(request, report_id):
-	report_schedule = get_object_or_404(ReportSchedule, pk=report_id)
+	report = get_object_or_404(ReportSchedule, pk=report_id)
 
-	comments = Comment.objects.filter(object_name="report", object_id=report_id).order_by("-sent_on")
+	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='report', \
+		comment__object_id=report.id).order_by("-sent_on")
 
-	return render_response(request, "report_comments.html", {'report_schedule':report_schedule, 'comments':comments, })
+	for comment in comments:
+		comment.receivers = CommentReceiver.objects.filter(comment=comment.comment)
+		comment.already_read = comment.is_read
+
+	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='report', \
+		comment__object_id=report.id).update(is_read=True)
+
+	return render_response(request, "report_comments.html", {'report_schedule':report, 'comments':comments, })

@@ -72,8 +72,8 @@ def print_report_header(report_schedule):
 	
 	html += '<div class="parent"><a href="/project/%s/">%s %s</a></div>' % (report_schedule.report_project.project.id, report_schedule.report_project.project.ref_no, report_schedule.report_project.project.name)
 	
-	html += unicode('<div class="title"><span>รายงาน</span> %s</div>', "utf-8") % report_schedule.report_project.report.name
-	html += unicode('<div class="info"><span>งวดวันที่ %s</span> <a href="#" class="post-comment">ความคิดเห็น &#187; รายงาน</a></div>', "utf-8") % format_date(report_schedule.due_date)
+	html += ('<div class="title"><span>' + _('Report') + ':</span> %s</div>') % report_schedule.report_project.report.name
+	html += ('<div class="info"><span>' + _('Due date') + ': %s</span><a href="#" class="post-report-comment" rel="report/' + str(report_schedule.id) + '">' + _('Comment') + ' &raquo; ' + _('Report') + '</a></div>') % format_date(report_schedule.due_date)
 	
 	return html
 

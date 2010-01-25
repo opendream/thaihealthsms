@@ -54,7 +54,11 @@ def ajax_post_object_comment(request, object_name, object_id):
 
 		elif object_name == 'report':
 			report_schedule = ReportSchedule.objects.get(pk=object_id)
-			#role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(,))
+			if report_schedule.report_project.project.parent_project:
+				target_project = report_schedule.report_project.project.parent_project
+			else:
+				target_project = report_schedule.report_project.project
+			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(target_project,))
 
 		for r in role_resps:
 			CommentReceiver.objects.create(comment=comment, receiver=r.user, sent_on=comment.sent_on)

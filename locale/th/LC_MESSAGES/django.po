@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-25 12:22+0700\n"
+"POT-Creation-Date: 2010-01-25 18:09+0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,6 +20,7 @@ msgid "Thai"
 msgstr "ภาษาไทย"
 
 #: interface/templatetags/interface_tags.py:49
+#: interface/templatetags/interface_tags.py:54
 msgid "Responsible By"
 msgstr "ผู้ดูแล"
 
@@ -27,38 +28,76 @@ msgstr "ผู้ดูแล"
 msgid "Submit a comment to manager"
 msgstr "ส่งความคิดเห็นถึงผู้ดูแล"
 
-#: templates/activity_comments.html:36 templates/activity_comments.html:56
+#: interface/templatetags/interface_tags.py:54
+#: interface/templatetags/interface_tags.py:65
+#: interface/templatetags/interface_tags.py:76
+#: templates/activity_comments.html:104 templates/base.html:107
+#: templates/project_comments.html:110 templates/report_comments.html:104
+msgid "Comment"
+msgstr "ความคิดเห็น"
+
+#: interface/templatetags/interface_tags.py:54
+msgid "Project"
+msgstr "โครงการ"
+
+#: interface/templatetags/interface_tags.py:64
+#: interface/templatetags/interface_tags.py:65
+msgid "Activity"
+msgstr "กิจกรรม"
+
+#: interface/templatetags/interface_tags.py:75
+#: interface/templatetags/interface_tags.py:76
+msgid "Report"
+msgstr "รายงาน"
+
+#: interface/templatetags/interface_tags.py:76
+msgid "Due date"
+msgstr "งวดวันที่"
+
+#: templates/activity_comments.html:52 templates/project_comments.html:52
+#: templates/project_overview.html:23 templates/project_projects.html:23
+#: templates/project_reports.html:23 templates/report_comments.html:52
+msgid "Overview"
+msgstr "ภาพรวม"
+
+#: templates/activity_comments.html:53 templates/project_comments.html:59
+#: templates/project_overview.html:30 templates/project_projects.html:26
+#: templates/project_reports.html:26 templates/report_comments.html:53
+#: templates/report_overview.html:89
+msgid "Comments"
+msgstr "ความคิดเห็น"
+
+#: templates/activity_comments.html:68 templates/activity_comments.html:88
 #: templates/dashboard_comments.html:50
 #: templates/dashboard_comments_outbox.html:50
-#: templates/project_comments.html:46 templates/project_comments.html.py:66
+#: templates/project_comments.html:74 templates/project_comments.html.py:94
+#: templates/report_comments.html:68 templates/report_comments.html.py:88
 #, python-format
 msgid "Send at %(c_date)s Time %(c_time)s o'clock"
 msgstr "ส่งเมื่อ %(c_date)s เวลา %(c_time)s น."
 
-#: templates/activity_comments.html:40 templates/project_comments.html:50
+#: templates/activity_comments.html:72 templates/project_comments.html:78
+#: templates/report_comments.html:72
 msgid "Reply"
 msgstr "ตอบกลับ"
 
-#: templates/activity_comments.html:42 templates/project_comments.html:52
+#: templates/activity_comments.html:74 templates/project_comments.html:80
+#: templates/report_comments.html:74
 msgid "Receivers"
 msgstr "ผู้รับ"
 
-#: templates/activity_comments.html:67 templates/project_comments.html:77
+#: templates/activity_comments.html:99 templates/project_comments.html:105
+#: templates/report_comments.html:99
 msgid "There are no related comment."
 msgstr "ไม่มีความคิดเห็นที่เกี่ยวข้อง"
 
-#: templates/activity_comments.html:74 templates/base.html:107
-#: templates/project_comments.html:84 templates/report_overview.html:89
-msgid "Comment"
-msgstr "ความคิดเห็น"
-
-#: templates/activity_comments.html:76 templates/base.html:110
-#: templates/project_comments.html:86
+#: templates/activity_comments.html:108 templates/base.html:110
+#: templates/project_comments.html:114 templates/report_comments.html:108
 msgid "Send a Comment"
 msgstr "ส่งความคิดเห็น"
 
-#: templates/activity_comments.html:76 templates/base.html:110
-#: templates/project_comments.html:86
+#: templates/activity_comments.html:108 templates/base.html:110
+#: templates/project_comments.html:114 templates/report_comments.html:108
 msgid "Sending..."
 msgstr "กำลังส่ง"
 
@@ -99,50 +138,41 @@ msgstr "อ่านความคิดเห็นทั้งหมด"
 msgid "No New Comment"
 msgstr "ไม่มีความคิดเห็นใหม่"
 
-#: templates/project_comments.html:24 templates/project_overview.html:24
+#: templates/project_comments.html:54 templates/project_overview.html:25
 #: templates/project_projects.html:24 templates/project_reports.html:24
-msgid "Overview"
-msgstr "ภาพรวม"
-
-#: templates/project_comments.html:26 templates/project_overview.html:26
-#: templates/project_projects.html:25 templates/project_reports.html:25
 msgid "Projects"
 msgstr "โครงการ"
 
-#: templates/project_comments.html:27 templates/project_overview.html:27
-#: templates/project_projects.html:26 templates/project_reports.html:26
+#: templates/project_comments.html:55 templates/project_overview.html:26
+#: templates/project_projects.html:25 templates/project_reports.html:25
+#: templates/report_overview.html:88
 msgid "Reports"
 msgstr "รายงาน"
 
-#: templates/project_comments.html:29 templates/project_overview.html:29
+#: templates/project_comments.html:57 templates/project_overview.html:28
 msgid "Activities"
 msgstr "กิจกรรม"
 
-#: templates/project_comments.html:31 templates/project_overview.html:31
-#: templates/project_projects.html:27 templates/project_reports.html:27
-msgid "Comments"
-msgstr "ความคิดเห็น"
-
-#: templates/project_overview.html:40
+#: templates/project_overview.html:39
 msgid "Recent Reports"
 msgstr "รายงานล่าสุด"
 
-#: templates/project_projects.html:46
+#: templates/project_projects.html:45
 msgid "Project Code"
 msgstr "รหัสโครงการ"
 
-#: templates/project_projects.html:47
+#: templates/project_projects.html:46
 msgid "Project Name"
 msgstr "ชื่อโครงการ"
 
-#: templates/project_projects.html:48
+#: templates/project_projects.html:47
 msgid "Start Date"
 msgstr "วันที่เริ่ม"
 
-#: templates/project_projects.html:49
+#: templates/project_projects.html:48
 msgid "End Date"
 msgstr "วันที่สิ้นสุด"
 
-#: templates/project_projects.html:61
+#: templates/project_projects.html:60
 msgid "There are no project."
 msgstr "ไม่มีโครงการ"
