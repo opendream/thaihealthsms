@@ -62,7 +62,7 @@ ADMIN ORGANIZATION
 .organization_page table .ref_no {width:80px;text-align:center;}
 .organization_page table .sector {width:100px;text-align:center;}
 .organization_page table .name {}
-.organization_page table .year {width:120px;text-align:center;}
+.organization_page table .year {width:150px;text-align:center;}
 
 
 /*
@@ -305,5 +305,3 @@ ACTIVITY PAGE
 .activity_page .content h3 {font-size:138.5%;margin:20px 0px 10px;color:#333;padding:0px 10px 5px 0px;border-bottom:3px solid #9CC;}
 .activity_page .content .description {font-size:108%;}
 .activity_page .content .description span.no_information {color:#666;font-style:italic;}
-
-
