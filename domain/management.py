@@ -59,8 +59,10 @@ def after_syncdb(sender, **kwargs):
 			admin_account.first_name = "Administration"
 			admin_account.last_name = ""
 			admin_account.save()
-
-
+	
+	# Master Plan
+	default_month_period, created = MasterPlanMonthPeriod.objects.get_or_create(start_month=10, end_month=9, is_default=True)
+	
 	"""
 	END HERE
 	"""
@@ -163,27 +165,22 @@ def after_syncdb(sender, **kwargs):
 		program_manager_assistant_account2.save()
 		
 		# Master Plan ##################
-		master_plan1 = MasterPlan.objects.create(sector=sector1, ref_no=1, name="แผนควบคุมการบริโภคยาสูบ", start_year=2009, end_year=2011)
-		master_plan2 = MasterPlan.objects.create(sector=sector1, ref_no=2, name="แผนควบคุมการบริโภคเครื่องดื่มแอลกอฮอล์", start_year=2009, end_year=2011)
-		master_plan3 = MasterPlan.objects.create(sector=sector1, ref_no=3, name="แผนสนับสนุนการป้องกันอุบัตเหตุทางถนนและอุบัติภัย", start_year=2009, end_year=2011)
-		master_plan4 = MasterPlan.objects.create(sector=sector5, ref_no=4, name="แผนส่งเสริมการออกกำลังกายและกีฬาเพื่อสุขภาพ", start_year=2009, end_year=2011)
-		master_plan5 = MasterPlan.objects.create(sector=sector2, ref_no=5, name="แผนควบคุมปัจจัยเสี่ยงทางสุขภาพ", start_year=2009, end_year=2011)
-		master_plan6 = MasterPlan.objects.create(sector=sector2, ref_no=6, name="แผนสุขภาวะประชากรกลุ่มเฉพาะ", start_year=2009, end_year=2011)
-		master_plan7 = MasterPlan.objects.create(sector=sector3, ref_no=7, name="แผนสุขภาวะชุมชน", start_year=2009, end_year=2011)
-		master_plan8 = MasterPlan.objects.create(sector=sector4, ref_no=8, name="แผนสุขภาวะเด้ก เยาวชน และครอบครัว", start_year=2009, end_year=2011)
-		master_plan9 = MasterPlan.objects.create(sector=sector4, ref_no=9, name="แผนสร้างเสริมสุขภาวะในองค์กร", start_year=2009, end_year=2011)
-		master_plan10 = MasterPlan.objects.create(sector=sector5, ref_no=10, name="แผนสื่อสารการตลาดเพื่อสังคม", start_year=2009, end_year=2011)
-		master_plan11 = MasterPlan.objects.create(sector=sector6, ref_no=11, name="แผนสนับสนุนโครงสร้างทั่วไปและนวัตกรรม", start_year=2009, end_year=2011)
-		master_plan12 = MasterPlan.objects.create(sector=sector7, ref_no=12, name="แผนสนับสนุนการสร้างเสริมสุขภาพผ่านระบบบริการสุขภาพ", start_year=2009, end_year=2011)
-		master_plan13 = MasterPlan.objects.create(sector=sector7, ref_no=13, name="แผนพัฒนาระบบและกลไกสนับสนุนเพื่อการสร้างเสริมสุขภาพ", start_year=2009, end_year=2011)
 		
-		master_plan12_2009 = MasterPlanYear.objects.create(master_plan=master_plan12, year=2009, start_month=date(2008, 10, 1), end_month=date(2009, 9, 1))
-		master_plan12_2010 = MasterPlanYear.objects.create(master_plan=master_plan12, year=2010, start_month=date(2009, 10, 1), end_month=date(2010, 9, 1))
-		master_plan12_2011 = MasterPlanYear.objects.create(master_plan=master_plan12, year=2011, start_month=date(2010, 10, 1), end_month=date(2011, 9, 1))
+		year_period = MasterPlanYearPeriod.objects.create(start=date(2008, 10, 1), end=date(2011, 9, 1), month_period=default_month_period)
 		
-		master_plan13_2009 = MasterPlanYear.objects.create(master_plan=master_plan13, year=2009, start_month=date(2008, 10, 1), end_month=date(2009, 9, 1))
-		master_plan13_2010 = MasterPlanYear.objects.create(master_plan=master_plan13, year=2010, start_month=date(2009, 10, 1), end_month=date(2010, 9, 1))
-		master_plan13_2011 = MasterPlanYear.objects.create(master_plan=master_plan13, year=2011, start_month=date(2010, 10, 1), end_month=date(2011, 9, 1))
+		master_plan1 = MasterPlan.objects.create(sector=sector1, ref_no=1, name="แผนควบคุมการบริโภคยาสูบ", year_period=year_period)
+		master_plan2 = MasterPlan.objects.create(sector=sector1, ref_no=2, name="แผนควบคุมการบริโภคเครื่องดื่มแอลกอฮอล์", year_period=year_period)
+		master_plan3 = MasterPlan.objects.create(sector=sector1, ref_no=3, name="แผนสนับสนุนการป้องกันอุบัตเหตุทางถนนและอุบัติภัย", year_period=year_period)
+		master_plan4 = MasterPlan.objects.create(sector=sector5, ref_no=4, name="แผนส่งเสริมการออกกำลังกายและกีฬาเพื่อสุขภาพ", year_period=year_period)
+		master_plan5 = MasterPlan.objects.create(sector=sector2, ref_no=5, name="แผนควบคุมปัจจัยเสี่ยงทางสุขภาพ", year_period=year_period)
+		master_plan6 = MasterPlan.objects.create(sector=sector2, ref_no=6, name="แผนสุขภาวะประชากรกลุ่มเฉพาะ", year_period=year_period)
+		master_plan7 = MasterPlan.objects.create(sector=sector3, ref_no=7, name="แผนสุขภาวะชุมชน", year_period=year_period)
+		master_plan8 = MasterPlan.objects.create(sector=sector4, ref_no=8, name="แผนสุขภาวะเด้ก เยาวชน และครอบครัว", year_period=year_period)
+		master_plan9 = MasterPlan.objects.create(sector=sector4, ref_no=9, name="แผนสร้างเสริมสุขภาวะในองค์กร", year_period=year_period)
+		master_plan10 = MasterPlan.objects.create(sector=sector5, ref_no=10, name="แผนสื่อสารการตลาดเพื่อสังคม", year_period=year_period)
+		master_plan11 = MasterPlan.objects.create(sector=sector6, ref_no=11, name="แผนสนับสนุนโครงสร้างทั่วไปและนวัตกรรม", year_period=year_period)
+		master_plan12 = MasterPlan.objects.create(sector=sector7, ref_no=12, name="แผนสนับสนุนการสร้างเสริมสุขภาพผ่านระบบบริการสุขภาพ", year_period=year_period)
+		master_plan13 = MasterPlan.objects.create(sector=sector7, ref_no=13, name="แผนพัฒนาระบบและกลไกสนับสนุนเพื่อการสร้างเสริมสุขภาพ", year_period=year_period)
 		
 		# Plan ##################
 		plan1201 = Plan.objects.create(master_plan=master_plan12, ref_no="1201", name="กลุ่มแผนงานพัฒนาระบบบริการสุชภาพระดับชุมชน")
@@ -252,6 +249,9 @@ def after_syncdb(sender, **kwargs):
 		project1201_1_005 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=program1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-005", name="โครงการทดลองที่ห้า", start_date=date(2010,4,1), end_date=date(2010,8,1))
 		project1201_1_006 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=program1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-006", name="โครงการทดลองที่หก", start_date=date(2010,8,1), end_date=date(2010,12,1))
 		
+		project1201_1_005 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=None, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-007", name="โครงการทดลองที่เจ็ด", start_date=date(2010,9,1), end_date=date(2010,10,1))
+		project1201_1_006 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=None, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-008", name="โครงการทดลองที่แปด", start_date=date(2010,8,1), end_date=date(2010,10,1))
+		
 		# Activity ##################
 		activity1 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่หนึ่ง", start_date=date(2008,12,16), end_date=date(2009,3,15))
 		activity2 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สอง", start_date=date(2009,3,1), end_date=date(2009,3,16))
@@ -264,6 +264,7 @@ def after_syncdb(sender, **kwargs):
 		user_responsibility.activities.add(activity3)
 		user_responsibility.activities.add(activity4)
 		user_responsibility.activities.add(activity5)
+
 
 		# Report ##################
 		report1 = Report.objects.create(name="รายงานความก้าวหน้าประจำเดือน",

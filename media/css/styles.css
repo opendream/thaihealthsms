@@ -65,12 +65,12 @@ html, body {background-color:#F3F3F3;}
 
 .ss_tab_navi {background-color:#666;border-top:1px solid #CCC;}
 .ss_tab_navi .tabs {border-top:1px solid #999;padding:10px 15px 0px;}
-.ss_tab_navi .tabs li {color:#ED6912;background-color:#777;font-size:108%;font-weight:bold;padding:5px 15px;display:block;float:left;margin-right:10px;}
+.ss_tab_navi .tabs li {color:#ED6912;background-color:#777;font-size:108%;font-weight:bold;height:20px;padding:5px 15px;display:block;float:left;margin-right:10px;}
 .ss_tab_navi .tabs li.right_item {float:right;margin-right:0px;margin-left:10px;}
 .ss_tab_navi .tabs li.selected {background-color:#FFF;}
 .ss_tab_navi .tabs li a:link, .ss_tab_navi .tabs li a:visited, .ss_tab_navi .tabs li a:active {color:#FFF;text-decoration:none;}
 .ss_tab_navi .tabs li a:hover {color:#F39659;text-decoration:underline;background:none;}
-.ss_tab_navi .tabs li img {vertical-align:text-bottom;margin-right:8px;}
+.ss_tab_navi .tabs li img {vertical-align:middle;margin-right:8px;}
 
 /* Content Sub Tab-Navigation */
 
@@ -83,7 +83,11 @@ h1.title {font-size:138.5%;font-weight:bold;color:#ED6912;margin-bottom:20px;bor
 .ss_control_panel {margin:5px 0px 15px;}
 .ss_control_panel ul {border-bottom:1px solid #CCC;background-color:#E5FFE6;}
 .ss_control_panel ul li {font-size:108%;color:#FFF;padding:8px 15px;display:inline-block;display:-moz-inline-stack;*display:inline;list-style:none;zoom:1;}
-.ss_control_panel ul li img {margin-right:5px;vertical-align:text-bottom;}
+.ss_control_panel ul li img {margin-right:5px;vertical-align:middle;}
+
+/* Child Page */
+.ss_child_page_header {font-size:146.5%;margin-bottom:20px;padding-bottom:5px;border-bottom:5px solid #CCC;}
+.ss_child_page_header a:link, .ss_child_page_header a:visited, .ss_child_page_header a:active {font-size:0.7em;margin-left:15px;}
 
 /* Form Styles */
 .ss_form {}
@@ -91,6 +95,7 @@ h1.title {font-size:138.5%;font-weight:bold;color:#ED6912;margin-bottom:20px;bor
 .ss_form li {margin-bottom:15px;}
 .ss_form li label {display:block;margin-bottom:5px;font-size:116%;color:#333;}
 .ss_form li .input {}
+.ss_form li .comment {margin-top:3px;color:#555;}
 .ss_form .button_panel {margin:20px 0px 20px 30px;}
 
 .ss_form .LONG input {width:500px;}
@@ -132,25 +137,17 @@ REPLY COMMENT DIALOG
 
 /* Activity Calendar */
 .yui-skin-sam {overflow:hidden}
-.yui-calendar .has-event {background-color:#99FF99 !important;}
+.yui-calendar .has-event {background-color:#FFA !important;}
+
+#activity-calendar .calheader {color:#096;}
+#activity-calendar .calweekdaycell {background:none;color:#666;font-weight:normal;}
+#activity-calendar .calbody td.selected a:link,#activity-calendar .calbody td.selected a:visited ,#activity-calendar .calbody td.selected a:active {background-color:#096;color:#FFF;}
+
+/*#activity-calendar .calheader {color:#333;}
+#activity-calendar .calweekdaycell {background-color:#096;font-weight:normal;color:#FFF;}*/
 
 .qtip-content ul li a:link, .qtip-content ul li a:visited, .qtip-content ul li a:active {color:#FFC;}
 .qtip-content ul li a:hover {background:none;color:#9CF;}
 
-/* KPI Color */
-
-/* KPI Graph */
-.kpi-graph-container {margin:2px 0px 15px;width:200px;height:20px;background-color:#999;}
-.kpi-graph-container .kpi-graph {height:20px;border-right:2px solid #FFF;}
-
-.kpi-lowest-percentage {color:#C33;}
-.kpi-low-percentage {color:#C90;}
-.kpi-expect-percentage {color:#090;}
-.kpi-above-percentage {color:#090;}
-
-.kpi-lowest-bar-graph {background-color:#C33;}
-.kpi-low-bar-graph {background-color:#C90;}
-.kpi-expect-bar-graph {background-color:#090;}
-.kpi-above-bar-graph {background-color:#090;}
 
 

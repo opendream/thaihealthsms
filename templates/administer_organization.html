@@ -23,5 +23,64 @@
 {% endblock %}
 
 {% block body_content %}
+<div class="ss_control_panel">
+	<ul>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_administer_organization_add_sector %}">เพิ่มสำนัก</a></li>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_administer_organization_add_masterplan %}">เพิ่มแผนหลัก</a></li>
+	</ul>
+</div>
+
+<div class="organization_page">
+	<h2>สำนัก</h2>
+	<table class="sectors_table">
+		<tr>
+			<th></th>
+			<th class="sector_number">เลขสำนัก</th>
+			<th class="sector_name">ชื่อสำนัก</th>
+		</tr>
+		{% for sector in sectors %}
+		<tr>
+			<td class="controls">
+				<a href="{% url view_administer_organization_edit_sector sector.id %}" title="แก้ไขสำนัก"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+				{% if sector.has_child %}
+				<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบสำนักที่มีแผนหลักได้"/>
+				{% else %}
+				<a href="{% url view_administer_organization_delete_sector sector.id %}" title="ลบสำนัก"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+				{% endif %}
+			</td>
+			<td class="sector_number">{{sector.ref_no}}</td>
+			<td class="sector_name">{{sector.name}}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	
+	<h2>แผนหลัก</h2>
+	<table class="master_plans_table">
+		<tr>
+			<th></th>
+			<th class="ref_no">เลขแผน</th>
+			<th class="name">ชื่อแผน</th>
+			<th class="sector">สำนักที่ดูแล</th>
+			<th class="year">ช่วงปี</th>
+		</tr>
+		{% for master_plan in master_plans %}
+		<tr>
+			<td class="controls">
+				<a href="{% url view_administer_organization_edit_masterplan master_plan.id %}" title="แก้ไขแผนหลัก"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+				{% if master_plan.has_child %}
+				<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบแผนหลักที่มีหน่วยงานภายใต้ได้"/>
+				{% else %}
+				<a href="{% url view_administer_organization_delete_masterplan master_plan.id %}" title="ลบแผนหลัก"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+				{% endif %}
+			</td>
+			<td class="ref_no">{{master_plan.ref_no}}</td>
+			<td class="name">{{master_plan.name}}</td>
+			<td class="sector">{{master_plan.sector.ref_no}}</td>
+			<td class="year">1234 - 5678</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+
 
 {% endblock %}

@@ -25,25 +25,31 @@ class UserRoleResponsibility(models.Model):
 class Sector(models.Model):
 	ref_no = models.IntegerField()
 	name = models.CharField(max_length=512)
+	created = models.DateTimeField(auto_now_add=True)
 
 class MasterPlan(models.Model):
 	sector = models.ForeignKey('Sector')
 	ref_no = models.IntegerField()
 	name = models.CharField(max_length=512)
-	is_active = models.BooleanField(default=True)
-	start_year = models.IntegerField() # Master plan for ThaiHealth has 3 years-span
-	end_year = models.IntegerField()
+	year_period = models.ForeignKey('MasterPlanYearPeriod')
+	created = models.DateTimeField(auto_now_add=True)
 
-class MasterPlanYear(models.Model):
-	master_plan = models.ForeignKey('MasterPlan')
-	year = models.IntegerField()
-	start_month = models.DateField()
-	end_month = models.DateField()
+class MasterPlanYearPeriod(models.Model):
+	start = models.DateField()
+	end = models.DateField()
+	month_period = models.ForeignKey('MasterPlanMonthPeriod')
+
+class MasterPlanMonthPeriod(models.Model):
+	start_month = models.IntegerField()
+	end_month = models.IntegerField()
+	is_default = models.BooleanField(default=False)
+	use_lower_year_number = models.BooleanField(default=False) # e.g. Oct 2008 - Sep 2009 use 2009 as a year number
 
 class Plan(models.Model):
 	master_plan = models.ForeignKey('MasterPlan')
 	ref_no = models.CharField(max_length=64)
 	name = models.CharField(max_length=512)
+	created = models.DateTimeField(auto_now_add=True)
 
 class Project(models.Model): # Program, Project
 	
@@ -71,6 +77,7 @@ class Project(models.Model): # Program, Project
 	start_date = models.DateField(null=True)
 	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0) # Not use yet
+	created = models.DateTimeField(auto_now_add=True)
 
 class Activity(models.Model):
 	project = models.ForeignKey('Project')
@@ -79,4 +86,9 @@ class Activity(models.Model):
 	start_date = models.DateField(null=True)
 	end_date = models.DateField(null=True)
 	status = models.IntegerField(default=0)
+	created = models.DateTimeField(auto_now_add=True)
+	
+	location = models.CharField(max_length=512, null=True)
+	result_goal = models.TextField(null=True)
+	result_real = models.TextField(null=True)
 

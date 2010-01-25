@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load helper interface_tags %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_sector_header sector %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_sector_overview sector.id %}">ภาพรวม</a></li>
+			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
+			<li class="selected right_item">รูปแบบรายงาน</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_control_panel">
+	<ul>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_sector_add_report sector.id %}">เพิ่มรูปแบบรายงาน</a></li>
+	</ul>
+</div>
+
+<div class="report_sector_page">
+	<table>
+		<tr>
+			<th class="controls"></th>
+			<th class="report_name">ชื่อรายงาน</th>
+			<th class="projects">จำนวนแผนงาน/โครงการที่รายงาน</th>
+			<th class="approval">การรับรองรายงาน</th>
+		</tr>
+		{% for report in reports %}
+		<tr>
+			<td class="controls">
+				<a href="{% url view_sector_edit_report sector.id report.id %}" title="แก้ไขรายงาน"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+				{% if report.project_count %}
+				<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบรายงานที่มีแผนงาน/โครงการได้"/>
+				{% else %}
+				<a href="{% url view_sector_delete_report sector.id report.id  %}" title="ลบรายงาน"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+				{% endif %}
+				
+			</td>
+			<td class="report_name">{{report.name}}</td>
+			<td class="projects">{{report.project_count}}</td>
+			<td class="approval">{% if report.need_approval %}ต้องมีการรับรองรายงาน{% else %}ไม่ต้องรับรองรายงาน{% endif %}</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+{% endblock %}

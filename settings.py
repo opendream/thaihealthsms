@@ -4,6 +4,8 @@ _base = os.path.dirname(__file__)
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+# something
+
 # ADMINS data will be used to create first group of admin account
 # (every user will have 'Administration' as their firstname, without lastname.
 # This firstname and lastname can be changed later)

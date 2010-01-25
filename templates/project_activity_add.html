@@ -26,8 +26,7 @@
 	<div class="tabs">
 		<ul>
 			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
-			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
-			<li><a href="{% url view_project_reports project.id %}">รายงานโครงการ</a></li>
+			<li class="selected">กิจกรรม</li>
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
 
 		</ul>
@@ -37,7 +36,8 @@
 {% endblock %}
 
 {% block body_content %}
-<h1 class="title">เพิ่มกิจกรรม</h1>
+<div class="ss_child_page_header">เพิ่มกิจกรรม <a href="{% url view_project_reports project.id %}">กลับไปหน้ากิจกรรม &#187;</a></div>
+
 {% if form.errors %} 
 	{% if form.name.errors %}
 		<span class="label">"{{form.name.label}}"</span> {{form.name.errors}}

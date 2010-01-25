@@ -10,8 +10,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Sum
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
+from django.core import serializers
+from django.utils import simplejson
 
 from thaihealthsms.shortcuts import render_response, access_denied
 
@@ -36,22 +38,22 @@ def view_frontpage(request):
 def view_frontpage(request):
 	if request.user.is_superuser:
 		return _view_admin_frontpage(request)
-		
+
 	else:
 		primary_role = request.user.groups.all()[0] # Currently support only 1 role per user
-		
+
 		if primary_role.name == "sector_admin":
 			return _view_sector_admin_frontpage(request)
-		
+
 		elif primary_role.name == "sector_manager":
 			return _view_sector_manager_frontpage(request)
-		
+
 		elif primary_role.name == "sector_manager_assistant":
 			return _view_sector_manager_assistant_frontpage(request)
-		
+
 		elif primary_role.name == "project_manager":
 			return _view_project_manager_frontpage(request)
-		
+
 		elif primary_role.name == "project_manager_assistant":
 			return _view_project_manager_assistant_frontpage(request)
 
@@ -69,11 +71,11 @@ def _view_sector_manager_assistant_frontpage(request):
 	projects = responsibility.projects.all()
 	for project in projects:
 		project.reports = report_functions.get_submitted_and_overdue_reports(project)
-		
+
 		for report in project.reports:
 			for schedule in report.schedules:
 				schedule.comment_count = Comment.objects.filter(object_name='report', object_id=schedule.id).count()
-	
+
 	return render_response(request, "dashboard_sector_assistant.html", {'projects':projects})
 
 def _view_project_manager_frontpage(request):
@@ -122,6 +124,10 @@ def view_dashboard_comments(request):
 
 	return render_response(request, "dashboard_comments.html", {'objects':objects})
 
+@login_required
+def view_dashboard_comments_outbox(request):
+	return render_response(request, "dashboard_comments_outbox.html", {'objects':objects})
+
 #
 # ADMIN
 #
@@ -134,55 +140,209 @@ def view_administer_organization(request):
 	user_account = request.user.get_profile()
 	if not request.user.is_superuser: return access_denied(request)
 	
-	return render_response(request, "administer_organization.html", {})
+	sectors = Sector.objects.all().order_by('ref_no')
+	for sector in sectors:
+		sector.has_child = MasterPlan.objects.filter(sector=sector).count() > 0
+	
+	master_plans = MasterPlan.objects.all().order_by('ref_no')
+	for master_plan in master_plans:
+		master_plan.has_child = Plan.objects.filter(master_plan=master_plan).count() > 0 or Project.objects.filter(master_plan=master_plan).count()
+	
+	return render_response(request, "administer_organization.html", {'sectors':sectors, 'master_plans':master_plans})
+
+@login_required
+def view_administer_organization_add_sector(request):
+	if request.method == 'POST':
+		form = SectorForm(request.POST)
+		if form.is_valid():
+			Sector.objects.create(ref_no=form.cleaned_data['ref_no'], name=form.cleaned_data['name'])
+			
+			return redirect('view_administer_organization')
+	else:
+		form = SectorForm()
+
+	return render_response(request, "administer_organization_add_sector.html", {'form':form})
+
+@login_required
+def view_administer_organization_edit_sector(request, sector_id):
+	sector = get_object_or_404(Sector, pk=sector_id)
+	
+	if request.method == 'POST':
+		form = SectorForm(request.POST)
+		if form.is_valid():
+			sector.ref_no = form.cleaned_data['ref_no']
+			sector.name = form.cleaned_data['name']
+			sector.save()
+			
+			return redirect('view_administer_organization')
+
+	else:
+		form = SectorForm(initial={'ref_no':sector.ref_no, 'name':sector.name})
+
+	return render_response(request, "administer_organization_edit_sector.html", {'form':form})
+
+@login_required
+def view_administer_organization_delete_sector(request, sector_id):
+	sector = get_object_or_404(Sector, pk=sector_id)
+	sector.delete()
+	return redirect('view_administer_organization')
+
+@login_required
+def view_administer_organization_add_masterplan(request):
+	if request.method == 'POST':
+		form = AddMasterPlanForm(request.POST)
+		if form.is_valid():
+			ref_no = form.cleaned_data['ref_no']
+			name = form.cleaned_data['name']
+			sector = Sector.objects.get(pk=form.cleaned_data['sector'])
+			year_start = form.cleaned_data['year_start']
+			year_end = form.cleaned_data['year_end']
+			
+			# TODO Get year period object
+			
+			MasterPlan.objects.create(sector=sector, ref_no=ref_no, name=name, year_period=year_period)
+
+			return redirect('view_administer_organization')
+	
+	else:
+		form = AddMasterPlanForm()
+	
+	return render_response(request, "administer_organization_add_masterplan.html", {'form':form})
+
+@login_required
+def view_administer_organization_edit_masterplan(request, master_plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	
+	if request.method == 'POST':
+		form = EditMasterPlanForm(request.POST)
+		if form.is_valid():
+			master_plan.sector = Sector.objects.get(pk=form.cleaned_data['sector'])
+			master_plan.ref_no = form.cleaned_data['ref_no']
+			master_plan.name = form.cleaned_data['name']
+			
+			return redirect('view_administer_organization')
+	
+	else:
+		form = EditMasterPlanForm(initial={'sector':master_plan.sector.id, 'ref_no':master_plan.ref_no, 'name':master_plan.name})
+	
+	return render_response(request, "administer_organization_edit_masterplan.html", {'form':form})
+
+@login_required
+def view_administer_organization_delete_masterplan(request, master_plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	master_plan.delete()
+	return redirect('view_administer_organization')
 
 @login_required
 def view_administer_users(request):
 	user_account = request.user.get_profile()
 	if not request.user.is_superuser: return access_denied(request)
-	
-	return render_response(request, "administer_users.html", {})
 
+	users = User.objects.all()
+	for user in users:
+		resps = UserRoleResponsibility.objects.filter(user=user.get_profile())
+
+		projects = []
+		roles = []
+		for resp in resps:
+			projects += [project.name for project in resp.projects.all()]
+			roles += [resp.role.name]
+		user.projects = ', '.join(projects)
+		user.roles = ', '.join(roles)
+
+
+	return render_response(request, "administer_users.html", {'users': users})
+
+@login_required
+def view_administer_users_delete(request, user_id):
+	user = User.objects.get(pk=user_id)
+	user_account = user.get_profile()
+	UserRoleResponsibility.objects.filter(user=user_account).delete()
+	user_account.delete()
+	user.delete()
+	
+	return HttpResponse(simplejson.dumps({'status': 'complete'}))
+	
 #
 # SECTOR
 #
 @login_required
 def view_sectors(request):
 	sectors = Sector.objects.all().order_by('ref_no')
+	current_date = date.today().replace(day=1)
 
 	for sector in sectors:
-		sector.master_plans = MasterPlan.objects.filter(sector=sector, is_active=True).order_by('ref_no')
+		sector.master_plans = MasterPlan.objects.filter(sector=sector, year_period__start__lte=current_date, year_period__end__gte=current_date).order_by('ref_no')
 
 	return render_response(request, "sectors_overview.html", {'sectors':sectors})
-	
+
 @login_required
 def view_sector_overview(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
 	current_date = date.today()
 	current_year = current_date.year
-	
-	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True, start_year__lte=current_year, end_year__gte=current_year).order_by('ref_no')
-	
+
+	master_plans = MasterPlan.objects.filter(sector=sector, year_period__start__lte=current_date, year_period__end__gte=current_date).order_by('ref_no')
+
 	return render_response(request, "sector_overview.html", {'sector':sector, 'master_plans':master_plans,})
 
 @login_required
-def view_sector_master_plans(request, sector_id):
+def view_sector_reports(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
-	current_date = date.today()
+	reports = Report.objects.filter(sector=sector).order_by('created')
+	
+	for report in reports:
+		report.project_count = ReportProject.objects.filter(report=report).count()
+	
+	return render_response(request, "sector_reports.html", {'sector':sector, 'reports':reports})
 
-	master_plans = MasterPlan.objects.filter(sector=sector, is_active=True)
+@login_required
+def view_sector_add_report(request, sector_id):
+	sector = get_object_or_404(Sector, pk=sector_id)
+	
+	if request.method == 'POST':
+		form = SectorReportForm(request.POST)
+		if form.is_valid():
+			report_name = form.cleaned_data['name']
+			need_approval = form.cleaned_data['need_approval']
+			
+			Report.objects.create(name=report_name, need_approval=need_approval, need_checkup=True, sector=sector, created_by=request.user.get_profile())
+			
+			return redirect('view_sector_reports', (sector.id))
+			
+	else:
+		form = SectorReportForm()
+	
+	return render_response(request, "sector_report_add.html", {'sector':sector, 'form':form})
 
-	for master_plan in master_plans:
-		master_plan.plans = Plan.objects.filter(master_plan=master_plan)
+@login_required
+def view_sector_edit_report(request, sector_id, report_id):
+	sector = get_object_or_404(Sector, pk=sector_id)
+	report = get_object_or_404(Report, pk=report_id)
+	
+	if request.method == 'POST':
+		form = SectorReportForm(request.POST)
+		if form.is_valid():
+			report.name = form.cleaned_data['name']
+			report.need_approval = form.cleaned_data['need_approval']
+			report.save()
+			
+			return redirect('view_sector_reports', (sector.id))
+			
+	else:
+		form = SectorReportForm(initial={'name':report.name, 'need_approval':report.need_approval})
+	
+	return render_response(request, "sector_report_edit.html", {'sector':sector, 'form':form})
 
-		for plan in master_plan.plans:
-			plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-			plan.future_projects = Project.objects.filter(plan=plan, start_date__gt=current_date)
-			plan.past_projects = Project.objects.filter(plan=plan, end_date__lt=current_date)
-
-		master_plan.projects = Project.objects.filter(master_plan=master_plan, plan=None, parent_project=None)
-
-	return render_response(request, "sector_master_plans.html", {'sector':sector, 'master_plans':master_plans})
+@login_required
+def view_sector_delete_report(request, sector_id, report_id):
+	sector = get_object_or_404(Sector, pk=sector_id)
+	report = get_object_or_404(Report, pk=report_id)
+	
+	project_count = ReportProject.objects.filter(report=report).count()
+	if not project_count: report.delete()
+	
+	return redirect('view_sector_reports', (sector.id))
 
 #
 # MASTER PLAN
@@ -191,15 +351,13 @@ def view_sector_master_plans(request, sector_id):
 def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	current_date = date.today()
-	current_year = utilities.what_is_current_year(master_plan)
-	
-	master_plan.years = range(master_plan.start_year, master_plan.end_year+1)
+	current_year = utilities.current_year_number()
 	
 	# Plans
 	plans = Plan.objects.filter(master_plan=master_plan)
 	for plan in plans:
 		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-		
+	
 	master_plan.plans = plans
 	
 	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, 'current_year':current_year})
@@ -207,18 +365,54 @@ def view_master_plan_overview(request, master_plan_id):
 @login_required
 def view_master_plan_plans(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
-	current_date = date.today()
-
+	
 	plans = Plan.objects.filter(master_plan=master_plan)
 
 	for plan in plans:
-		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-		plan.future_projects = Project.objects.filter(plan=plan, start_date__gt=current_date)
-		plan.past_projects = Project.objects.filter(plan=plan, end_date__lt=current_date)
+		plan.projects = Project.objects.filter(plan=plan).order_by('-start_date')
 		
-		plan.unscheduled_projects = Project.objects.filter(plan=plan, start_date=None, end_date=None)
-	
 	return render_response(request, "master_plan_plans.html", {'master_plan':master_plan, 'plans':plans})
+
+@login_required
+def view_master_plan_organization(request, master_plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	
+	plans = Plan.objects.filter(master_plan=master_plan)
+
+	for plan in plans:
+		plan.projects = Project.objects.filter(plan=plan).order_by('-start_date')
+	
+	return render_response(request, "master_plan_organization.html", {'master_plan':master_plan, 'plans':plans})
+
+@login_required
+def view_master_plan_add_plan(request, master_plan_id):
+	
+	return render_response(request, "master_plan_add_plan.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_edit_plan(request, master_plan_id, plan_id):
+	
+	return render_response(request, "master_plan_edit_plan.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_delete_plan(request, master_plan_id, plan_id):
+	
+	pass
+
+@login_required
+def view_master_plan_add_project(request, master_plan_id):
+	
+	return render_response(request, "master_plan_add_project.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_edit_project(request, master_plan_id, project_id):
+	
+	return render_response(request, "master_plan_edit_project.html", {'master_plan':master_plan, })
+
+@login_required
+def view_master_plan_delete_project(request, master_plan_id, project_id):
+	
+	pass
 
 #
 # PROJECT
@@ -227,21 +421,23 @@ def view_master_plan_plans(request, master_plan_id):
 def view_project_overview(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 	current_date = date.today()
-	
+
 	if not project.parent_project:
 		current_projects = Project.objects.filter(parent_project=project, start_date__lte=current_date, end_date__gte=current_date)
-	
+
+		report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
+
+		return render_response(request, "project_overview.html", {'project':project, 'current_projects':current_projects, 'report_schedules':report_schedules})
+
 	else:
-		pass # Find current activities
-	
-	report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
-	
-	return render_response(request, "project_overview.html", {'project':project, 'current_projects':current_projects, 'report_schedules':report_schedules})
+		current_activities = Activity.objects.filter(project=project, start_date__lte=current_date, end_date__gte=current_date)
+
+		return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities})
 
 @login_required
 def view_project_projects(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-	
+
 	projects = Project.objects.filter(parent_project=project).order_by('-start_date')
 
 	return render_response(request, "project_projects.html", {'project':project, 'projects':projects})
@@ -253,30 +449,30 @@ def view_project_add(request, project_id):
 @login_required
 def view_project_reports(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-	
+
 	report_projects = ReportProject.objects.filter(project=project)
-	
+
 	for report_project in report_projects:
 		report_project.schedules = ReportSchedule.objects.filter(report_project=report_project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_checkup=False))).order_by('-due_date')
-		
+
 		year_list = set()
 		for schedule in report_project.schedules: year_list.add(schedule.due_date.year)
 		year_list = sorted(year_list, reverse=True)
-		
+
 		report_project.year_list = year_list
-	
+
 	return render_response(request, "project_reports.html", {'project':project, 'report_projects':report_projects})
 
 @login_required
 def view_project_reports_add(request, project_id):
-	
+
 	pass
 
 @login_required
 def view_project_reports_send(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 	reports = report_functions.get_nextdue_and_overdue_reports(project_id)
-	
+
 	for report in reports:
 		for schedule in report.schedules:
 			schedule.comment_count = Comment.objects.filter(object_name='report', object_id=schedule.id).count()
@@ -296,7 +492,7 @@ def view_program_comments(request, program_id):
 
 	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='program', \
 		comment__object_id=program_id).update(is_read=True)
-	
+
 	return render_response(request, "project_comments.html", {'project':program, 'comments':comments})
 
 #
@@ -309,10 +505,11 @@ def view_program_comments(request, program_id):
 #
 #	report_projects = ReportProject.objects.filter(project=project)
 #	report_schedules = ReportSchedule.objects.filter(report_project__in=report_projects, is_submitted=True, last_activity=APPROVE_ACTIVITY).order_by('-due_date')
-#	
+#
 #	current_activities = project.activity_set.filter(start_date__lte=current_date, end_date__gte=current_date).order_by('end_date')
 #	future_activities = project.activity_set.filter(start_date__gt=current_date).order_by('start_date')
 #	return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities, 'report_schedules':report_schedules})
+
 
 # Helper function to find previous and next month.
 def prev_month(year, month, num=1):
@@ -339,11 +536,9 @@ def next_month(year, month, num=1):
 @login_required
 def view_project_activities(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-
 	current_date = date.today()
-	current_activities = Activity.objects.filter(project=project, start_date__lte=current_date, end_date__gte=current_date)
-	future_activities = Activity.objects.filter(project=project, start_date__gt=current_date)
-	past_activities = Activity.objects.filter(project=project, end_date__lt=current_date)
+
+	activities = Activity.objects.filter(project=project).order_by('-start_date')
 
 	# Find activities in past month, current month and next month.
 	num = 3
@@ -360,7 +555,7 @@ def view_project_activities(request, project_id):
 		Q(start_date__lte=end) & Q(start_date__gte=start) | \
 		Q(end_date__lte=end) & Q(end_date__gte=start))
 
-	return render_response(request, "project_activities.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities, 'past_activities':past_activities,'recent_activities':recent_activities,'prev_month':prev_month_,'next_month':next_month_})
+	return render_response(request, "project_activities.html", {'project':project, 'activities':activities, 'recent_activities':recent_activities,'prev_month':prev_month_,'next_month':next_month_})
 
 @login_required
 def view_project_activities_ajax(request, project_id, yearmonth):
@@ -521,69 +716,69 @@ def view_activity_comments(request, activity_id):
 @login_required
 def view_report_overview(request, report_id):
 	report_schedule = get_object_or_404(ReportSchedule, pk=report_id)
-	
+
 	if request.method == 'POST':
 		submit_type = request.POST.get('submit')
-		
+
 		if submit_type == 'submit-file':
 			schedule_id = request.POST.get("schedule_id")
 			schedule = ReportSchedule.objects.get(pk=schedule_id)
-			
+
 			file_response = ReportScheduleFileResponse.objects.create(schedule=schedule, uploaded_by=request.user.get_profile())
-			
+
 			# Uploading directory
 			uploading_directory = "%s/%d/" % (settings.REPORT_SUBMIT_FILE_PATH, schedule.id)
 			if not os.path.exists(uploading_directory): os.makedirs(uploading_directory)
-			
+
 			# Uploading file
 			uploading_file = request.FILES['uploading_file']
 			(file_name, separator, file_ext) = uploading_file.name.rpartition('.')
-			
+
 			unique_filename = '%s.%s' % (file_name, file_ext)
 			if os.path.isfile('%s%s' % (uploading_directory, unique_filename)):
 				# Duplicated filename
 				suffix_counter = 1
-				
+
 				while os.path.isfile('%s%s(%d).%s' % (uploading_directory, file_name, suffix_counter, file_ext)):
 					suffix_counter = suffix_counter + 1
-				
+
 				unique_filename = '%s(%d).%s' % (file_name, suffix_counter, file_ext)
-			
+
 			file_response.filename = unique_filename
 			file_response.save()
-			
+
 			destination = open(uploading_directory + unique_filename, 'wb')
 			for chunk in request.FILES['uploading_file'].chunks(): destination.write(chunk)
 			destination.close()
-		
+
 		elif submit_type == 'submit-text':
 			schedule_id = request.POST.get("schedule_id")
 			schedule = ReportSchedule.objects.get(pk=schedule_id)
-			
+
 			text = request.POST.get("text")
-			
+
 			try:
 				text_response = ReportScheduleTextResponse.objects.get(schedule=schedule)
-				
+
 			except ReportScheduleTextResponse.DoesNotExist:
 				text_response = ReportScheduleTextResponse.objects.create(schedule=schedule, submitted_by=request.user.get_profile())
-			
+
 			text_response.text = text
 			text_response.save()
-		
+
 		elif submit_type == 'submit-report':
 			schedule_id = request.POST.get("schedule_id")
 			schedule = ReportSchedule.objects.get(pk=schedule_id)
-			
+
 			schedule.state = SUBMIT_ACTIVITY
 			schedule.submitted_on = datetime.now()
 			schedule.approval_on = None
 			schedule.save()
-			
+
 		return redirect('/report/%d/' % schedule.id)
-	
+
 	current_date = date.today()
-	
+
 	if report_schedule.state == NO_ACTIVITY and report_schedule.due_date < current_date:
 		report_schedule.status_code = 'overdue'
 	elif report_schedule.state == NO_ACTIVITY:
@@ -596,18 +791,18 @@ def view_report_overview(request, report_id):
 		report_schedule.status_code = 'approved'
 	elif report_schedule.state == APPROVE_ACTIVITY:
 		report_schedule.status_code = 'rejected'
-	
+
 	report_schedule.allow_modifying = report_schedule.status_code in ('overdue', 'not_submitted', 'rejected')
-	
+
 	try:
 		report_schedule.text_response = ReportScheduleTextResponse.objects.get(schedule=report_schedule)
 	except ReportScheduleTextResponse.DoesNotExist:
 		report_schedule.text_response = ''
-	
+
 	report_schedule.files = ReportScheduleFileResponse.objects.filter(schedule=report_schedule)
-	
+
 	print report_schedule.files
-	
+
 	return render_response(request, "report_overview.html", {'report_schedule':report_schedule, 'REPORT_SUBMIT_FILE_URL':settings.REPORT_SUBMIT_FILE_URL, })
 
 @login_required

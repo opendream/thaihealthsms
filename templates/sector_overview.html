@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
-{% load interface_tags %}
-{% load helper %}
+{% load helper interface_tags %}
 
 {% block html_head %}
 
@@ -15,8 +14,9 @@
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
-			<li class="selected">ภาพรวม</li>
+			<li><a href="{% url view_sector_overview sector.id %}">ภาพรวม</a></li>
 			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
+			<li class="right_item"><a href="{% url view_sector_reports sector.id %}">รูปแบบรายงาน</a></li>
 		</ul>
 		<div class="clear"></div>
 	</div>

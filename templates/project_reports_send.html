@@ -20,7 +20,7 @@
 			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
 			{% if not project.parent_project %}
 			<li><a href="{% url view_project_projects project.id %}">โครงการ</a></li>
-			<li><a href="{% url view_project_reports project.id %}">รายงาน</a></li>
+			<li class="selected">รายงาน</li>
 			{% else %}
 			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
 			{% endif %}
@@ -32,8 +32,9 @@
 {% endblock %}
 
 {% block body_content %}
+<div class="ss_child_page_header">รายงานที่ต้องส่ง <a href="{% url view_project_reports project.id %}">กลับไปหน้ารายงาน &#187;</a></div>
+
 <div class="send_reports_page">
-	<div class="breadcrumbs"><a href="{% url view_project_reports project.id %}">หน้ารายงาน</a> &#187; รายงานที่ต้องส่ง</div>
 	{% if reports %}
 	<ul class="reports">
 		{% for report in reports %}

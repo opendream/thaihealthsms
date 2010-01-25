@@ -6,11 +6,6 @@
 {% block post_comment_ajax_callback %}{% endblock %}
 
 {% block html_head %}
-<script type="text/javascript">
-$(document).ready(function() {
-	bindCommentBox($(".post-comment"));
-});
-</script>
 {% endblock %}
 
 {% block body_title %}
@@ -25,7 +20,7 @@ $(document).ready(function() {
 			<li class="selected">{% trans 'Overview' %}</li>
 			{% if not project.parent_project %}
 			<li><a href="{% url view_project_projects project.id %}">{% trans 'Projects' %}</a></li>
-			<li><a href="{% url view_project_reports project.id %}">{% trans 'Reports' %}</a></li>
+			<li><a href="{% url view_project_reports project.id %}">รายงาน</a></li>
 			{% else %}
 			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
 			{% endif %}
