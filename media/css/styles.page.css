@@ -137,7 +137,7 @@ COMMENT INBOX PAGE
 .comment_inbox_page .comments li .sender {color:#333;font-size:108%;font-weight:bold;background-color:#A9C5DB;padding:5px 10px;}
 .comment_inbox_page .comments li p {font-size:116%;padding:10px;}
 .comment_inbox_page .comments li .metadata {float:right;color:#333;font-weight:normal;}
-
+.comment_inbox_page .feedback {background-color:#ddd; color:#666; padding: 5px 10px;}
 
 
 /*
