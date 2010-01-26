@@ -30,6 +30,15 @@
 	<ul>
 		<li><label for="id_name">{{form.name.label}}</label><div class="input LONG">{{form.name}}</div></li>
 		<li><label for="id_need_approval">{{form.need_approval}} {{form.need_approval.label}}</label></li>
+		<li class="single_line">
+			<label for="id_schedule_cycle_length">ส่งรายงานทุกๆ:</label>
+			<span class="SHORT">{{form.schedule_cycle_length}}</span>
+			<label>เดือน</label>
+		</li>
+		<li class="single_line">
+			<label for="id_schedule_monthly_date">ในวันที่:</label>
+			<span class="SHORT">{{form.schedule_monthly_date}}</span>
+		</li>
 	</ul>
 	<div class="button_panel"><button>แก้ไขรายงาน</button></div>
 </form>

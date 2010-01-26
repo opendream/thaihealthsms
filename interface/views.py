@@ -81,13 +81,13 @@ def _view_sector_manager_assistant_frontpage(request):
 	return render_response(request, "dashboard_sector_assistant.html", {'projects':projects})
 
 def _view_project_manager_frontpage(request):
-	manager = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name='project_manager')
-	project = manager[0].projects.all()[0]
+	responsibility = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name='project_manager')
+	project = responsibility[0].projects.all()[0]
 	return redirect("/project/%d/" % project.id)
 
 def _view_project_manager_assistant_frontpage(request):
-	responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile(), role__name="project_manager_assistant")
-	project = manager[0].projects.all()[0]
+	responsibility = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name="project_manager_assistant")
+	project = responsibility[0].projects.all()[0]
 	return redirect("/project/%d/" % project.id)
 
 @login_required
@@ -380,8 +380,10 @@ def view_sector_add_report(request, sector_id):
 		if form.is_valid():
 			report_name = form.cleaned_data['name']
 			need_approval = form.cleaned_data['need_approval']
+			schedule_cycle_length = form.cleaned_data['schedule_cycle_length']
+			schedule_monthly_date = form.cleaned_data['schedule_monthly_date']
 
-			Report.objects.create(name=report_name, need_approval=need_approval, need_checkup=True, sector=sector, created_by=request.user.get_profile())
+			Report.objects.create(name=report_name, need_approval=need_approval, need_checkup=True, schedule_cycle_length=schedule_cycle_length, schedule_monthly_date=schedule_monthly_date, sector=sector, created_by=request.user.get_profile())
 
 			return redirect('view_sector_reports', (sector.id))
 
@@ -405,7 +407,7 @@ def view_sector_edit_report(request, sector_id, report_id):
 			return redirect('view_sector_reports', (sector.id))
 
 	else:
-		form = SectorReportForm(initial={'name':report.name, 'need_approval':report.need_approval})
+		form = SectorReportForm(initial={'name':report.name, 'need_approval':report.need_approval, 'schedule_cycle_length':report.schedule_cycle_length, 'schedule_monthly_date':report.schedule_monthly_date})
 
 	return render_response(request, "sector_report_edit.html", {'sector':sector, 'form':form})
 
@@ -456,31 +458,66 @@ def view_master_plan_organization(request, master_plan_id):
 
 	for plan in plans:
 		plan.projects = Project.objects.filter(plan=plan).order_by('-start_date')
+		for project in plan.projects:
+			if Project.objects.filter(parent_project=project).count():
+				project.has_child = True
 
 	return render_response(request, "master_plan_organization.html", {'master_plan':master_plan, 'plans':plans})
 
 @login_required
 def view_master_plan_add_plan(request, master_plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	if request.method == 'POST':
+		form = PlanForm(request.POST)
+		if form.is_valid():
+			cleaned_data = form.cleaned_data
+			plan = Plan.objects.create(ref_no=cleaned_data['ref_no'], name=cleaned_data['name'], master_plan=master_plan)
+			set_message(request, u"เพิ่ม %s แล้ว" % plan.name)
 
-	return render_response(request, "master_plan_add_plan.html", {'master_plan':master_plan, })
+			return redirect('view_master_plan_organization', (master_plan_id))
+	else:
+		form = PlanForm()
+
+	return render_response(request, "master_plan_add_plan.html", {'master_plan':master_plan, 'form':form})
 
 @login_required
 def view_master_plan_edit_plan(request, master_plan_id, plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	plan = get_object_or_404(Plan, pk=plan_id)
 
-	return render_response(request, "master_plan_edit_plan.html", {'master_plan':master_plan, })
+	if request.method == 'POST':
+		form = PlanForm(request.POST)
+		if form.is_valid():
+			cleaned_data = form.cleaned_data
+			plan.ref_no = cleaned_data['ref_no']
+			plan.name = cleaned_data['name']
+			plan.save()
+
+			set_message(request, u"บันทึกการเปลี่ยนแปลงของ %s แล้ว" % plan.name)
+
+			return redirect('view_master_plan_organization', (master_plan_id))
+	else:
+		form = PlanForm(initial={'ref_no':plan.ref_no, 'name':plan.name})
+
+	return render_response(request, "master_plan_edit_plan.html", {'master_plan':master_plan, 'form':form})
 
 @login_required
 def view_master_plan_delete_plan(request, master_plan_id, plan_id):
+	plan = get_object_or_404(Plan, pk=plan_id)
+	plan.delete()
+	set_message(request, u"กลุ่มแผนงาน <em>%s</em> ถูกลบแล้ว" % plan.name)
 
-	pass
+	return redirect('view_master_plan_organization', (master_plan_id))
 
 @login_required
 def view_master_plan_add_project(request, master_plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
 	return render_response(request, "master_plan_add_project.html", {'master_plan':master_plan, })
 
 @login_required
 def view_master_plan_edit_project(request, master_plan_id, project_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
 	return render_response(request, "master_plan_edit_project.html", {'master_plan':master_plan, })
 
@@ -591,49 +628,49 @@ def view_project_reports(request, project_id):
 def view_project_reports_list(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 	report_projects = ReportProject.objects.filter(project=project)
-	
+
 	sector_reports = list()
 	project_reports = list()
-	
+
 	for report_project in report_projects:
 		if report_project.report.sector:
 			sector_reports.append(report_project.report)
 		else:
 			project_reports.append(report_project.report)
-	
+
 	return render_response(request, "project_reports_list.html", {'project':project, 'sector_reports':sector_reports, 'project_reports':project_reports})
 
 @login_required
 def view_project_reports_add(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-	
+
 	if request.method == 'POST':
 		form = AddProjectReportForm(request.POST)
 		if form.is_valid():
 			form.cleaned_data['name']
 			form.cleaned_data['name']
-			
-			
+
+
 			pass
-		
+
 	else:
 		form = AddProjectReportForm()
-	
+
 	return render_response(request, "project_reports_add.html", {'project':project, 'form':form})
 
 @login_required
 def view_project_report_edit(request, project_id, report_id):
 	project = get_object_or_404(Project, pk=project_id)
 	report = get_object_or_404(Report, pk=report_id)
-	
+
 	if request.method == 'POST':
 		form = EditProjectReportForm(request.POST)
 		if form.is_valid():
 			pass
-		
+
 	else:
 		form = EditProjectReportForm(initial={})
-	
+
 	return render_response(request, "project_reports_edit.html", {'project':project, 'form':form})
 
 @login_required
@@ -753,15 +790,15 @@ def view_project_activities_ajax(request, project_id, yearmonth):
 @login_required
 def view_activity_add(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-	
+
 	head_project = project.parent_project if project.parent_project else project
-	
+
 	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
 		if request.method == "POST":
 			form = ActivityForm(request.POST)
 			if form.is_valid():
 				activity = Activity()
-				
+
 				activity.project     = project
 				activity.name        = form.cleaned_data['name']
 				activity.start_date  = form.cleaned_data['start_date']
@@ -771,9 +808,9 @@ def view_activity_add(request, project_id):
 				activity.result_goal = form.cleaned_data['result_goal']
 				activity.result_real = form.cleaned_data['result_real']
 				activity.save()
-				
+
 				return redirect('view_activity_overview', (activity.id))
-	
+
 		else:
 			form = ActivityForm()
 	else:
@@ -785,9 +822,9 @@ def view_activity_add(request, project_id):
 def view_activity_edit(request, activity_id):
 	activity = get_object_or_404(Activity, pk=activity_id)
 	project = activity.project
-	
+
 	head_project = project.parent_project if project.parent_project else project
-	
+
 	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
 		if request.method == "POST":
 			form = ActivityForm(request.POST)
@@ -800,9 +837,9 @@ def view_activity_edit(request, activity_id):
 				activity.result_goal = form.cleaned_data['result_goal']
 				activity.result_real = form.cleaned_data['result_real']
 				activity.save()
-				
+
 				return redirect('view_activity_overview', (activity.id))
-	
+
 	else:
 		return redirect('view_activity_overview', (activity.id))
 
@@ -813,13 +850,13 @@ def view_activity_edit(request, activity_id):
 def view_activity_delete(request, activity_id):
 	activity = Activity.objects.get(pk=activity_id)
 	project = activity.project
-	
+
 	head_project = project.parent_project if project.parent_project else project
-	
+
 	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
 		activity.delete()
 		set_message(request, 'ลบกิจกรรมเรียบร้อย')
-	
+
 	return redirect("/project/%d/activities/" % project.id)
 
 @login_required

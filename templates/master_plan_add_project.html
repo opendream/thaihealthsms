@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load interface_tags %}
+{% load helper %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_master_plan_header master_plan %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_master_plan_overview master_plan.id %}">ภาพรวม</a></li>
+			<li class="selected">แผนงาน/โครงการ</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_child_page_header">เพิ่มแผนงาน/โครงการ <a href="{% url view_master_plan_organization master_plan.id %}">กลับไปหน้าจัดโครงสร้างแผนหลัก &#187;</a></div>
+
+
+<div class="master_plan_add_project_page">
+
+</div>
+
+
+{% endblock %}

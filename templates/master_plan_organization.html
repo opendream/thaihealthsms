@@ -3,7 +3,15 @@
 {% load helper %}
 
 {% block html_head %}
-
+<script type="text/javascript" language="javascript" charset="utf-8">
+$(document).ready(function() {
+	$(".delete-plan").click(function(e) {
+		if(!window.confirm("ยืนยันการลบกลุ่มแผนงาน?")) {
+			e.preventDefault();
+		}
+	});
+});
+</script>
 {% endblock %}
 
 {% block body_title %}
@@ -47,7 +55,11 @@
 			<tr class="plan">
 				<td class="controls">
 					<a href="{% url view_master_plan_edit_plan master_plan.id plan.id %}" title="แก้ไขกลุ่มแผนงาน"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
-					<a href="{% url view_master_plan_delete_plan master_plan.id plan.id %}" title="ลบกลุ่มแผนงาน"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+					{% if plan.projects.count %}
+					<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบกลุ่มแผนงานที่มีแผนงาน/โครงการได้"/>
+					{% else %}
+					<a href="{% url view_master_plan_delete_plan master_plan.id plan.id %}" title="ลบกลุ่มแผนงาน" class="delete-plan"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+					{% endif %}
 				</td>
 				<td class="ref_no">{{plan.ref_no}}</td>
 				<td colspan="3" class="name">{{plan.name}}</td>
@@ -56,7 +68,11 @@
 				<tr>
 					<td class="controls">
 					<a href="{% url view_master_plan_edit_project master_plan.id project.id %}" title="แก้ไขแผนงาน/โครงการ"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
-					<a href="{% url view_master_plan_delete_project master_plan.id project.id %}" title="แก้ไขแผนงาน/โครงการ"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+					{% if project.has_child %}
+					<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบแผนงาน/โครงการที่มีกิจกรรมได้"/>
+					{% else %}
+					<a href="{% url view_master_plan_delete_project master_plan.id project.id %}" title="ลบแผนงาน/โครงการ"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+					{% endif %}
 				</td>
 					<td class="ref_no">{{project.ref_no}}</td>
 					<td class="name">{{project.name}}</td>
@@ -69,7 +85,7 @@
 	{% else %}
 	<div class="ss_no_information">ไม่มีข้อมูล</div>
 	{% endif %}
-	
+
 </div>
 
 

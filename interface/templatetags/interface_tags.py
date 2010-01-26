@@ -84,4 +84,10 @@ def print_report_header(report_schedule):
 def project_prefix_name(project):
 	return unicode(PROJECT_TYPE_TEXT[project.prefix_name], "utf-8")
 
+#
+# DISPLAY TAG
+#
+@register.simple_tag
+def display_report_repeating(report):
+	html = 'ส่งรายงานวันที่ %d ในทุกๆ %d เดือน' % (report.schedule_month_cycle, report.schedule_date_due)
 
