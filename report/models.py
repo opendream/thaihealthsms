@@ -15,8 +15,9 @@ class Report(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	created_by = models.ForeignKey('domain.UserAccount')
 	
-	schedule_month_cycle = models.IntegerField(default=0)
-	schedule_date_due = models.IntegerField(default=0) # 0 is end of month
+	schedule_cycle = models.IntegerField(default=3) # 1:Daily, 2:Weekly, 3:Monthly, 4:Yearly
+	schedule_cycle_length = models.IntegerField(default=1)
+	schedule_monthly_date = models.IntegerField(default=1) # 0 is end of month
 
 class ReportProject(models.Model):
 	report = models.ForeignKey('Report')

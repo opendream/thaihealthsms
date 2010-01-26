@@ -81,13 +81,13 @@ def _view_sector_manager_assistant_frontpage(request):
 	return render_response(request, "dashboard_sector_assistant.html", {'projects':projects})
 
 def _view_project_manager_frontpage(request):
-	manager = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name='project_manager')
-	project = manager[0].projects.all()[0]
+	responsibility = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name='project_manager')
+	project = responsibility[0].projects.all()[0]
 	return redirect("/project/%d/" % project.id)
 
 def _view_project_manager_assistant_frontpage(request):
-	responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile(), role__name="project_manager_assistant")
-	project = manager[0].projects.all()[0]
+	responsibility = UserRoleResponsibility.objects.filter(user=request.user.get_profile(), role__name="project_manager_assistant")
+	project = responsibility[0].projects.all()[0]
 	return redirect("/project/%d/" % project.id)
 
 @login_required
@@ -357,8 +357,10 @@ def view_sector_add_report(request, sector_id):
 		if form.is_valid():
 			report_name = form.cleaned_data['name']
 			need_approval = form.cleaned_data['need_approval']
+			schedule_cycle_length = form.cleaned_data['schedule_cycle_length']
+			schedule_monthly_date = form.cleaned_data['schedule_monthly_date']
 
-			Report.objects.create(name=report_name, need_approval=need_approval, need_checkup=True, sector=sector, created_by=request.user.get_profile())
+			Report.objects.create(name=report_name, need_approval=need_approval, need_checkup=True, schedule_cycle_length=schedule_cycle_length, schedule_monthly_date=schedule_monthly_date, sector=sector, created_by=request.user.get_profile())
 
 			return redirect('view_sector_reports', (sector.id))
 
@@ -382,7 +384,7 @@ def view_sector_edit_report(request, sector_id, report_id):
 			return redirect('view_sector_reports', (sector.id))
 
 	else:
-		form = SectorReportForm(initial={'name':report.name, 'need_approval':report.need_approval})
+		form = SectorReportForm(initial={'name':report.name, 'need_approval':report.need_approval, 'schedule_cycle_length':report.schedule_cycle_length, 'schedule_monthly_date':report.schedule_monthly_date})
 
 	return render_response(request, "sector_report_edit.html", {'sector':sector, 'form':form})
 

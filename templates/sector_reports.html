@@ -37,6 +37,7 @@
 			<th class="report_name">ชื่อรายงาน</th>
 			<th class="projects">จำนวนแผนงาน/โครงการที่รายงาน</th>
 			<th class="approval">การรับรองรายงาน</th>
+			<th class="repeating">กำหนดส่งรายงาน</th>
 		</tr>
 		{% for report in reports %}
 		<tr>
@@ -52,6 +53,10 @@
 			<td class="report_name">{{report.name}}</td>
 			<td class="projects">{{report.project_count}}</td>
 			<td class="approval">{% if report.need_approval %}ต้องมีการรับรองรายงาน{% else %}ไม่ต้องรับรองรายงาน{% endif %}</td>
+			<td class="repeating">
+				{% if report.schedule_cycle_length %}ส่งรายงาน{% if report.schedule_monthly_date %}วันที่ {{report.schedule_monthly_date}}{% else %}วันสิ้นเดือน{% endif %} ในทุกๆ {{report.schedule_cycle_length}} เดือน
+				{% else %}ไม่มีข้อมูลกำหนดส่งรายงาน{% endif %}
+			</td>
 		</tr>
 		{% endfor %}
 	</table>

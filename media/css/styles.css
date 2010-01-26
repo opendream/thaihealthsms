@@ -101,16 +101,16 @@ h1.title {font-size:138.5%;font-weight:bold;color:#ED6912;margin-bottom:20px;bor
 .ss_form li .errorlist {margin:3px 0px 0px 0px;color:#C30;}
 .ss_form .button_panel {margin:20px 0px 20px 30px;}
 
+.ss_form .single_line {margin:25px 0px;}
+.ss_form .single_line label {display:inline;}
+.ss_form .single_line select {margin:0px 10px;}
+
+.ss_form .radio_choices {}
+
 .ss_form .LONG input {width:500px;}
 .ss_form .MAX input {width:95%;}
 
 .ss_form .MAX_MEDIUM textarea {width:95%;height:100px;}
-
-.ss_form .DATE_PICKER input {width:150px;}
-.ss_form .DATE_PICKER span.to {padding:0px 15px;}
-.ss_form .DATE_PICKER img {vertical-align:middle;cursor:pointer;}
-.ss_form .DATE_PICKER a:link, .ss_form .DATE_PICKER a:visited, .ss_form .DATE_PICKER a:active {}
-.ss_form .DATE_PICKER a:hover {background:none;color:#369;}
 
 .ss_form .date_period .to {margin:0px 15px;color:#555;}
 
