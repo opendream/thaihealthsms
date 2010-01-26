@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load interface_tags i18n helper %}
+
+{% block post_comment_ajax_url %}/post-comment/object/program/{{project.id}}/{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block html_head %}
+<link href="/media/css/forms.css" type="text/css" rel="stylesheet"></link>
+
+<script type="text/javascript" src="{{ MEDIA_URL }}/scripts/gettext.js" ></script>
+
+<script type="text/javascript" src="/media/js/core.js"></script>
+<script type="text/javascript" src="/media/js/calendar.js"></script>
+<script type="text/javascript" src="/media/js/admin/DateTimeShortcuts.js"></script>
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_project_overview project.id %}">{% trans 'Overview' %}</a></li>
+			<li class="selected">{% trans 'Projects' %}</li>
+			<li><a href="{% url view_project_reports project.id %}">{% trans 'Reports' %}</a></li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">{% trans 'Comments' %}</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_child_page_header">
+	สร้างโครงการ
+	<a href="{% url view_project_projects project.id %}">กลับไปยังหน้ารายการโครงการ>></a>
+</div>
+<div class="projects_form">
+	<form method="post" action="." class="ss_form">
+		<ul>
+			{{form.as_ul}}
+		</ul>
+		<div class="button_panel"><button>เพิ่มโครงการ</button></div>
+	</form>
+</div>
+{% endblock %}

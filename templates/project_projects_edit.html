@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load interface_tags i18n helper %}
+
+{% block post_comment_ajax_url %}{% if not project.parent_project %}/post-comment/object/program/{{project.id}}/{% else %}/post-comment/object/project/{{project.id}}/{% endif %}{% endblock %}
+{% block post_comment_ajax_callback %}{% endblock %}
+
+{% block html_head %}
+<link href="/media/css/forms.css" type="text/css" rel="stylesheet"></link>
+
+<script type="text/javascript" src="{{ MEDIA_URL }}/scripts/gettext.js" ></script>
+
+<script type="text/javascript" src="/media/js/core.js"></script>
+<script type="text/javascript" src="/media/js/calendar.js"></script>
+<script type="text/javascript" src="/media/js/admin/DateTimeShortcuts.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	bindCommentBox($(".post-project-comment"));
+});
+</script>
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_project_overview project.id %}">{% trans 'Overview' %}</a></li>
+			{% if not project.parent_project %}
+			<li><a href="{% url view_project_projects project.id %}">{% trans 'Projects' %}</a></li>
+			<li><a href="{% url view_project_reports project.id %}">{% trans 'Reports' %}</a></li>
+			{% else %}
+			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
+			{% endif %}
+			<li class="selected right_item">แก้ไขโครงการ</li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">{% trans 'Comments' %}</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_child_page_header">
+	แก้ไขโครงการ
+</div>
+<div class="projects_form">
+	<form method="post" action="." class="ss_form">
+		<ul>
+			{{form.as_ul}}
+		</ul>
+		<div class="button_panel"><button>แก้ไขโครงการ</button></div>
+	</form>
+</div>
+{% endblock %}

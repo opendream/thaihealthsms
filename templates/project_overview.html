@@ -27,6 +27,7 @@ $(document).ready(function() {
 			{% else %}
 			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
 			{% endif %}
+			<li class="right_item"><a href="{% url view_project_edit project.id %}">แก้ไขโครงการ</a></li>
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">{% trans 'Comments' %}</a></li>
 		</ul>
 		<div class="clear"></div>

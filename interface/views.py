@@ -496,8 +496,57 @@ def view_project_projects(request, project_id):
 
 @login_required
 def view_project_add(request, project_id):
-	pass
+	parent_project = get_object_or_404(Project, pk=project_id)
 
+	if request.method == "POST":
+		form = ProjectForm(request.POST)
+		if form.is_valid():
+			project = Project.objects.create(
+				sector=parent_project.sector, 
+				master_plan=parent_project.master_plan, 
+				parent_project=parent_project, 
+				prefix_name=Project.PROJECT_IS_PROJECT, 
+				ref_no=form.cleaned_data.get('ref_no'), 
+				name=form.cleaned_data.get('name'), 
+				description=form.cleaned_data('description', ''), 
+				start_date=form.cleaned_data.get('start_date'), 
+				end_date=form.cleaned_data.get('end_date')
+			)
+			utilities.set_message(request, 'Your project has been create.')
+
+			return redirect("/project/%d/" % project.id)
+
+	else:
+		form = ProjectForm()
+
+	return render_response(request, "project_projects_add.html", {'project':parent_project, 'form':form})
+
+@login_required
+def view_project_edit(request, project_id):
+	project = get_object_or_404(Project, pk=project_id)
+	
+	
+
+	if request.method == "POST":
+		form = ProjectForm(request.POST)
+		if form.is_valid():
+			project.ref_no = form.cleaned_data.get('ref_no')
+			project.name = form.cleaned_data.get('name')
+			project.description = form.cleaned_data.get('description', '')
+			project.start_date = form.cleaned_data.get('start_date')
+			project.end_date = form.cleaned_data.get('end_date')
+			
+			project.save()
+			utilities.set_message(request, 'Your project has been update.')
+
+			return redirect("/project/%d/" % project.id)
+
+	else:
+		form = ProjectForm(project.__dict__)
+
+	return render_response(request, "project_projects_edit.html", {'project':project, 'form':form})
+	
+	
 @login_required
 def view_project_reports(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)

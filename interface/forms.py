@@ -225,3 +225,15 @@ class EditProjectReportForm(forms.Form):
 	need_checkup = forms.BooleanField(required=False, label='ส่งรายงานถึงผู้ประสานงานสำนัก')
 	need_approval = forms.BooleanField(required=False, label='ต้องรับรองรายงาน')
 
+class EditMasterPlanForm(forms.Form):
+	ref_no = forms.IntegerField(label='รหัส')
+	name = forms.CharField(max_length=512, label='ชื่อแผน')
+	sector = forms.IntegerField(widget=forms.Select(choices=sectors), label='สังกัดสำนัก')
+
+class ProjectForm(forms.Form):
+	ref_no = forms.CharField(max_length=64, label='เลขที่โครงการ')
+	name = forms.CharField(max_length=512, label='ชื่อโครงการ')
+	description = forms.CharField(widget=forms.Textarea(), required=False, label='รายละเอียด')
+	start_date = forms.DateField(widget=widgets.AdminDateWidget, label='เริ่ม')
+	end_date = forms.DateField(widget=widgets.AdminDateWidget, label='ถึง')
+	
