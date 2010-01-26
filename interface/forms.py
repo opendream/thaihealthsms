@@ -239,3 +239,6 @@ class ProjectForm(forms.Form):
 	start_date = forms.DateField(widget=widgets.AdminDateWidget, label='เริ่ม')
 	end_date = forms.DateField(widget=widgets.AdminDateWidget, label='ถึง')
 	
+class PlanForm(forms.Form):
+	ref_no = forms.CharField(max_length=512, label='รหัส')
+	name = forms.CharField(max_length=512, label='ชื่อกลุ่มแผนงาน')
