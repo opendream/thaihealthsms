@@ -94,23 +94,23 @@ def _view_project_manager_assistant_frontpage(request):
 def view_dashboard_comments(request):
 	user_account = request.user.get_profile()
 
-	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), is_read=False).order_by("-sent_on")
-
 	object_list = list()
 	object_dict = dict()
 
+	# Comments that the user has recieved.
+	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), is_read=False).order_by("-sent_on")
 	for comment in comments:
 		hash_str = "%s%d" % (comment.comment.object_name, comment.comment.object_id)
 		if hash_str not in object_list:
 			object = None
 
-			if comment.comment.object_name == "activity":
+			if comment.comment.object_name == 'activity':
 				object = Activity.objects.get(pk=comment.comment.object_id)
 
-			elif comment.comment.object_name == "project" or comment.comment.object_name == "program":
+			elif comment.comment.object_name == 'project':
 				object = Project.objects.get(pk=comment.comment.object_id)
 
-			elif comment.comment.object_name == "report":
+			elif comment.comment.object_name == 'report':
 				object = ReportSchedule.objects.get(pk=comment.comment.object_id)
 
 			if object:
@@ -119,6 +119,29 @@ def view_dashboard_comments(request):
 
 		else:
 			object_dict[hash_str]['comments'].append(comment)
+
+	# Comments that the user has sent.
+	#comments = Comment.objects.filter(sent_by_id=request.user.id)
+	#for comment in comments:
+	#	hash_str = "%s%d" % (comment.object_name, comment.object_id)
+	#	if hash_str not in object_list:
+	#		object = None
+
+	#		if comment.object_name == 'activity':
+	#			object = Activity.objects.get(pk=comment.object_id)
+
+	#		elif comment.object_name == 'project':
+	#			object = Project.objects.get(pk=comment.object_id)
+
+	#		elif comment.object_name == 'report':
+	#			object = ReportSchedule.objects.get(pk=comment.object_id)
+
+	#		if object:
+	#			object_list.append(hash_str)
+	#			object_dict[hash_str] = {'comment':comment, 'object':object, 'comments':[comment]}
+
+	#	else:
+	#		object_dict[hash_str]['comments'].append(comment)
 
 	objects = list()
 	for object_hash in object_list:

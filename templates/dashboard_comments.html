@@ -22,8 +22,8 @@
 </div>
 <div class="ss_sub_tab_navi">
 	<ul>
-		<li class="selected">กล่องขาเข้า</li>
-		<li><a href="{% url view_dashboard_comments_outbox %}">กล่องขาออก</a></li>
+		<li class="selected">{% trans 'Inbox' %}</li>
+		<li><a href="{% url view_dashboard_comments_outbox %}">{% trans 'Outbox' %}</a></li>
 	</ul>
 	<div class="clear"></div>
 </div>
@@ -35,10 +35,13 @@
 	<ul class="objects">
 		{% for object in objects %}
 		<li>
-			<h3>{{object.object.name}}</h3>
+			{% ifequal object.comment.object_name 'report' %}
+				<h3>{{ object.object.report_project.report.name }} {{ object.object.report_project.project.name }}</h3>
+			{% else %}
+				<h3>{{object.object.name}}</h3>
+			{% endifequal %}
 			
 			{% ifequal object.comment.object_name 'activity' %}<div class="links"><a href="/activity/{{object.object.id}}/comments/">{% trans 'Read All Comments' %}</a></div>{% endifequal %}
-			{% ifequal object.comment.object_name 'program' %}<div class="links"><a href="/program/{{object.object.id}}/comments/">{% trans 'Read All Comments' %}</a></div>{% endifequal %}
 			{% ifequal object.comment.object_name 'project' %}<div class="links"><a href="/project/{{object.object.id}}/comments/">{% trans 'Read All Comments' %}</a></div>{% endifequal %}
 			{% ifequal object.comment.object_name 'report' %}<div class="links"><a href="/report/{{object.object.id}}/comments/">{% trans 'Read All Comments' %}</a></div>{% endifequal %}
 			
@@ -51,6 +54,9 @@
 					  </div>
 					</div>
 					<p>{{comment.comment.message}}</p>
+					{% if comment.comment.commentreply_set.all %}
+						<div class="feedback">{% trans 'Feedbacks' %}: {{ comment.comment.commentreply_set.all.count }}</div>
+					{% endif %}
 				</li>
 				{% endfor %}
 			</ul>
@@ -58,7 +64,7 @@
 		{% endfor %}
 	</ul>
 	{% else %}
-	<div class="ss_no_information">{% trans 'No New Comment' %}</div>
+	<div class="ss_no_information">{% trans 'There are no new comment.' %}</div>
 	{% endif %}
 </div>
 {% endblock %}
