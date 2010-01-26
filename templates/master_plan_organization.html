@@ -10,6 +10,11 @@ $(document).ready(function() {
 			e.preventDefault();
 		}
 	});
+	$(".delete-program").click(function(e) {
+		if(!window.confirm("ยืนยันการลบแผนงาน?")) {
+			e.preventDefault();
+		}
+	});
 });
 </script>
 {% endblock %}
@@ -37,7 +42,7 @@ $(document).ready(function() {
 <div class="ss_control_panel">
 	<ul>
 		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_master_plan_add_plan master_plan.id %}">เพิ่มกลุ่มแผนงาน</a></li>
-		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_master_plan_add_project master_plan.id %}">เพิ่มแผนงาน/โครงการ</a></li>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_master_plan_add_project master_plan.id %}">เพิ่มแผนงาน</a></li>
 	</ul>
 </div>
 
@@ -56,7 +61,7 @@ $(document).ready(function() {
 				<td class="controls">
 					<a href="{% url view_master_plan_edit_plan master_plan.id plan.id %}" title="แก้ไขกลุ่มแผนงาน"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
 					{% if plan.projects.count %}
-					<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบกลุ่มแผนงานที่มีแผนงาน/โครงการได้"/>
+					<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบกลุ่มแผนงานที่มีแผนงานได้"/>
 					{% else %}
 					<a href="{% url view_master_plan_delete_plan master_plan.id plan.id %}" title="ลบกลุ่มแผนงาน" class="delete-plan"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
 					{% endif %}
@@ -67,13 +72,13 @@ $(document).ready(function() {
 			{% for project in plan.projects %}
 				<tr>
 					<td class="controls">
-					<a href="{% url view_master_plan_edit_project master_plan.id project.id %}" title="แก้ไขแผนงาน/โครงการ"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+					<a href="{% url view_master_plan_edit_project master_plan.id project.id %}" title="แก้ไขแผนงาน"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
 					{% if project.has_child %}
-					<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบแผนงาน/โครงการที่มีกิจกรรมได้"/>
+					<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบแผนงานที่มีโครงการย่อยได้"/>
 					{% else %}
-					<a href="{% url view_master_plan_delete_project master_plan.id project.id %}" title="ลบแผนงาน/โครงการ"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+					<a href="{% url view_master_plan_delete_project master_plan.id project.id %}" title="ลบแผนงาน" class="delete-program"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
 					{% endif %}
-				</td>
+					</td>
 					<td class="ref_no">{{project.ref_no}}</td>
 					<td class="name">{{project.name}}</td>
 					<td class="start_date">{% if project.start_date %}{{project.start_date|thai_date}}{% else %}ยังไม่กำหนด{% endif %}</td>

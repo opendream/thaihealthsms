@@ -490,18 +490,109 @@ def view_master_plan_delete_plan(request, master_plan_id, plan_id):
 def view_master_plan_add_project(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
-	return render_response(request, "master_plan_add_project.html", {'master_plan':master_plan, })
+	class CustomMasterPlanAddProjectForm(MasterPlanAddProjectForm):
+		plan = PlanChoiceField(queryset=Plan.objects.filter(master_plan=master_plan), label="สังกัดกลุ่มแผนงาน", empty_label=None)
+		reports = ReportMultipleChoiceField(queryset=Report.objects.filter(sector=master_plan.sector), label="รายงานที่ต้องส่ง")
+
+	if request.method == 'POST':
+		form = CustomMasterPlanAddProjectForm(request.POST)
+		if form.is_valid():
+			cleaned_data = form.cleaned_data
+			project = Project()
+			project.sector = master_plan.sector
+			project.master_plan = master_plan
+			project.plan = cleaned_data['plan']
+			project.prefix_name = Project.PROJECT_IS_PROGRAM
+
+			project.ref_no = cleaned_data['ref_no']
+			project.name = cleaned_data['name']
+			project.description = cleaned_data['description']
+			project.start_date = cleaned_data['start_date']
+			project.end_date = cleaned_data['end_date']
+			project.save()
+
+			for report in cleaned_data['reports']:
+				report_project = ReportProject.objects.create(report=report, project=project)
+
+				# Create ReportSchedule
+				if report.schedule_cycle == 3:
+					# Find next schedule date,
+					# if today(project created day) pass this month schedule
+					# date then use schedule date of next month
+					today = date.today()
+					def schedule_month_date(report, year, month):
+						day = report.schedule_monthly_date
+						first_day, last_day = calendar.monthrange(year, month)
+						if day == 0 or day > last_day:
+							day = last_day
+
+						return date(year, month, day)
+
+					this_month_schedule_date = schedule_month_date(report, today.year, today.month)
+					if today > this_month_schedule_date:
+						year, month = next_month(today.year, today.month)
+						this_month_schedule_date = schedule_month_date(report, year, month)
+
+					cycle_length = report.schedule_cycle_length
+					cycle_counter = 0
+					while this_month_schedule_date <= project.end_date:
+						if cycle_counter == cycle_length:
+							cycle_counter = 0
+							continue
+
+						report_schedule = ReportSchedule.objects.create(
+							report_project=report_project,
+							due_date=this_month_schedule_date
+						)
+						year, month = next_month(this_month_schedule_date.year, this_month_schedule_date.month)
+						this_month_schedule_date = schedule_month_date(report, year, month)
+
+			set_message(request, u"สร้างแผนงาน %s เรียบร้อยแล้ว" % project.name)
+
+			return redirect('view_master_plan_organization', (master_plan_id))
+	else:
+		form = CustomMasterPlanAddProjectForm()
+
+	return render_response(request, "master_plan_add_project.html", {'master_plan':master_plan, 'form':form})
 
 @login_required
 def view_master_plan_edit_project(request, master_plan_id, project_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	project = get_object_or_404(Project, pk=project_id)
 
-	return render_response(request, "master_plan_edit_project.html", {'master_plan':master_plan, })
+	class CustomMasterPlanAddProjectForm(MasterPlanEditProjectForm):
+		plan = PlanChoiceField(queryset=Plan.objects.filter(master_plan=master_plan), label="สังกัดกลุ่มแผนงาน", empty_label=None)
+
+	if request.method == 'POST':
+		form = CustomMasterPlanAddProjectForm(request.POST)
+		if form.is_valid():
+			cleaned_data = form.cleaned_data
+			project.plan = cleaned_data['plan']
+			project.ref_no = cleaned_data['ref_no']
+			project.name = cleaned_data['name']
+			project.description = cleaned_data['description']
+			project.save()
+
+			set_message(request, u"บันทึกการเปลี่ยนแปลงแผนงาน %s เรียบร้อยแล้ว" % project.name)
+			return redirect('view_master_plan_organization', (master_plan_id))
+	else:
+		form = CustomMasterPlanAddProjectForm(initial={'plan':project.plan.id, 'ref_no':project.ref_no, 'name':project.name, 'description':project.description})
+
+	return render_response(request, "master_plan_edit_project.html", {'master_plan':master_plan, 'form':form})
 
 @login_required
 def view_master_plan_delete_project(request, master_plan_id, project_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	project = get_object_or_404(Project, pk=project_id)
 
-	pass
+	report_projects = ReportProject.objects.filter(project=project)
+	ReportSchedule.objects.filter(report_project__in=report_projects).delete()
+	report_projects.delete()
+
+	project.delete()
+
+	set_message(request, u"ลบแผนงาน %s เรียบร้อยแล้ว" % project.name)
+	return redirect('view_master_plan_organization', (master_plan_id))
 
 #
 # PROJECT
@@ -514,7 +605,7 @@ def view_project_overview(request, project_id):
 	if not project.parent_project:
 		current_projects = Project.objects.filter(parent_project=project, start_date__lte=current_date, end_date__gte=current_date)
 
-		report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
+		report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
 
 		return render_response(request, "project_overview.html", {'project':project, 'current_projects':current_projects, 'report_schedules':report_schedules})
 
@@ -539,14 +630,14 @@ def view_project_add(request, project_id):
 		form = ProjectForm(request.POST)
 		if form.is_valid():
 			project = Project.objects.create(
-				sector=parent_project.sector, 
-				master_plan=parent_project.master_plan, 
-				parent_project=parent_project, 
-				prefix_name=Project.PROJECT_IS_PROJECT, 
-				ref_no=form.cleaned_data.get('ref_no'), 
-				name=form.cleaned_data.get('name'), 
-				description=form.cleaned_data('description', ''), 
-				start_date=form.cleaned_data.get('start_date'), 
+				sector=parent_project.sector,
+				master_plan=parent_project.master_plan,
+				parent_project=parent_project,
+				prefix_name=Project.PROJECT_IS_PROJECT,
+				ref_no=form.cleaned_data.get('ref_no'),
+				name=form.cleaned_data.get('name'),
+				description=form.cleaned_data('description', ''),
+				start_date=form.cleaned_data.get('start_date'),
 				end_date=form.cleaned_data.get('end_date')
 			)
 			utilities.set_message(request, 'Your project has been create.')
@@ -561,8 +652,8 @@ def view_project_add(request, project_id):
 @login_required
 def view_project_edit(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-	
-	
+
+
 
 	if request.method == "POST":
 		form = ProjectForm(request.POST)
@@ -572,7 +663,7 @@ def view_project_edit(request, project_id):
 			project.description = form.cleaned_data.get('description', '')
 			project.start_date = form.cleaned_data.get('start_date')
 			project.end_date = form.cleaned_data.get('end_date')
-			
+
 			project.save()
 			utilities.set_message(request, 'Your project has been update.')
 
@@ -582,8 +673,8 @@ def view_project_edit(request, project_id):
 		form = ProjectForm(project.__dict__)
 
 	return render_response(request, "project_projects_edit.html", {'project':project, 'form':form})
-	
-	
+
+
 @login_required
 def view_project_reports(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
