@@ -31,12 +31,11 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block body_content %}
-<!-- TODO Add role check here -->
 {% responsible user 'project_manager,project_manager_assistant' project %}
 <div class="ss_control_panel">
 	<ul>
 		<li><img src="{{MEDIA_URL}}/images/icon_report_send.png" class="icon"/><a href="{% url view_project_reports_send project.id %}">ส่งรายงาน</a></li>
-		<li><img src="{{MEDIA_URL}}/images/icon_list.png" class="icon"/><a href="{% url view_project_reports_list project.id %}">รูปแบบรายงาน</a></li>
+		<li><img src="{{MEDIA_URL}}/images/icon_list.png" class="icon"/><a href="{% url view_project_reports_list project.id %}">ประเภทรายงาน</a></li>
 	</ul>
 </div>
 {% endresponsible %}

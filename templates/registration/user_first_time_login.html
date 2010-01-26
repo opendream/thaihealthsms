@@ -11,15 +11,16 @@
 	<script type="text/javascript" src="{{MEDIA_URL}}/scripts/scripts.js"></script>
 </head>
 <body>
-<div class="login_page">
+<div class="login_page first_login_page">
 	<div class="logo"><img src="{{MEDIA_URL}}/images/thaihealth_color.png"/></div>
 	<h1>Strategy Management Systems</h1>
+	
 	<form action="." method="post">
-		{% if form.errors %}<div class="errors">กรุณาใส่ชื่อผู้ใช้และรหัสผ่านให้ถูกต้อง</div>{% endif %}
+		<h2>ตั้งรหัสผ่านใหม่</h2>
 		<ul>
-			<li><label for="id_username">ชื่อผู้ใช้:</label> {{form.username}}{{form.username.errors}}</li>
-			<li><label for="id_password">รหัสผ่าน:</label> {{form.password}}{{form.password.errors}}</li>
-			<li class="button_panel"><button type="submit">เข้าสู่ระบบ</button> <a href="/accounts/change_password/">ตั้งรหัสผ่านใหม่</a></li>
+			<li><label for="id_password1">รหัสผ่าน:</label> {{form.password1}}{{form.password1.errors}}</li>
+			<li><label for="id_password2">ยืนยันรหัสผ่าน:</label> {{form.password2}}{{form.password2.errors}}</li>
+			<li class="button_panel"><button type="submit">ตกลง</button></li>
 		</ul>
 		{% if next %}<input type="hidden" name="next" value="{{next}}" />{% else %}<input type="hidden" name="next" value="" />{% endif %}
 	</form>

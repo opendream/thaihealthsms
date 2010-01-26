@@ -33,6 +33,71 @@ def view_frontpage(request):
 	if request.user.is_authenticated(): return view_dashboard(request)
 	else: return redirect("/accounts/login/")
 
+from django.contrib.auth.views import login
+from django.contrib.auth import REDIRECT_FIELD_NAME
+
+def hooked_login(request, template_name='registration/login.html', redirect_field_name=REDIRECT_FIELD_NAME):
+	response = login(request, template_name, redirect_field_name)
+	
+	if request.user.is_authenticated():
+		if not request.user.is_superuser and request.user.get_profile().random_password:
+			
+			return redirect('/accounts/first_time/')
+	
+	return response
+
+@login_required
+def view_first_time_login(request):
+	
+	if request.user.is_authenticated():
+		if request.user.is_superuser or (not request.user.is_superuser and not request.user.get_profile().random_password):
+			return redirect('/')
+	
+	if request.method == 'POST':
+		form = ChangeFirstTimePasswordForm(request.POST)
+		if form.is_valid():
+			password1 = form.cleaned_data['password1']
+			password2 =form.cleaned_data['password2']
+			
+			user = request.user
+			user.set_password(password1)
+			user.save()
+			
+			user_account = user.get_profile()
+			user_account.random_password = ''
+			user_account.save()
+			
+			next = request.POST.get('next')
+			if not next: next = '/'
+			return redirect(next)
+		
+	else:
+		form = ChangeFirstTimePasswordForm()
+	
+	next = request.GET.get('next', '')
+	return render_response(request, "registration/user_first_time_login.html", {'form':form, 'next':next})
+
+def view_change_password(request):
+	
+	if request.method == 'POST':
+		form = ChangePasswordForm(request.POST)
+		if form.is_valid():
+			username = form.cleaned_data['username']
+			old_password = form.cleaned_data['old_password']
+			new_password1 = form.cleaned_data['new_password1']
+			new_password2 =form.cleaned_data['new_password2']
+			
+			user = User.objects.get(username=username)
+			user.set_password(new_password1)
+			user.save()
+			
+			return redirect('/accounts/login/')
+		
+	else:
+		form = ChangePasswordForm()
+	
+	return render_response(request, "registration/user_change_password.html", {'form':form,})
+
 #
 # FRONTPAGE
 #
@@ -40,7 +105,7 @@ def view_frontpage(request):
 def view_frontpage(request):
 	if request.user.is_superuser:
 		return _view_admin_frontpage(request)
-
+		
 	else:
 		primary_role = request.user.groups.all()[0] # Currently support only 1 role per user
 
@@ -152,6 +217,38 @@ def view_dashboard_comments(request):
 @login_required
 def view_dashboard_comments_outbox(request):
 	return render_response(request, "dashboard_comments_outbox.html", {'objects':objects})
+
+@login_required
+def view_dashboard_my_projects(request):
+	
+	if request.method == 'POST':
+		projects = request.POST.getlist('project')
+		
+		responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile())
+		
+		for project_id in projects:
+			project = Project.objects.get(pk=project_id)
+			responsibility.projects.add(project)
+		
+		return redirect('view_frontpage')
+		
+	else:
+		responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile())
+		
+		master_plans = MasterPlan.objects.filter(sector=request.user.get_profile().sector)
+		
+		for master_plan in master_plans:
+			master_plan.projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
+			for project in master_plan.projects: project.responsible = _responsible_this_project(project, responsibility.projects.all())
+		
+		return render_response(request, "dashboard_sector_assistant_projects.html", {'master_plans':master_plans})
+
+def _responsible_this_project(project, my_projects):
+	for my_project in my_projects:
+		if my_project.id == project.id:
+			return True
+	
+	return False
 
 #
 # ADMIN
@@ -321,8 +418,151 @@ def view_administer_users(request):
 		user.projects = ', '.join(projects)
 		user.roles = ', '.join(roles)
 
-
 	return render_response(request, "administer_users.html", {'users': users})
+
+@login_required
+def view_administer_users_add(request):
+	if not request.user.is_superuser: return access_denied(request)
+	
+	if request.method == 'POST':
+		form = UserAccountForm(request.POST)
+		if form.is_valid():
+			username = form.cleaned_data['username']
+			email = form.cleaned_data['email']
+			first_name = form.cleaned_data['first_name']
+			last_name = form.cleaned_data['last_name']
+			role = form.cleaned_data['role']
+			sector = Sector(id=form.cleaned_data['sector'])
+			responsible = form.cleaned_data['responsible']
+			
+			password = utilities.make_random_user_password()
+			
+			user = User.objects.create_user(username, email, password=password)
+			user_account = UserAccount.objects.get(user=user)
+			user_account.first_name = first_name
+			user_account.last_name = last_name
+			user_account.random_password = password
+			user_account.sector = sector
+			user_account.save()
+			
+			group = Group.objects.get(name=role)
+			
+			user.groups.add(group)
+			responsibility = UserRoleResponsibility.objects.create(user=user_account, role=group)
+			
+			if role == 'project_manage' or role == 'project_manage_assistant':
+				project = Project.objects.get(pk=responsible)
+				responsibility.projects.add(project)
+			else:
+				responsibility.sectors.add(sector)
+			
+			return redirect('view_administer_users_password', user.id)
+			
+	else:
+		form = UserAccountForm()
+	
+	if request.POST.get('responsible'):
+		responsible = request.POST['responsible']
+		project = Project.objects.get(pk=responsible)
+		
+		master_plans = MasterPlan.objects.all()
+		projects = Project.objects.filter(master_plan=project.master_plan, parent_project=None)
+		
+		return render_response(request, "administer_users_modify.html", {'mode':'create', 'form': form, 'master_plans':master_plans, 'projects':projects, 'responsible':project})
+	else:
+		return render_response(request, "administer_users_modify.html", {'mode':'create', 'form': form, 'responsible':''})
+
+@login_required
+def view_administer_users_edit(request, user_id):
+	if not request.user.is_superuser: return access_denied(request)
+	user = User.objects.get(pk=user_id)
+	
+	if request.method == 'POST':
+		form = UserAccountForm(request.POST)
+		if form.is_valid():
+			username = form.cleaned_data['username']
+			email = form.cleaned_data['email']
+			first_name = form.cleaned_data['first_name']
+			last_name = form.cleaned_data['last_name']
+			role = form.cleaned_data['role']
+			sector = Sector(id=form.cleaned_data['sector'])
+			responsible = form.cleaned_data['responsible']
+			
+			user.username = username
+			user.email = email
+			user.save()
+			
+			user_account = UserAccount.objects.get(user=user)
+			user_account.first_name = first_name
+			user_account.last_name = last_name
+			user_account.sector = sector
+			user_account.save()
+			
+			user_role = user.groups.all()[0]
+			
+			if role != user_role.name:
+				group = Group.objects.get(name=role)
+				user.groups.delete()
+				user.groups.add(group)
+				
+				UserRoleResponsibility.objects.filter(user=user_account).delete()
+				responsibility = UserRoleResponsibility.objects.create(user=user_account, role=group)
+			
+				if role == 'project_manage' or role == 'project_manage_assistant':
+					project = Project.objects.get(pk=responsible)
+					responsibility.projects.add(project)
+				else:
+					responsibility.sectors.add(sector)
+			
+			return redirect('view_administer_users_password', user.id)
+		
+		else:
+			if request.POST.get('responsible'):
+				responsible = request.POST['responsible']
+				project = Project.objects.get(pk=responsible)
+				
+				master_plans = MasterPlan.objects.all()
+				projects = Project.objects.filter(master_plan=project.master_plan, parent_project=None)
+			else:
+				project = None
+				master_plans = None
+				projects = None
+		
+	else:
+		role = user.groups.all()[0].name
+		if role == 'project_manager' or role == 'project_manager_assistant':
+			responsible = UserRoleResponsibility.objects.filter(user=user.get_profile())[0].projects.all()[0].id
+		else:
+			responsible = None
+		
+		form = UserAccountForm(initial={\
+			'username':user.username,\
+			'email':user.email,\
+			'first_name':user.get_profile().first_name,\
+			'last_name':user.get_profile().last_name,\
+			'role':role,\
+			'sector':user.get_profile().sector,\
+			'responsible':responsible});
+		
+		if responsible:
+			project = Project.objects.get(pk=responsible)
+			master_plans = MasterPlan.objects.all()
+			projects = Project.objects.filter(master_plan=project.master_plan, parent_project=None)
+		else:
+			project = None
+			master_plans = None
+			projects = None
+		
+	return render_response(request, "administer_users_modify.html", {'mode':'edit', 'form': form, 'master_plans':master_plans, 'projects':projects, 'responsible':project})
+
+@login_required
+def view_administer_users_password(request, user_id):
+	if not request.user.is_superuser: return access_denied(request)
+	
+	user = User.objects.get(pk=user_id)
+	user_account = UserAccount.objects.get(user=user)
+	
+	return render_response(request, "administer_users_password.html", {'user_account': user_account})
 
 @login_required
 def view_administer_users_status(request, user_id):
@@ -537,7 +777,7 @@ def view_project_overview(request, project_id):
 	if not project.parent_project:
 		current_projects = Project.objects.filter(parent_project=project, start_date__lte=current_date, end_date__gte=current_date)
 
-		report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) and Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
+		report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
 
 		return render_response(request, "project_overview.html", {'project':project, 'current_projects':current_projects, 'report_schedules':report_schedules})
 
@@ -556,77 +796,99 @@ def view_project_projects(request, project_id):
 
 @login_required
 def view_project_add(request, project_id):
-	parent_project = get_object_or_404(Project, pk=project_id)
-
-	if request.method == "POST":
-		form = ProjectForm(request.POST)
-		if form.is_valid():
-			project = Project.objects.create(
-				sector=parent_project.sector, 
-				master_plan=parent_project.master_plan, 
-				parent_project=parent_project, 
-				prefix_name=Project.PROJECT_IS_PROJECT, 
-				ref_no=form.cleaned_data.get('ref_no'), 
-				name=form.cleaned_data.get('name'), 
-				description=form.cleaned_data('description', ''), 
-				start_date=form.cleaned_data.get('start_date'), 
-				end_date=form.cleaned_data.get('end_date')
-			)
-			utilities.set_message(request, 'Your project has been create.')
-
-			return redirect("/project/%d/" % project.id)
-
+	project = get_object_or_404(Project, pk=project_id)
+	
+	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+		if request.method == "POST":
+			form = ProjectForm(request.POST)
+			if form.is_valid():
+				created_project = Project.objects.create(
+					sector=project.sector, 
+					master_plan=project.master_plan, 
+					parent_project=project, 
+					prefix_name=Project.PROJECT_IS_PROJECT, 
+					ref_no=form.cleaned_data['ref_no'],
+					name=form.cleaned_data['name'],
+					start_date=form.cleaned_data['start_date'],
+					end_date=form.cleaned_data['end_date']
+				)
+				
+				return redirect('view_project_overview', (created_project.id))
+	
+		else:
+			form = ProjectForm()
+	
+		return render_response(request, "project_projects_add.html", {'project':project, 'form':form})
+	
 	else:
-		form = ProjectForm()
-
-	return render_response(request, "project_projects_add.html", {'project':parent_project, 'form':form})
+		return redirect('view_project_projects', (project.id))
 
 @login_required
 def view_project_edit(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
+	head_project = project.parent_project if project.parent_project else project
 	
+	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
+		if request.method == "POST":
+			form = ProjectForm(request.POST)
+			if form.is_valid():
+				project.ref_no = form.cleaned_data.get('ref_no')
+				project.name = form.cleaned_data.get('name')
+				project.description = form.cleaned_data.get('description', '')
+				project.start_date = form.cleaned_data.get('start_date')
+				project.end_date = form.cleaned_data.get('end_date')
+				project.save()
+				
+				return redirect('view_project_overview', (project.id))
 	
+		else:
+			form = ProjectForm(project.__dict__)
 
-	if request.method == "POST":
-		form = ProjectForm(request.POST)
-		if form.is_valid():
-			project.ref_no = form.cleaned_data.get('ref_no')
-			project.name = form.cleaned_data.get('name')
-			project.description = form.cleaned_data.get('description', '')
-			project.start_date = form.cleaned_data.get('start_date')
-			project.end_date = form.cleaned_data.get('end_date')
-			
-			project.save()
-			utilities.set_message(request, 'Your project has been update.')
-
-			return redirect("/project/%d/" % project.id)
-
+		return render_response(request, "project_projects_edit.html", {'project':project, 'form':form})
+	
 	else:
-		form = ProjectForm(project.__dict__)
+		return redirect('view_project_projects', (project.id))
 
-	return render_response(request, "project_projects_edit.html", {'project':project, 'form':form})
+@login_required
+def view_project_delete(request, project_id):
+	project = get_object_or_404(Project, pk=project_id)
+	head_project = project.parent_project if project.parent_project else project
 	
+	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
+		if Activity.objects.filter(project=project).count():
+			set_message(request, 'ยังมีกิจกรรมอยู่ภายใต้โครงการ ต้องลบกิจกรรมก่อนลบโครงการ')
+			return redirect('view_project_overview', (project.id))
+		else:
+			project.delete()
+			return redirect('view_project_projects', (head_project.id))
 	
+	else:
+		return redirect('view_project_projects', (head_project.id))
+
 @login_required
 def view_project_reports(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-
+	
 	report_projects = ReportProject.objects.filter(project=project)
-
+	
 	for report_project in report_projects:
 		report_project.schedules = ReportSchedule.objects.filter(report_project=report_project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_checkup=False))).order_by('-due_date')
-
+		
 		year_list = set()
 		for schedule in report_project.schedules: year_list.add(schedule.due_date.year)
 		year_list = sorted(year_list, reverse=True)
-
+		
 		report_project.year_list = year_list
-
+	
 	return render_response(request, "project_reports.html", {'project':project, 'report_projects':report_projects})
 
 @login_required
 def view_project_reports_list(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
+	
+	if not utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+		return redirect('view_project_reports', (project.id))
+	
 	report_projects = ReportProject.objects.filter(project=project)
 
 	sector_reports = list()
@@ -643,16 +905,23 @@ def view_project_reports_list(request, project_id):
 @login_required
 def view_project_reports_add(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-
+	
+	if not utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+		return redirect('view_project_reports', (project.id))
+	
 	if request.method == 'POST':
 		form = AddProjectReportForm(request.POST)
 		if form.is_valid():
-			form.cleaned_data['name']
-			form.cleaned_data['name']
-
-
-			pass
-
+			name = form.cleaned_data['name']
+			need_checkup = form.cleaned_data['need_checkup']
+			need_approval = form.cleaned_data['need_approval']
+			schedule_cycle_length = form.cleaned_data['schedule_cycle_length']
+			schedule_monthly_date = form.cleaned_data['schedule_monthly_date']
+			start_date = form.cleaned_data['start_date']
+			end_date = form.cleaned_data['end_date']
+			
+			# TODO
+		
 	else:
 		form = AddProjectReportForm()
 
@@ -662,12 +931,18 @@ def view_project_reports_add(request, project_id):
 def view_project_report_edit(request, project_id, report_id):
 	project = get_object_or_404(Project, pk=project_id)
 	report = get_object_or_404(Report, pk=report_id)
-
+	
+	if not utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+		return redirect('view_project_reports', (project.id))
+	
 	if request.method == 'POST':
 		form = EditProjectReportForm(request.POST)
 		if form.is_valid():
-			pass
-
+			name = form.cleaned_data['name']
+			
+			report.name = name
+			report.save()
+		
 	else:
 		form = EditProjectReportForm(initial={})
 
@@ -677,7 +952,10 @@ def view_project_report_edit(request, project_id, report_id):
 def view_project_reports_send(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 	reports = report_functions.get_nextdue_and_overdue_reports(project_id)
-
+	
+	if not utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+		return redirect('view_project_reports', (project.id))
+	
 	for report in reports:
 		for schedule in report.schedules:
 			schedule.comment_count = Comment.objects.filter(object_name='report', object_id=schedule.id).count()
@@ -699,22 +977,6 @@ def view_project_comments(request, project_id):
 		comment__object_id=project.id).update(is_read=True)
 
 	return render_response(request, "project_comments.html", {'project':project, 'comments':comments})
-
-#
-# PROJECT
-#
-#@login_required
-#def view_project_overview(request, project_id):
-#	current_date = date.today()
-#	project = get_object_or_404(Project, pk=project_id)
-#
-#	report_projects = ReportProject.objects.filter(project=project)
-#	report_schedules = ReportSchedule.objects.filter(report_project__in=report_projects, is_submitted=True, last_activity=APPROVE_ACTIVITY).order_by('-due_date')
-#
-#	current_activities = project.activity_set.filter(start_date__lte=current_date, end_date__gte=current_date).order_by('end_date')
-#	future_activities = project.activity_set.filter(start_date__gt=current_date).order_by('start_date')
-#	return render_response(request, "project_overview.html", {'project':project, 'current_activities':current_activities, 'future_activities':future_activities, 'report_schedules':report_schedules})
-
 
 # Helper function to find previous and next month.
 def prev_month(year, month, num=1):
@@ -813,10 +1075,11 @@ def view_activity_add(request, project_id):
 
 		else:
 			form = ActivityForm()
+		
+		return render_response(request, "project_activity_add.html", {'project':project, 'form':form})
+		
 	else:
 		return redirect('view_project_activities', (project.id))
-
-	return render_response(request, "project_activity_add.html", {'project':project, 'form':form})
 
 @login_required
 def view_activity_edit(request, activity_id):
@@ -826,7 +1089,7 @@ def view_activity_edit(request, activity_id):
 	head_project = project.parent_project if project.parent_project else project
 
 	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
-		if request.method == "POST":
+		if request.method == 'POST':
 			form = ActivityForm(request.POST)
 			if form.is_valid():
 				activity.name        = form.cleaned_data['name']
@@ -839,12 +1102,13 @@ def view_activity_edit(request, activity_id):
 				activity.save()
 
 				return redirect('view_activity_overview', (activity.id))
-
+		else:
+			form = ActivityForm(activity.__dict__)
+		
+		return render_response(request, "project_activity_edit.html", {'activity':activity, 'form':form})
+	
 	else:
 		return redirect('view_activity_overview', (activity.id))
-
-	form = ActivityForm(activity.__dict__)
-	return render_response(request, "project_activity_edit.html", {'activity':activity, 'form':form})
 
 @login_required
 def view_activity_delete(request, activity_id):
@@ -909,6 +1173,11 @@ def view_report_overview(request, report_id):
 	report_schedule = get_object_or_404(ReportSchedule, pk=report_id)
 
 	if request.method == 'POST':
+		project = report_schedule.report_project.report.project
+		
+		if not utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+			return redirect('view_project_reports', (project.id))
+		
 		submit_type = request.POST.get('submit')
 
 		if submit_type == 'submit-file':
@@ -992,14 +1261,12 @@ def view_report_overview(request, report_id):
 
 	report_schedule.files = ReportScheduleFileResponse.objects.filter(schedule=report_schedule)
 
-	print report_schedule.files
-
 	return render_response(request, "report_overview.html", {'report_schedule':report_schedule, 'REPORT_SUBMIT_FILE_URL':settings.REPORT_SUBMIT_FILE_URL, })
 
 @login_required
 def view_report_comments(request, report_id):
 	report = get_object_or_404(ReportSchedule, pk=report_id)
-
+	
 	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='report', \
 		comment__object_id=report.id).order_by("-sent_on")
 

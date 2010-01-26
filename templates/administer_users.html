@@ -57,7 +57,6 @@
 			<th class="fullname">ชื่อ-นามสกุล</th>
 			<th class="sector">สังกัดสำนัก</th>
 			<th class="role">ตำแหน่ง</th>
-			<th class="projects">หน่วยงานที่รับผิดชอบ</th>
 			<th class="status">สถานะผู้ใช้</th>
 		</tr>
 		{% for user in users %}
@@ -68,12 +67,15 @@
 			<td class="fullname">{{user.get_profile.first_name}} {{user.get_profile.last_name}}</td>
 			<td class="sector">{{user.get_profile.sector.ref_no}}</td>
 			<td class="role">{{user.roles}}</td>
-			<td class="projects">{{user.projects}}</td>
 			<td class="status">
-				{% if user.is_active %}
-				<a class="user-status" href="{% url view_administer_users_status user.id %}" title="สถานะพร้อมใช้งาน"><img src="{{MEDIA_URL}}/images/user_active.png" class="icon" /></a>
+				{% if user.get_profile.random_password %}
+					<a href="{% url view_administer_users_password user.id %}">แสดงรหัสผ่าน</a>
 				{% else %}
-				<a class="user-status disable" href="{% url view_administer_users_status user.id %}" title="สถานะถูกระงับ"><img src="{{MEDIA_URL}}/images/user_disable.png" class="icon" /></a>
+					{% if user.is_active %}
+					ปกติ
+					{% else %}
+					ระงับการใช้งาน
+					{% endif %}
 				{% endif %}
 			</td>
 		</tr>

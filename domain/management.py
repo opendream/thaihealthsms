@@ -29,15 +29,10 @@ def after_syncdb(sender, **kwargs):
 	sector_manager_assistant_role, created = Group.objects.get_or_create(name='sector_manager_assistant')
 	GroupName.objects.get_or_create(group=sector_manager_assistant_role, name='ผู้ช่วยผู้อำนวยการสำนัก')
 
-	plan_manager_role, created = Group.objects.get_or_create(name='plan_manager')
-	GroupName.objects.get_or_create(group=plan_manager_role, name='ผู้จัดการแผนงาน')
-	plan_manager_assistant_role, created = Group.objects.get_or_create(name='plan_manager_assistant')
-	GroupName.objects.get_or_create(group=plan_manager_assistant_role, name='ผู้ช่วยผู้จัดการแผนงาน')
-
 	project_manager_role, created = Group.objects.get_or_create(name='project_manager')
-	GroupName.objects.get_or_create(group=project_manager_role, name='ผู้จัดการโครงการ')
+	GroupName.objects.get_or_create(group=project_manager_role, name='ผู้จัดการแผนงาน')
 	project_manager_assistant_role, created = Group.objects.get_or_create(name='project_manager_assistant')
-	GroupName.objects.get_or_create(group=project_manager_assistant_role, name='ผู้ช่วยผู้จัดการโครงการ')
+	GroupName.objects.get_or_create(group=project_manager_assistant_role, name='ผู้ช่วยผู้จัดการแผนงาน')
 
 	# Permission ##################
 	# Permission.objects.get_or_create(name='View other projects reports', content_type=ContentType.objects.get_for_model(ReportSchedule), codename='view_others_project_report')

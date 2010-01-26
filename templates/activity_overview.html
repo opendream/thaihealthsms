@@ -31,6 +31,9 @@
 		<ul>
 			<li class="selected">ภาพรวม</li>
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_activity_comments activity.id %}">ความคิดเห็น</a></li>
+			{% responsible user 'project_manager,project_manager_assistant' activity.project.parent_project %}
+			<li class="right_item"><a href="{% url view_activity_edit activity.id %}">แก้ไขกิจกรรม</a></li>
+			{% endresponsible %}
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -38,16 +41,6 @@
 {% endblock %}
 
 {% block body_content %}
-{% responsible user 'project_manager,project_manager_assistant' activity.project.parent_project %}
-<div class="ss_control_panel">
-	<ul>
-		<li><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon"/><a href="{% url view_activity_edit activity.id %}">แก้ไข</a></li>
-		<li><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon"/><a id="activity-delete" href="{% url view_activity_delete activity.id %}">ลบ</a></li>
-	</ul>
-	<div class="clear"></div>
-</div>
-{% endresponsible %}
-
 <div class="activity_page">
 	<div class="headline">
 		<div><em>ช่วงเวลา:</em> {% if activity.start_date and activity.end_date %}{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}{% else %}<span class="no_information">ยังไม่ได้กำหนดช่วงเวลา</span>{% endif %}</div>

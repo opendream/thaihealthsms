@@ -6,6 +6,7 @@ urlpatterns = patterns('interface.views',
 	url(r'^dashboard/$', 'view_frontpage', name='view_frontpage'),
 	url(r'^dashboard/comments/$', 'view_dashboard_comments', name='view_dashboard_comments'),
 	url(r'^dashboard/comments/outbox/$', 'view_dashboard_comments_outbox', name='view_dashboard_comments_outbox'),
+	url(r'^dashboard/my_projects/$', 'view_dashboard_my_projects', name='view_dashboard_my_projects'),
 	
 	url(r'^administer/$', 'view_administer', name='view_administer'),
 	url(r'^administer/organization/$', 'view_administer_organization', name='view_administer_organization'),
@@ -15,8 +16,13 @@ urlpatterns = patterns('interface.views',
 	url(r'^administer/organization/masterplan/add/$', 'view_administer_organization_add_masterplan', name='view_administer_organization_add_masterplan'),
 	url(r'^administer/organization/masterplan/(?P<master_plan_id>\d+)/edit/$', 'view_administer_organization_edit_masterplan', name='view_administer_organization_edit_masterplan'),
 	url(r'^administer/organization/masterplan/(?P<master_plan_id>\d+)/delete/$', 'view_administer_organization_delete_masterplan', name='view_administer_organization_delete_masterplan'),
+	
 	url(r'^administer/users/$', 'view_administer_users', name='view_administer_users'),
+	url(r'^administer/users/add/$', 'view_administer_users_add', name='view_administer_users_add'),
+	url(r'^administer/users/(?P<user_id>\d+)/edit/$', 'view_administer_users_edit', name='view_administer_users_edit'),
+	url(r'^administer/users/(?P<user_id>\d+)/password/$', 'view_administer_users_password', name='view_administer_users_password'),
 	url(r'^administer/users/(?P<user_id>\d+)/status/$', 'view_administer_users_status', name="view_administer_users_status"),	
+	
 	# Sector
 	url(r'^sector/(?P<sector_id>\d+)/$', 'view_sector_overview', name='view_sector_overview'),
 	url(r'^sector/(?P<sector_id>\d+)/reports/$', 'view_sector_reports', name='view_sector_reports'),
@@ -39,6 +45,7 @@ urlpatterns = patterns('interface.views',
 	url(r'^project/(?P<project_id>\d+)/$', 'view_project_overview', name='view_project_overview'),
 	url(r'^project/(?P<project_id>\d+)/projects/$', 'view_project_projects', name='view_project_projects'),
 	url(r'^project/(?P<project_id>\d+)/projects/add/$', 'view_project_add', name='view_project_add'),
+	url(r'^project/(?P<project_id>\d+)/delete/$', 'view_project_delete', name='view_project_delete'),
 	url(r'^project/(?P<project_id>\d+)/edit/$', 'view_project_edit', name='view_project_edit'),
 	url(r'^project/(?P<project_id>\d+)/reports/$', 'view_project_reports', name='view_project_reports'),
 	url(r'^project/(?P<project_id>\d+)/reports/list/$', 'view_project_reports_list', name='view_project_reports_list'),
@@ -62,8 +69,9 @@ urlpatterns = patterns('interface.views',
 	url(r'^report/(?P<report_id>\d+)/comments/$', 'view_report_comments', name='view_report_comments'),
 )
 
-urlpatterns += patterns('',
-	url(r'^administer/users/add/$', UserAccountWizard([UserAccountFormStart, UserAccountFormSecond]), name="view_administer_users_add"),
-	url(r'^administer/users/(?P<user_id>\d+)/edit/$', UserAccountWizard([UserAccountFormStart, UserAccountFormSecond]), name="view_administer_users_edit"),
-	
-)
+
+#urlpatterns += patterns('',
+#	url(r'^administer/users/add/$', UserAccountWizard([UserAccountFormStart, UserAccountFormSecond]), name="view_administer_users_add"),
+#	url(r'^administer/users/(?P<user_id>\d+)/edit/$', UserAccountWizard([UserAccountFormStart, UserAccountFormSecond]), name="view_administer_users_edit"),
+#	
+#)

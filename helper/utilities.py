@@ -45,6 +45,12 @@ def current_year_number():
 	return current_year
 
 
+# Password Generator
+allow_password_chars = '0123456789'
+random_password_length = 6
+def make_random_user_password():
+	from random import choice
+	return ''.join([choice(allow_password_chars) for i in range(random_password_length)])
 
 from domain.models import UserRoleResponsibility
 

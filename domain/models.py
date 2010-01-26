@@ -9,6 +9,7 @@ class UserAccount(models.Model):
 	sector = models.ForeignKey('Sector', null=True)
 	first_name = models.CharField(max_length=300, null=True)
 	last_name = models.CharField(max_length=300, null=True)
+	random_password = models.CharField(max_length=30, null=True)
 
 class UserRoleResponsibility(models.Model):
 	user = models.ForeignKey(UserAccount)

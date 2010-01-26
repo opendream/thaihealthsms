@@ -10,14 +10,23 @@ html, body {background-color:#F3F3F3;}
 
 /* Login Page */
 .login_page .logo {margin:30px auto;text-align:center;}
-.login_page h1 {text-align:center;font-size:197%;margin:30px 0px 20px;color:#017c54;font-weight:bold;}
+.login_page h1 {text-align:center;font-size:182%;margin:30px 0px 20px;color:#017c54;font-weight:bold;}
 .login_page form {margin:0px auto;width:400px;border:1px solid #CCC;padding:10px 15px;background-color:#FFF;}
-.login_page form ul {}
-.login_page form li {margin:15px;font-size:108%;list-style:none;}
-.login_page form li label {display:block;margin-bottom:4px;font-size:93%;}
-.login_page form li input {width:250px;}
+.login_page form ul {margin:0px;padding:0px 20px;}
+.login_page form li {margin:15px;list-style:none;font-size:100%;}
+.login_page form li label {display:block;margin:0px 0px 4px;font-size:93%;}
+.login_page form li input {width:320px;}
 .login_page form li.button_panel {}
-.login_page form li.button_panel button {padding:3px 15px;font-size:85%;}
+.login_page form li.button_panel button {padding:3px 15px;font-size:77%;}
+.login_page form li.button_panel a:link, .login_page form li.button_panel a:visited, .login_page form li.button_panel a:active {font-size:77%;margin-left:15px;}
+.login_page form .errors {margin:15px 0px;color:#C30;}
+.login_page form .errorlist {margin:0px;padding:0px;color:#C30;}
+.login_page form .errorlist li {margin:3px 0px 0px 0px;padding:0px;font-size:85%;}
+
+/* First Time Login Page */
+.first_login_page h2 {font-size:131%;margin-left:20px;}
+.first_login_page {}
+
 
 /* Base Template */
 .body_header {background:url('../images/html_header_bg.gif') #666 repeat-x;border-bottom:1px solid #999;height:40px;}

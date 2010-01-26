@@ -27,6 +27,10 @@ DASHBOARD PAGE
 .dashboard_page .report_checkup ul.reports li .comment a:link, .dashboard_page .report_checkup ul.reports li .comment a:visited, .dashboard_page .report_checkup ul.reports li .comment a:active {margin-left:6px;}
 .dashboard_page .report_checkup .ss_no_information {margin-left:15px;}
 
+.dashboard_my_projects_page h2 {font-size:138.5%;color:#FFF;padding:8px 10px 4px;margin:5px 0px 10px;background-color:#399;border-bottom:3px solid #9CC;}
+.dashboard_my_projects_page {}
+.dashboard_my_projects_page {}
+
 /*
 ADMIN USER MANAGEMENT
 */
@@ -42,6 +46,14 @@ ADMIN USER MANAGEMENT
 .user_management_page table .role {width:240px;text-align:center;}
 .user_management_page table .status {width:120px;text-align:center;}
 .user_management_page table .projects {}
+
+.administer_users_add .responsible {}
+.administer_users_add .responsible .project {margin-top:10px;}
+
+.administer_users_password .name {font-size:116%;margin:10px 0px;}
+.administer_users_password .password {font-size:116%;margin:10px 0px;}
+.administer_users_password .note {color:#555;margin:10px 0px;}
+.administer_users_password .warning {font-size:108%;margin:15px 0px;}
 
 /*
 ADMIN ORGANIZATION

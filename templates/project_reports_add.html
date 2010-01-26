@@ -51,14 +51,14 @@
 				{{form.need_approval}}
 				<label for="id_need_approval">{{form.need_approval.label}}</label>
 			</li>
-			<li class="inline month_cycle">
-				<label>{{form.month_cycle.label}}</label>
-				{{form.month_cycle}} <label>เดือน</label>
+			<li class="single_line">
+				<label for="id_schedule_cycle_length">ส่งรายงานทุกๆ:</label>
+				<span class="SHORT">{{form.schedule_cycle_length}}</span>
+				<label>เดือน</label>
 			</li>
-			<li class="radio_choice">
-				<div><label><input type="radio" name="on_every" value="specific_date"/> ในทุกวันที่</label> {{form.on_every_date}}</div>
-				<div><label><input type="radio" name="on_every" value="end_of_month"/> ทุกสิ้นเดือน</label></div>
-				{{form.on_every}}
+			<li class="single_line">
+				<label for="id_schedule_monthly_date">ในวันที่:</label>
+				<span class="SHORT">{{form.schedule_monthly_date}}</span>
 			</li>
 			<li class="date_period">
 				<label>{{form.start_date.label}}:</label>

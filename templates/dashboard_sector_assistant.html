@@ -46,15 +46,21 @@ $(document).ready(function() {
 	<div class="right_panel">
 		<div class="sector_link"><a href="{% url view_sector_overview user_account.sector.id %}">สำนัก {{user_account.sector.ref_no}}</a></div>
 		<h2>แผนงาน/โครงการที่รับผิดชอบ</h2>
+		{% if projects %}
 		<ul>
 			{% for project in projects %}
 				<li><a href="{% url view_project_overview project.id %}">{% project_prefix_name project %} {{project.ref_no}}</a></li>
 			{% endfor %}
 		</ul>
+		{% else %}
+		<div class="ss_no_information">ไม่มีแผนงาน/โครงการที่รับผิดชอบ</div>
+		{% endif %}
+		<div class="manage_projects"><a href="{% url view_dashboard_my_projects %}">แก้ไขแผนงาน/โครงการที่รับผิดชอบ</a></div>
 	</div>
 	
 	<div class="left_panel">
 		<h2>ตรวจสอบการส่งรายงาน</h2>
+		{% if projects %}
 		<div class="report_checkup">
 			<ul>
 				{% for project in projects %}
@@ -89,6 +95,9 @@ $(document).ready(function() {
 				{% endfor %}
 			</ul>
 		</div>
+		{% else %}
+		<div class="ss_no_information">ไม่มีข้อมูลรายงาน</div>
+		{% endif %}
 	</div>
 	<div class="clear"></div>
 </div>

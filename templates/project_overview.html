@@ -24,11 +24,12 @@ $(document).ready(function() {
 			{% if not project.parent_project %}
 			<li><a href="{% url view_project_projects project.id %}">{% trans 'Projects' %}</a></li>
 			<li><a href="{% url view_project_reports project.id %}">{% trans 'Reports' %}</a></li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">{% trans 'Comments' %}</a></li>
 			{% else %}
 			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
-			{% endif %}
-			<li class="right_item"><a href="{% url view_project_edit project.id %}">แก้ไขโครงการ</a></li>
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">{% trans 'Comments' %}</a></li>
+			<li class="right_item"><a href="{% url view_project_edit project.id %}">แก้ไขโครงการ</a></li>
+			{% endif %}
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -39,11 +40,15 @@ $(document).ready(function() {
 <div class="overview_page">
 	<h2>{% trans 'Recent Reports' %}</h2>
 	<div class="reports_section">
+		{% if report_schedules %}
 		<ul>
 			{% for report_schedule in report_schedules %}
 			<li><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.report_project.report.name}} งวดวันที่ {{report_schedule.due_date|thai_date}}</a></li>
 			{% endfor %}
 		</ul>
+		{% else %}
+		<div class="ss_no_information">ไม่มีรายงาน</div>
+		{% endif %}
 	</div>
 	
 	{% if not project.parent_project %}

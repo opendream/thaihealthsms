@@ -5,13 +5,7 @@
 {% block post_comment_ajax_callback %}{% endblock %}
 
 {% block html_head %}
-<link href="/media/css/forms.css" type="text/css" rel="stylesheet"></link>
-
-<script type="text/javascript" src="{{ MEDIA_URL }}/scripts/gettext.js" ></script>
-
-<script type="text/javascript" src="/media/js/core.js"></script>
-<script type="text/javascript" src="/media/js/calendar.js"></script>
-<script type="text/javascript" src="/media/js/admin/DateTimeShortcuts.js"></script>
+{{form.media}}
 
 {% endblock %}
 
@@ -35,14 +29,27 @@
 {% endblock %}
 
 {% block body_content %}
-<div class="ss_child_page_header">
-	สร้างโครงการ
-	<a href="{% url view_project_projects project.id %}">กลับไปยังหน้ารายการโครงการ>></a>
-</div>
+<div class="ss_child_page_header">สร้างโครงการ <a href="{% url view_project_projects project.id %}">กลับไปยังหน้ารายการโครงการ &#187;</a></div>
+
 <div class="projects_form">
 	<form method="post" action="." class="ss_form">
 		<ul>
-			{{form.as_ul}}
+			<li>
+				<label for="id_ref_no">{{form.ref_no.label}}:</label>
+				<div class="input MEDIUM">{{form.ref_no}}</div>
+				{{form.ref_no.errors}}
+			</li>
+			<li>
+				<label for="id_name">{{form.name.label}}:</label>
+				<div class="input LONG">{{form.name}}</div>
+				{{form.name.errors}}
+			</li>
+			<li class="date_period">
+				<label>{{form.start_date.label}}:</label>
+				<div class="input">{{form.start_date}} <span class="to">{{form.end_date.label}}</span> {{form.end_date}}</div>
+				{{form.start_date.errors}}
+				{{form.end_date.errors}}
+			</li>
 		</ul>
 		<div class="button_panel"><button>เพิ่มโครงการ</button></div>
 	</form>
