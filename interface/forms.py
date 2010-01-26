@@ -7,6 +7,7 @@ from django.contrib.formtools.wizard import FormWizard
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User, Group
 from domain.models import *
+from report.models import *
 
 from django.http import HttpResponseRedirect
 from helper.utilities import set_message
@@ -271,11 +272,37 @@ class SectorReportForm(forms.Form):
 	schedule_monthly_date = forms.ChoiceField(choices=date_cycle)
 
 #
+# Master Plan Form
+#
+class MasterPlanAddProjectForm(forms.Form):
+	plan = PlanChoiceField(queryset=Plan.objects.all(), label="สังกัดกลุ่มแผนงาน", empty_label=None)
+	ref_no = forms.CharField(max_length=64, label='เลขที่โครงการ')
+	name = forms.CharField(max_length=512, label='ชื่อโครงการ')
+	description = forms.CharField(widget=forms.Textarea(), required=False, label='รายละเอียด')
+	start_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_start_date'}), label='เริ่ม')
+	end_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_end_date'}), label='ถึง')
+	reports = ReportMultipleChoiceField(queryset=Report.objects.all(), label="รายงานที่ต้องส่ง")
+
+class MasterPlanEditProjectForm(forms.Form):
+	plan = PlanChoiceField(queryset=Plan.objects.all(), label="สังกัดกลุ่มแผนงาน", empty_label=None)
+	ref_no = forms.CharField(max_length=64, label='เลขที่โครงการ')
+	name = forms.CharField(max_length=512, label='ชื่อโครงการ')
+	description = forms.CharField(widget=forms.Textarea(), required=False, label='รายละเอียด')
+
+#
 # Plan Form
 #
 class PlanForm(forms.Form):
 	ref_no = forms.CharField(max_length=512, label='รหัส')
 	name = forms.CharField(max_length=512, label='ชื่อกลุ่มแผนงาน')
+
+class PlanChoiceField(forms.ModelChoiceField):
+	def label_from_instance(self, obj):
+		return "%s %s" % (obj.ref_no, obj.name)
+
+class ReportMultipleChoiceField(forms.ModelMultipleChoiceField):
+	def label_from_instance(self, obj):
+		return "%s" % obj.name
 
 #
 # Project Form
@@ -309,4 +336,3 @@ class ActivityForm(forms.Form):
 	location 		= forms.CharField(max_length=2000, required=False, label='สถานที่')
 	result_goal 	= forms.CharField(max_length=2000, required=False, widget=forms.Textarea(), label='ผลลัพธ์ที่ต้องการ')
 	result_real 	= forms.CharField(max_length=2000, required=False, widget=forms.Textarea(), label='ผลลัพธ์ที่เกิดขึ้น')
-
