@@ -127,7 +127,7 @@ def notify_overdue_schedule():
 						project.name,
 						utilities.format_date(report_schedule.due_date), 
 					)
-					send_mail('แจ้งเตือนการส่งรายงาน', message, 'application.testbed@gmail.com', ['crosalot@gmail.com'], fail_silently=False)
+					send_mail('แจ้งเตือนการส่งรายงาน', message, 'application.testbed@gmail.com', [user.email], fail_silently=False)
 				
 				# Case due date
 				for report_schedule in ReportSchedule.objects.filter(report_project=report_project, due_date=today, state=NO_ACTIVITY):
@@ -139,4 +139,4 @@ def notify_overdue_schedule():
 						project.name,
 						utilities.format_date(report_schedule.due_date), 
 					)
-					send_mail('แจ้งเตือนการส่งรายงาน', message, 'application.testbed@gmail.com', ['crosalot@gmail.com'], fail_silently=False)
+					send_mail('แจ้งเตือนการส่งรายงาน', message, 'application.testbed@gmail.com', [user.email], fail_silently=False)
