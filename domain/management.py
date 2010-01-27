@@ -64,6 +64,14 @@ def after_syncdb(sender, **kwargs):
 
 	# Master Plan
 	default_month_period, created = MasterPlanMonthPeriod.objects.get_or_create(start_month=10, end_month=9, is_default=True)
+	
+	# Comment Receiver by Role
+	CommentReceiverRole.objects.create(object_name='project', role=project_manager_role)
+	CommentReceiverRole.objects.create(object_name='project', role=project_manager_assistant_role)
+	CommentReceiverRole.objects.create(object_name='activity', role=project_manager_role)
+	CommentReceiverRole.objects.create(object_name='activity', role=project_manager_assistant_role)
+	CommentReceiverRole.objects.create(object_name='report', role=project_manager_role)
+	CommentReceiverRole.objects.create(object_name='report', role=project_manager_assistant_role)
 
 	"""
 	END HERE
@@ -398,9 +406,7 @@ def after_syncdb(sender, **kwargs):
 		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(150), submitted_on=date.today() - timedelta(151), last_activity=APPROVE_ACTIVITY)
 		"""
 
-		# Comment Receiver by Role
-		CommentReceiverRole.objects.create(object_name='project', role=project_manager_role)
-		CommentReceiverRole.objects.create(object_name='project', role=project_manager_assistant_role)
+		
 
 from django.db.models.signals import post_syncdb
 post_syncdb.connect(after_syncdb, dispatch_uid="domain.management")

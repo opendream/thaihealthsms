@@ -14,9 +14,11 @@
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
-			<li><a href="{% url view_sector_overview sector.id %}">ภาพรวม</a></li>
+			<li class="selected">ภาพรวม</li>
 			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
+			{% responsible user 'sector_manager_assistant,sector_admin' sector %}
 			<li class="right_item"><a href="{% url view_sector_reports sector.id %}">รูปแบบรายงาน</a></li>
+			{% endresponsible %}
 		</ul>
 		<div class="clear"></div>
 	</div>

@@ -61,27 +61,27 @@ $(document).ready(function() {
 <div class="comments_page">
 	{% if comments %}
 	<ul class="comments">
-		{% for cr in comments %}
-		<li {% if cr.already_read %}class="read"{% endif %}>
-			<div class="sender">{{cr.comment.sent_by.first_name}} {{cr.comment.sent_by.last_name}}
-			  <div class="metadata">
-			    {% blocktrans with cr.sent_on|thai_date as c_date and cr.sent_on|date:'H:i' as c_time %}Send at {{ c_date }} Time {{ c_time }} o'clock{% endblocktrans %}
-			  </div>
-			</div>
-			<p>{{cr.comment.message}}</p>
-			<div id="reply-comment-box"><a href="#" id="comment-{{ cr.comment.id }}" class="reply-comment">{% trans 'Reply' %}</a></div>
-			<div class="receivers">
-				<h4>{% trans 'Receivers' %}:</h4>
-				<ul>
-					{% for receiver in cr.receivers %}
-						<li>{{receiver.receiver.first_name}} {{receiver.receiver.last_name}}</li>
-					{% endfor %}
-				</ul>
-			</div>
-		</li>
-			{% if cr.comment.commentreply_set.all %}
+		{% for comment in comments %}
+			<li {% if comment.is_read %}class="read"{% endif %}>
+				<div class="sender">{{comment.sent_by.first_name}} {{comment.sent_by.last_name}}
+					<div class="metadata">
+					{% blocktrans with comment.sent_on|thai_date as c_date and comment.sent_on|date:'H:i' as c_time %}Send at {{ c_date }} Time {{ c_time }} o'clock{% endblocktrans %}
+					</div>
+				</div>
+				<p>{{comment.message}}</p>
+				<div id="reply-comment-box" class="reply_comment_panel"><a href="#" id="comment-{{ comment.id }}" class="reply-comment">{% trans 'Reply' %}</a></div>
+				<div class="receivers">
+					<h4>{% trans 'Receivers' %}:</h4>
+					<ul>
+						{% for receiver in comment.receivers.all %}
+							<li>{{receiver.first_name}} {{receiver.last_name}}</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</li>
+			{% if comment.commentreply_set.all %}
 				<div class="indented">
-				{% for c in cr.comment.commentreply_set.all %}
+				{% for c in comment.commentreply_set.all %}
 					<li class="read">
 						<div class="sender">{{ c.sent_by.first_name }} {{ c.sent_by.last_name }}
 							<div class="metadata">
@@ -100,7 +100,7 @@ $(document).ready(function() {
 	{% endif %}
 </div>
 
-<div id="reply-comment-dialog">
+<div id="reply-comment-dialog" class="comment_dialog">
 <label>{% trans 'Comment' %}</label>
 <textarea id="reply-comment-textarea"></textarea>
 <input type="hidden" id="comment-id"/>

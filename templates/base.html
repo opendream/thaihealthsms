@@ -13,11 +13,6 @@
 	<link type="text/css" media="screen" rel="stylesheet" href="{{MEDIA_URL}}/colorbox/colorbox.css" /> 
 	<script type="text/javascript" src="{{MEDIA_URL}}/colorbox/jquery.colorbox-min.js"></script>
 	
-	<!--<link type="text/css" media="screen" rel="stylesheet" href="{{MEDIA_URL}}/fcbkcomplete/style.css" /> 
-	<script type="text/javascript" src="{{MEDIA_URL}}/fcbkcomplete/jquery.fcbkcomplete.min.js"></script> -->
-	
-	
-	
 	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/css/styles.css">
 	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/css/styles.page.css">
 	
@@ -26,12 +21,12 @@
 	
 <script type="text/javascript">
 $(document).ready(function() {
-	$("#post-comment-dialog textarea").keypress(function(e) {
+	/*$("#post-comment-dialog textarea").keypress(function(e) {
 		if(e.which == 13) {
 			$(this).blur();
 			$("#post-comment-dialog button").focus().click();
 		}
-	});
+	});*/
 	
 	$("#post-comment-dialog button").click(function(e) {
 		e.preventDefault();
@@ -105,7 +100,7 @@ function bindCommentBox(jqueryObject) {
 		<div>979 อาคารเอส เอ็ม ทาวเวอร์ ชั้น 34 ถนนพหลโยธิน แขวงสามเสนใน เขตพญาไท กรุงเทพฯ 10400</div>
 	</div>
 
-<div id="post-comment-dialog">
+<div id="post-comment-dialog" class="comment_dialog">
 <label>{% trans 'Comment' %}</label>
 <textarea id="post-comment-textarea"></textarea>
 <input type="hidden" name="comment_target"/>

@@ -12,23 +12,6 @@ from report.models import ReportSchedule
 from thaihealthsms.helper.utilities import format_abbr_date
 
 @login_required
-def ajax_post_user_comment(request, user_id):
-	if request.method == "POST":
-		message = request.POST['message'].strip()
-		comment = Comment.objects.create(message=message, sent_by=request.user.get_profile())
-		
-		receivers = request.POST.getlist('to')
-		for receiver in receivers:
-			CommentReceiver.objects.create(comment=comment, receiver=UserAccount(id=receiver), sent_on=comment.sent_on)
-		
-		# TODO: Send Email
-		
-		return HttpResponse(simplejson.dumps({'id': comment.id,}))
-		
-	else:
-		raise Http404
-
-@login_required
 def ajax_post_object_comment(request, object_name, object_id):
 	if request.method == "POST":
 		if object_name not in ('activity', 'project', 'report'): raise Http404
@@ -109,35 +92,3 @@ def ajax_query_comment_receivers(request):
 		receivers.append({'value':user.id, 'caption':user.first_name+" "+user.last_name})
 	
 	return HttpResponse(simplejson.dumps(receivers))
-	
-	
-	
-
-"""
-def view_comment_save(request, comment_type, comment_type_id, comment_id):
-	text = request.POST.get('comment')
-	text = text.strip()
-	comment = prepare_comment(comment_type, comment_type_id, comment_id)
-	if not comment or not text: return
-	comment.comment = text
-	comment.commented_by = UserAccount.objects.get(user=request.user)
-	comment.save()
-	
-	fullname = request.user.get_profile().first_name + ' ' + request.user.get_profile().last_name
-	
-	# TODO : Send notification email
-	
-	return HttpResponse(simplejson.dumps({
-		'id': comment.id, 
-		'fullname': fullname, 
-		'date_timestamp': format_abbr_date(comment.commented_on),
-		'time_timestamp': comment.commented_on.strftime('%H:%M'),
-	}))
-
-def view_comment_delete(request, comment_type, comment_id):
-	comment = prepare_comment(comment_type, 0, comment_id)
-	comment.delete()
-	return HttpResponse(simplejson.dumps({
-		'message': 'Success', 
-	}))
-"""

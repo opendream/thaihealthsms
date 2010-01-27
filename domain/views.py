@@ -32,3 +32,4 @@ def ajax_list_projects(request):
 		return HttpResponse(simplejson.dumps(object_list))
 	else:
 		return HttpResponse('')
+

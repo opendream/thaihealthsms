@@ -8,7 +8,8 @@ class Comment(models.Model):
 	is_private = models.BooleanField(default=True)
 	is_urgent = models.BooleanField(default=False)
 	sent_on = models.DateTimeField(auto_now_add=True)
-	sent_by = models.ForeignKey('domain.UserAccount')
+	sent_by = models.ForeignKey('domain.UserAccount', related_name='sent_by')
+	receivers = models.ManyToManyField('domain.UserAccount', through='CommentReceiver')
 
 class CommentReceiverRole(models.Model):
 	object_name = models.CharField(max_length=64)
@@ -16,7 +17,7 @@ class CommentReceiverRole(models.Model):
 
 class CommentReceiver(models.Model):
 	comment = models.ForeignKey('Comment')
-	receiver = models.ForeignKey('domain.UserAccount')
+	receiver = models.ForeignKey('domain.UserAccount', related_name='comment_receiver')
 	is_read = models.BooleanField(default=False)
 	sent_on = models.DateTimeField() # Save value as in Comment
 

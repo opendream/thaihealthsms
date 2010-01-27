@@ -1,4 +1,8 @@
 # -*- encoding: utf-8 -*-
+from datetime import date
+
+from domain.models import MasterPlanMonthPeriod
+from domain.models import UserRoleResponsibility
 
 THAI_MONTH_NAME = ('', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม')
 THAI_MONTH_ABBR_NAME = ('', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.')
@@ -27,9 +31,6 @@ def format_abbr_month_year(datetime):
 	return "%s %d" % (unicode(THAI_MONTH_ABBR_NAME[datetime.month], "utf-8"), datetime.year + 543)
 
 # Current Year
-from datetime import date
-from domain.models import MasterPlanMonthPeriod
-
 def current_year_number():
 	today = date.today().replace(day=1)
 	month_period = MasterPlanMonthPeriod.objects.get(is_default=True)
@@ -44,15 +45,12 @@ def current_year_number():
 
 	return current_year
 
-
 # Password Generator
 allow_password_chars = '0123456789'
 random_password_length = 6
 def make_random_user_password():
 	from random import choice
 	return ''.join([choice(allow_password_chars) for i in range(random_password_length)])
-
-from domain.models import UserRoleResponsibility
 
 # Roles
 def user_has_role(user, roles):
@@ -71,9 +69,13 @@ def responsible(user, roles, dept_obj):
 	
 	for responsibility_item in UserRoleResponsibility.objects.filter(user=user):
 		if responsibility_item.role.name in roles:
-			if type(dept_obj).__name__ == 'Project':
-				if dept_obj in responsibility_item.projects.all():
+			if type(dept_obj).__name__ == 'Sector':
+				if dept_obj in responsibility_item.sectors.all():
 					has_responsibility = True
+				
+				if user.get_profile().sector.id == dept_obj.id:
+					has_responsibility = True
+				
 			elif type(dept_obj).__name__ == 'Project':
 				if dept_obj in responsibility_item.projects.all():
 					has_responsibility = True

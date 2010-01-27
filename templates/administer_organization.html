@@ -2,6 +2,21 @@
 {% load helper %}
 
 {% block html_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$(".delete-sector").click(function(e) {
+		if(!window.confirm("ยืนยันการลบสำนัก?")) {
+			e.preventDefault();
+		}
+	});
+
+	$(".delete-master-plan").click(function(e) {
+		if(!window.confirm("ยืนยันการลบแผนหลัก?")) {
+			e.preventDefault();
+		}
+	});
+});
+</script>
 
 {% endblock %}
 
@@ -45,7 +60,7 @@
 				{% if sector.has_child %}
 				<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบสำนักที่มีแผนหลักได้"/>
 				{% else %}
-				<a href="{% url view_administer_organization_delete_sector sector.id %}" title="ลบสำนัก"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+				<a href="{% url view_administer_organization_delete_sector sector.id %}" title="ลบสำนัก" class="delete-sector"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
 				{% endif %}
 			</td>
 			<td class="sector_number">{{sector.ref_no}}</td>
@@ -70,7 +85,7 @@
 				{% if master_plan.has_child %}
 				<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบแผนหลักที่มีหน่วยงานภายใต้ได้"/>
 				{% else %}
-				<a href="{% url view_administer_organization_delete_masterplan master_plan.id %}" title="ลบแผนหลัก"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+				<a href="{% url view_administer_organization_delete_masterplan master_plan.id %}" title="ลบแผนหลัก" class="delete-master-plan"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
 				{% endif %}
 			</td>
 			<td class="ref_no">{{master_plan.ref_no}}</td>
@@ -81,6 +96,4 @@
 		{% endfor %}
 	</table>
 </div>
-
-
 {% endblock %}

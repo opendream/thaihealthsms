@@ -28,8 +28,6 @@ DASHBOARD PAGE
 .dashboard_page .report_checkup .ss_no_information {margin-left:15px;}
 
 .dashboard_my_projects_page h2 {font-size:138.5%;color:#FFF;padding:8px 10px 4px;margin:5px 0px 10px;background-color:#399;border-bottom:3px solid #9CC;}
-.dashboard_my_projects_page {}
-.dashboard_my_projects_page {}
 
 /*
 ADMIN USER MANAGEMENT
@@ -43,8 +41,8 @@ ADMIN USER MANAGEMENT
 
 .user_management_page table .fullname {width:280px;}
 .user_management_page table .sector {width:70px;text-align:center;}
-.user_management_page table .role {width:240px;text-align:center;}
-.user_management_page table .status {width:120px;text-align:center;}
+.user_management_page table .role {width:210px;text-align:center;}
+.user_management_page table .status {width:180px;text-align:center;}
 .user_management_page table .projects {}
 
 .administer_users_add .responsible {}
@@ -133,6 +131,7 @@ COMMENTS PAGE
 .comments_page .comments li.read {border:1px solid #CCC;}
 .comments_page .comments li.read .sender {color:#333;font-size:108%;font-weight:bold;background-color:#DDD;padding:5px 10px;}
 
+.comments_page .comments .reply_comment_panel {padding:10px;}
 .comments_page .comments .receivers {font-size:108%;padding-top:10px;margin:0px 10px;border-top:1px dashed #CCC;}
 .comments_page .comments .receivers h4 {display:inline;color:#666;margin-right:5px;}
 .comments_page .comments .receivers ul {display:inline;}

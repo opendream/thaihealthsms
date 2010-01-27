@@ -25,6 +25,7 @@ from report.models import *
 
 from interface.forms import *
 
+from comments import functions as comments_functions
 from domain import functions as domain_functions
 from report import functions as report_functions
 from helper import utilities
@@ -78,7 +79,6 @@ def view_first_time_login(request):
 	return render_response(request, "registration/user_first_time_login.html", {'form':form, 'next':next})
 
 def view_change_password(request):
-	
 	if request.method == 'POST':
 		form = ChangePasswordForm(request.POST)
 		if form.is_valid():
@@ -221,27 +221,30 @@ def view_dashboard_comments_outbox(request):
 @login_required
 def view_dashboard_my_projects(request):
 	
-	if request.method == 'POST':
-		projects = request.POST.getlist('project')
-		
-		responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile())
-		
-		for project_id in projects:
-			project = Project.objects.get(pk=project_id)
-			responsibility.projects.add(project)
-		
-		return redirect('view_frontpage')
-		
+	if utilities.user_has_role(request.user, 'sector_manager_assistant'):
+		if request.method == 'POST':
+			projects = request.POST.getlist('project')
+			
+			responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile())
+			
+			for project_id in projects:
+				project = Project.objects.get(pk=project_id)
+				responsibility.projects.add(project)
+			
+			return redirect('view_frontpage')
+			
+		else:
+			responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile())
+			
+			master_plans = MasterPlan.objects.filter(sector=request.user.get_profile().sector)
+			
+			for master_plan in master_plans:
+				master_plan.projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
+				for project in master_plan.projects: project.responsible = _responsible_this_project(project, responsibility.projects.all())
+			
+			return render_response(request, "dashboard_sector_assistant_projects.html", {'master_plans':master_plans})
 	else:
-		responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile())
-		
-		master_plans = MasterPlan.objects.filter(sector=request.user.get_profile().sector)
-		
-		for master_plan in master_plans:
-			master_plan.projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
-			for project in master_plan.projects: project.responsible = _responsible_this_project(project, responsibility.projects.all())
-		
-		return render_response(request, "dashboard_sector_assistant_projects.html", {'master_plans':master_plans})
+		return redirect('view_frontpage')
 
 def _responsible_this_project(project, my_projects):
 	for my_project in my_projects:
@@ -318,9 +321,15 @@ def view_administer_organization_edit_sector(request, sector_id):
 def view_administer_organization_delete_sector(request, sector_id):
 	user_account = request.user.get_profile()
 	if not request.user.is_superuser: return access_denied(request)
-
+	
 	sector = get_object_or_404(Sector, pk=sector_id)
-	sector.delete()
+	
+	if not MasterPlan.objects.filter(sector=sector).count():
+		sector.delete()
+		set_message(request, u"ลบสำนัก%s เรียบร้อย" % sector.name)
+	else:
+		set_message(request, u"ไม่สามารถลบสำนัก%s ได้เนื่องจากยังมีข้อมูลแผนหลักอยู่ภายใต้" % sector.name)
+	
 	return redirect('view_administer_organization')
 
 @login_required
@@ -397,7 +406,13 @@ def view_administer_organization_delete_masterplan(request, master_plan_id):
 	if not request.user.is_superuser: return access_denied(request)
 
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
-	master_plan.delete()
+	
+	if not Plan.objects.filter(master_plan=master_plan).count():
+		master_plan.delete()
+		set_message(request, u"ลบแผนหลัก%s เรียบร้อย" % master_plan.name)
+	else:
+		set_message(request, u"ไม่สามารถลบแผนหลัก%s ได้เนื่องจากยังมีข้อมูลกลุ่มแผนงานหรือแผนงานอยู่ภายใต้" % master_plan.name)
+	
 	return redirect('view_administer_organization')
 
 @login_required
@@ -407,17 +422,10 @@ def view_administer_users(request):
 
 	users = User.objects.filter(is_superuser=False)
 	for user in users:
-		resps = UserRoleResponsibility.objects.filter(user=user.get_profile())
-
-		projects = []
-		roles = []
-		for resp in resps:
-			projects += [project.name for project in resp.projects.all()]
-			group_name = GroupName.objects.get(group=resp.role)
-			roles += [group_name.name]
-		user.projects = ', '.join(projects)
-		user.roles = ', '.join(roles)
-
+		responsibility = UserRoleResponsibility.objects.filter(user=user.get_profile())[0]
+		user.role = GroupName.objects.get(group=responsibility.role).name
+		user.projects = responsibility.projects.all()
+	
 	return render_response(request, "administer_users.html", {'users': users})
 
 @login_required
@@ -568,14 +576,11 @@ def view_administer_users_password(request, user_id):
 def view_administer_users_status(request, user_id):
 	user_account = request.user.get_profile()
 	if not request.user.is_superuser: return access_denied(request)
-
-	user_account = request.user.get_profile()
-	if not request.user.is_superuser: return access_denied(request)
-
+	
 	user = User.objects.get(pk=user_id)
 	user.is_active = not user.is_active
 	user.save()
-
+	
 	return HttpResponse(simplejson.dumps({'status': 'complete'}))
 
 #
@@ -604,8 +609,11 @@ def view_sector_overview(request, sector_id):
 @login_required
 def view_sector_reports(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
+	
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', sector): return access_denied(request)
+	
 	reports = Report.objects.filter(sector=sector).order_by('created')
-
+	
 	for report in reports:
 		report.project_count = ReportProject.objects.filter(report=report).count()
 
@@ -614,7 +622,9 @@ def view_sector_reports(request, sector_id):
 @login_required
 def view_sector_add_report(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
-
+	
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', sector): return access_denied(request)
+	
 	if request.method == 'POST':
 		form = SectorReportForm(request.POST)
 		if form.is_valid():
@@ -626,6 +636,8 @@ def view_sector_add_report(request, sector_id):
 			
 			Report.objects.create(name=report_name, need_approval=need_approval, need_checkup=True, schedule_cycle_length=schedule_cycle_length, schedule_monthly_date=schedule_monthly_date, sector=sector, created_by=request.user.get_profile(), notify_days=notify_days)
 
+			set_message(request, u"สร้างรายงาน%s เรียบร้อย" % report_name)
+			
 			return redirect('view_sector_reports', (sector.id))
 
 	else:
@@ -636,8 +648,10 @@ def view_sector_add_report(request, sector_id):
 @login_required
 def view_sector_edit_report(request, sector_id, report_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
-	report = get_object_or_404(Report, pk=report_id)
+	
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', sector): return access_denied(request)
 
+	report = get_object_or_404(Report, pk=report_id)
 	if request.method == 'POST':
 		form = SectorReportForm(request.POST)
 		if form.is_valid():
@@ -645,6 +659,7 @@ def view_sector_edit_report(request, sector_id, report_id):
 			report.need_approval = form.cleaned_data['need_approval']
 			report.notify_days = form.cleaned_data['notify_days']
 			report.save()
+			set_message(request, u"แก้ไขรายงาน%s เรียบร้อย" % report_name)
 
 			return redirect('view_sector_reports', (sector.id))
 
@@ -656,11 +671,18 @@ def view_sector_edit_report(request, sector_id, report_id):
 @login_required
 def view_sector_delete_report(request, sector_id, report_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
+	
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', sector): return access_denied(request)
+	
 	report = get_object_or_404(Report, pk=report_id)
-
+	
 	project_count = ReportProject.objects.filter(report=report).count()
-	if not project_count: report.delete()
-
+	if not project_count:
+		report.delete()
+		set_message(request, u"ลบรายงาน%s เรียบร้อย" % report.name)
+	else:
+		set_message(request, u"ไม่สามารถลบรายงานได้เนื่องจากมีแผนงานที่ส่งรายงานนี้อยู่" % report_name)
+	
 	return redirect('view_sector_reports', (sector.id))
 
 #
@@ -671,14 +693,14 @@ def view_master_plan_overview(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	current_date = date.today()
 	current_year = utilities.current_year_number()
-
+	
 	# Plans
 	plans = Plan.objects.filter(master_plan=master_plan)
 	for plan in plans:
 		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
-
+	
 	master_plan.plans = plans
-
+	
 	return render_response(request, "master_plan_overview.html", {'master_plan':master_plan, 'current_year':current_year})
 
 @login_required
@@ -695,38 +717,46 @@ def view_master_plan_plans(request, master_plan_id):
 @login_required
 def view_master_plan_organization(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
-
+	
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	
 	plans = Plan.objects.filter(master_plan=master_plan)
-
+	
 	for plan in plans:
 		plan.projects = Project.objects.filter(plan=plan).order_by('-start_date')
 		for project in plan.projects:
 			if Project.objects.filter(parent_project=project).count():
 				project.has_child = True
-
+	
 	return render_response(request, "master_plan_organization.html", {'master_plan':master_plan, 'plans':plans})
 
 @login_required
 def view_master_plan_add_plan(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	
 	if request.method == 'POST':
 		form = PlanForm(request.POST)
 		if form.is_valid():
 			cleaned_data = form.cleaned_data
 			plan = Plan.objects.create(ref_no=cleaned_data['ref_no'], name=cleaned_data['name'], master_plan=master_plan)
-			set_message(request, u"เพิ่ม %s แล้ว" % plan.name)
-
+			set_message(request, u"สร้างกลุ่มแผนงาน%s เรียบร้อย" % plan.name)
+			
 			return redirect('view_master_plan_organization', (master_plan_id))
 	else:
 		form = PlanForm()
-
+	
 	return render_response(request, "master_plan_add_plan.html", {'master_plan':master_plan, 'form':form})
 
 @login_required
 def view_master_plan_edit_plan(request, master_plan_id, plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	
 	plan = get_object_or_404(Plan, pk=plan_id)
-
+	
 	if request.method == 'POST':
 		form = PlanForm(request.POST)
 		if form.is_valid():
@@ -734,8 +764,7 @@ def view_master_plan_edit_plan(request, master_plan_id, plan_id):
 			plan.ref_no = cleaned_data['ref_no']
 			plan.name = cleaned_data['name']
 			plan.save()
-
-			set_message(request, u"บันทึกการเปลี่ยนแปลงของ %s แล้ว" % plan.name)
+			set_message(request, u"แก้ไขกลุ่มแผนงาน%s เรียบร้อย" % plan.name)
 
 			return redirect('view_master_plan_organization', (master_plan_id))
 	else:
@@ -745,15 +774,24 @@ def view_master_plan_edit_plan(request, master_plan_id, plan_id):
 
 @login_required
 def view_master_plan_delete_plan(request, master_plan_id, plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	plan = get_object_or_404(Plan, pk=plan_id)
-	plan.delete()
-	set_message(request, u"กลุ่มแผนงาน <em>%s</em> ถูกลบแล้ว" % plan.name)
+	
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	
+	if not Project.objects.filter(plan=plan).count():
+		plan.delete()
+		set_message(request, u"ลบกลุ่มแผนงาน%s เรียบร้อย" % plan.name)
+	else:
+		set_message(request, u"ไม่สามารถลบกลุ่มแผนงาน%s ได้ เนื่องจากมีแผนงานที่อยู่ภายใต้" % plan.name)
 
 	return redirect('view_master_plan_organization', (master_plan_id))
 
 @login_required
 def view_master_plan_add_project(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
 
 	class CustomMasterPlanAddProjectForm(MasterPlanAddProjectForm):
 		plan = PlanChoiceField(queryset=Plan.objects.filter(master_plan=master_plan), label="สังกัดกลุ่มแผนงาน", empty_label=None)
@@ -811,9 +849,9 @@ def view_master_plan_add_project(request, master_plan_id):
 						)
 						year, month = next_month(this_month_schedule_date.year, this_month_schedule_date.month)
 						this_month_schedule_date = schedule_month_date(report, year, month)
-
-			set_message(request, u"สร้างแผนงาน %s เรียบร้อยแล้ว" % project.name)
-
+			
+			set_message(request, u"สร้างแผนงาน%s เรียบร้อย" % project.name)
+			
 			return redirect('view_master_plan_organization', (master_plan_id))
 	else:
 		form = CustomMasterPlanAddProjectForm()
@@ -823,6 +861,9 @@ def view_master_plan_add_project(request, master_plan_id):
 @login_required
 def view_master_plan_edit_project(request, master_plan_id, project_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	
 	project = get_object_or_404(Project, pk=project_id)
 
 	class CustomMasterPlanAddProjectForm(MasterPlanEditProjectForm):
@@ -837,8 +878,9 @@ def view_master_plan_edit_project(request, master_plan_id, project_id):
 			project.name = cleaned_data['name']
 			project.description = cleaned_data['description']
 			project.save()
+			
+			set_message(request, u"แก้ไขแผนงาน%s เรียบร้อย" % project.name)
 
-			set_message(request, u"บันทึกการเปลี่ยนแปลงแผนงาน %s เรียบร้อยแล้ว" % project.name)
 			return redirect('view_master_plan_organization', (master_plan_id))
 	else:
 		form = CustomMasterPlanAddProjectForm(initial={'plan':project.plan.id, 'ref_no':project.ref_no, 'name':project.name, 'description':project.description})
@@ -848,15 +890,18 @@ def view_master_plan_edit_project(request, master_plan_id, project_id):
 @login_required
 def view_master_plan_delete_project(request, master_plan_id, project_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	
 	project = get_object_or_404(Project, pk=project_id)
-
-	report_projects = ReportProject.objects.filter(project=project)
-	ReportSchedule.objects.filter(report_project__in=report_projects).delete()
-	report_projects.delete()
-
-	project.delete()
-
-	set_message(request, u"ลบแผนงาน %s เรียบร้อยแล้ว" % project.name)
+	
+	if Project.objects.filter(parent_project=project).count() or ReportProject.objects.filter(project=project).count():
+		set_message(request, u"ไม่สามารถลบแผนงาน%s ได้ เนื่องจากแผนงานยังมีโครงการหรือรายงานอยู่" % project.name)
+		
+	else:
+		project.delete()
+		set_message(request, u"ลบแผนงาน%s เรียบร้อย" % project.name)
+	
 	return redirect('view_master_plan_organization', (master_plan_id))
 
 #
@@ -906,6 +951,8 @@ def view_project_add(request, project_id):
 					end_date=form.cleaned_data['end_date']
 				)
 				
+				set_message(request, u"สร้างโครงการ%s เรียบร้อย" % project.name)
+				
 				return redirect('view_project_overview', (created_project.id))
 	
 		else:
@@ -932,6 +979,8 @@ def view_project_edit(request, project_id):
 				project.end_date = form.cleaned_data.get('end_date')
 				project.save()
 				
+				set_message(request, u"แก้ไขโครงการ%s เรียบร้อย" % project.name)
+				
 				return redirect('view_project_overview', (project.id))
 	
 		else:
@@ -953,6 +1002,7 @@ def view_project_delete(request, project_id):
 			return redirect('view_project_overview', (project.id))
 		else:
 			project.delete()
+			set_message(request, u"ลบโครงการ%s เรียบร้อย" % project.name)
 			return redirect('view_project_projects', (head_project.id))
 	
 	else:
@@ -1037,6 +1087,10 @@ def view_project_report_edit(request, project_id, report_id):
 			
 			report.name = name
 			report.save()
+			
+			set_message(request, u"แก้ไขรายงาน%s เรียบร้อย" % report.name)
+			
+			return redirect('view_project_reports_list', (project.id))
 		
 	else:
 		form = EditProjectReportForm(initial={})
@@ -1056,22 +1110,6 @@ def view_project_reports_send(request, project_id):
 			schedule.comment_count = Comment.objects.filter(object_name='report', object_id=schedule.id).count()
 
 	return render_response(request, "project_reports_send.html", {'project':project, 'reports':reports})
-
-@login_required
-def view_project_comments(request, project_id):
-	project = get_object_or_404(Project, pk=project_id)
-
-	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='project', \
-		comment__object_id=project.id).order_by("-sent_on")
-
-	for comment in comments:
-		comment.receivers = CommentReceiver.objects.filter(comment=comment.comment)
-		comment.already_read = comment.is_read
-
-	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='project', \
-		comment__object_id=project.id).update(is_read=True)
-
-	return render_response(request, "project_comments.html", {'project':project, 'comments':comments})
 
 # Helper function to find previous and next month.
 def prev_month(year, month, num=1):
@@ -1154,18 +1192,18 @@ def view_activity_add(request, project_id):
 		if request.method == "POST":
 			form = ActivityForm(request.POST)
 			if form.is_valid():
-				activity = Activity()
-
-				activity.project     = project
-				activity.name        = form.cleaned_data['name']
-				activity.start_date  = form.cleaned_data['start_date']
-				activity.end_date    = form.cleaned_data['end_date']
-				activity.description = form.cleaned_data['description']
-				activity.location    = form.cleaned_data['location']
-				activity.result_goal = form.cleaned_data['result_goal']
-				activity.result_real = form.cleaned_data['result_real']
-				activity.save()
-
+				activity = Activity.objects.create(project=project,\
+					name=form.cleaned_data['name'],\
+					start_date=form.cleaned_data['start_date'],\
+					end_date=form.cleaned_data['end_date'],\
+					description=form.cleaned_data['description'],\
+					location=form.cleaned_data['location'],\
+					result_goal=form.cleaned_data['result_goal'],\
+					result_real=form.cleaned_data['result_real'],\
+					)
+				
+				set_message(request, u"สร้างกิจกรรม%s เรียบร้อย" % activity.name)
+				
 				return redirect('view_activity_overview', (activity.id))
 
 		else:
@@ -1195,8 +1233,11 @@ def view_activity_edit(request, activity_id):
 				activity.result_goal = form.cleaned_data['result_goal']
 				activity.result_real = form.cleaned_data['result_real']
 				activity.save()
+				
+				set_message(request, u"แก้ไขกิจกรรม%s เรียบร้อย" % activity.name)
 
 				return redirect('view_activity_overview', (activity.id))
+		
 		else:
 			form = ActivityForm(activity.__dict__)
 		
@@ -1221,23 +1262,17 @@ def view_activity_delete(request, activity_id):
 @login_required
 def view_project_comments(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-
-	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='project', \
-		comment__object_id=project_id).order_by("-sent_on")
-
-	for comment in comments:
-		comment.receivers = CommentReceiver.objects.filter(comment=comment.comment)
-		comment.already_read = comment.is_read
-
-	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='project', \
-		comment__object_id=project_id).update(is_read=True)
-
+	
+	comments = comments_functions.retrieve_visible_comments(request, 'project', project.id)
+	
+	# Mark comments as read
+	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='project', comment__object_id=project.id).update(is_read=True)
+	
 	return render_response(request, "project_comments.html", {'project':project, 'comments':comments})
 
 #
 # ACTIVITY
 #
-
 @login_required
 def view_activity_overview(request, activity_id):
 	activity = get_object_or_404(Activity, pk=activity_id)
@@ -1246,14 +1281,9 @@ def view_activity_overview(request, activity_id):
 @login_required
 def view_activity_comments(request, activity_id):
 	activity = get_object_or_404(Activity, pk=activity_id)
-
-	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='activity', \
-		comment__object_id=activity_id).order_by("-sent_on")
-
-	for comment in comments:
-		comment.receivers = CommentReceiver.objects.filter(comment=comment.comment)
-		comment.already_read = comment.is_read
-
+	
+	comments = comments_functions.retrieve_visible_comments(request, 'activity', activity.id)
+	
 	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='activity', \
 		comment__object_id=activity_id).update(is_read=True)
 
@@ -1262,7 +1292,6 @@ def view_activity_comments(request, activity_id):
 #
 # REPORT
 #
-
 @login_required
 def view_report_overview(request, report_id):
 	report_schedule = get_object_or_404(ReportSchedule, pk=report_id)
@@ -1271,14 +1300,14 @@ def view_report_overview(request, report_id):
 		project = report_schedule.report_project.report.project
 		
 		if not utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
-			return redirect('view_project_reports', (project.id))
+			return redirect('view_report_overview', (report_schedule.id))
 		
 		submit_type = request.POST.get('submit')
-
+		
 		if submit_type == 'submit-file':
 			schedule_id = request.POST.get("schedule_id")
 			schedule = ReportSchedule.objects.get(pk=schedule_id)
-
+			
 			file_response = ReportScheduleFileResponse.objects.create(schedule=schedule, uploaded_by=request.user.get_profile())
 
 			# Uploading directory
@@ -1362,13 +1391,11 @@ def view_report_overview(request, report_id):
 def view_report_comments(request, report_id):
 	report = get_object_or_404(ReportSchedule, pk=report_id)
 	
-	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='report', \
-		comment__object_id=report.id).order_by("-sent_on")
-
+	comments = comments_functions.retrieve_visible_comments(request, 'report', report.id)
+	
 	for comment in comments:
-		comment.receivers = CommentReceiver.objects.filter(comment=comment.comment)
-		comment.already_read = comment.is_read
-
+		print comment.receivers.all()
+	
 	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='report', \
 		comment__object_id=report.id).update(is_read=True)
 
