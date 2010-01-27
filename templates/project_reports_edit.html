@@ -34,8 +34,24 @@
 {% block body_content %}
 <div class="ss_child_page_header">แก้ไขรายงาน <a href="{% url view_project_reports_list project.id %}">กลับไปหน้ารูปแบบรายงาน &#187;</a></div>
 
-<div class="project_report_modify">	
-	
-	
+<div class="project_report_modify">
+	<form method="post" action="." class="ss_form">
+		<ul>
+			<li>
+				<label for="id_name">{{form.name.label}}:</label>
+				<div class="input LONG">{{form.name}}</div>
+			</li>
+			<li class="inline">
+				{{form.need_checkup}}
+				<label for="id_need_checkup">{{form.need_checkup.label}}</label>
+			</li>
+			<li class="inline">
+				{{form.need_approval}}
+				<label for="id_need_approval">{{form.need_approval.label}}</label>
+			</li>
+		</ul>
+		<div class="button_panel"><button>บันทึกรายงาน</button></div>
+	</form>
+
 </div>
 {% endblock %}

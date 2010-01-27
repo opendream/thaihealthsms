@@ -191,6 +191,8 @@ class AddProjectReportForm(forms.Form):
 
 class EditProjectReportForm(forms.Form):
 	name = forms.CharField(max_length=512, label='ชื่อรายงาน')
+	need_checkup = forms.BooleanField(required=False, label='ส่งรายงานถึงผู้ประสานงานสำนัก')
+	need_approval = forms.BooleanField(required=False, label='ต้องรับรองรายงาน')
 
 #
 # Activity Form
