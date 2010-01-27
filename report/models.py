@@ -18,6 +18,8 @@ class Report(models.Model):
 	schedule_cycle = models.IntegerField(default=3) # 1:Daily, 2:Weekly, 3:Monthly, 4:Yearly
 	schedule_cycle_length = models.IntegerField(default=1)
 	schedule_monthly_date = models.IntegerField(default=1) # 0 is end of month
+	
+	notify_days = models.IntegerField(default=3)
 
 class ReportProject(models.Model):
 	report = models.ForeignKey('Report')
