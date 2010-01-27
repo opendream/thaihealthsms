@@ -279,6 +279,7 @@ class SectorReportForm(forms.Form):
 	need_approval = forms.BooleanField(required=False, label='รายงานที่ส่งมา ต้องมีการรับรองรายงาน')
 	schedule_cycle_length = forms.ChoiceField(choices=month_cycle)
 	schedule_monthly_date = forms.ChoiceField(choices=date_cycle)
+	notify_days = forms.IntegerField(label='จำนวนวันที่แจ้งเตือนผู้ดูแลโครงการก่อนรายงานจะถึงกำหนดส่ง')
 
 #
 # Master Plan Form

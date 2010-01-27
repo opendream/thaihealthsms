@@ -6,22 +6,9 @@ from django.http import HttpResponse, Http404
 from report import functions as report_functions
 from report.models import *
 
-def notify_overdue_schedule():
-	current_date = date.today()
-	events = ReportScheduleEvent.objects.filter(due_date=current_date, is_submitted=False)
-	
-	for event in events:
-		
-		message_text = "Hey! Today you have due report of %s.\n" % event.schedule.name
-		
-		from django.core.mail import send_mail
-		send_mail('You have overdue report', message_text, 'application.testbed@gmail.com', ['panuta@gmail.com'], fail_silently=False)
 
 def get_nextdue(request):
 	report_functions.get_program_nextdue_schedules(1)
-
-
-
 
 def ajax_approve_report_schedule(request):
 	if request.method == 'POST':

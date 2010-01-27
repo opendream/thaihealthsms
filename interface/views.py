@@ -622,8 +622,9 @@ def view_sector_add_report(request, sector_id):
 			need_approval = form.cleaned_data['need_approval']
 			schedule_cycle_length = form.cleaned_data['schedule_cycle_length']
 			schedule_monthly_date = form.cleaned_data['schedule_monthly_date']
-
-			Report.objects.create(name=report_name, need_approval=need_approval, need_checkup=True, schedule_cycle_length=schedule_cycle_length, schedule_monthly_date=schedule_monthly_date, sector=sector, created_by=request.user.get_profile())
+			notify_days = form.cleaned_data['notify_days']
+			
+			Report.objects.create(name=report_name, need_approval=need_approval, need_checkup=True, schedule_cycle_length=schedule_cycle_length, schedule_monthly_date=schedule_monthly_date, sector=sector, created_by=request.user.get_profile(), notify_days=notify_days)
 
 			return redirect('view_sector_reports', (sector.id))
 
@@ -642,12 +643,13 @@ def view_sector_edit_report(request, sector_id, report_id):
 		if form.is_valid():
 			report.name = form.cleaned_data['name']
 			report.need_approval = form.cleaned_data['need_approval']
+			report.notify_days = form.cleaned_data['notify_days']
 			report.save()
 
 			return redirect('view_sector_reports', (sector.id))
 
 	else:
-		form = SectorReportForm(initial={'name':report.name, 'need_approval':report.need_approval, 'schedule_cycle_length':report.schedule_cycle_length, 'schedule_monthly_date':report.schedule_monthly_date})
+		form = SectorReportForm(initial={'name':report.name, 'need_approval':report.need_approval, 'notify_days': report.notify_days})
 
 	return render_response(request, "sector_report_edit.html", {'sector':sector, 'form':form})
 

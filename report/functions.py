@@ -8,9 +8,10 @@ from django.db.models import Min, Max
 from django.core.mail import send_mail
 from django.conf import settings
 
-from domain.models import Project
+from domain.models import *
 from report.models import *
 from comments.models import *
+from helper import utilities
 
 def get_submitted_and_overdue_reports(project):
 	"""
@@ -103,31 +104,39 @@ def get_all_reports_schedule_by_project(project):
 
 	return report_projects
 
-def notify_due_report():
+def notify_overdue_schedule():
+	print 'Start notify'
 	today = date.today()
-	# Case before due date n days
-	report_schedule = ReportSchedule.objects.filter(due_date=today.replace(day=today.day+settings.REPORT_DAYS_ALERT))
-	text = u'คุณ %s มี %s ภายใต้ %s ที่ต้องส่งภายในวันที่ %s'
-	send_mail_to_pm(report_schedule, text)
+	
+	for report in Report.objects.all():
+		print 'Report: ' + report.name
+		for report_project in ReportProject.objects.filter(report=report):
+			project = report_project.project
+			print 'Project: ' + project.name
+			for user_role_responsibility in UserRoleResponsibility.objects.filter(projects=project, role__name__in=('project_manager', 'project_manager_assistant')):
+				user_account = user_role_responsibility.user
+				user = user_account.user
+				
+				# Case before due date n days
+				for report_schedule in ReportSchedule.objects.filter(report_project=report_project, due_date=today+timedelta(report.notify_days), state=NO_ACTIVITY):
+					print report_schedule.due_date.strftime('%d %B %Y').decode('utf-8') + ' send to ' + user.email
+					
+					message = u'คุณ %s มี %s ภายใต้ %s ที่ต้องส่งภายในวันที่ %s' % (
+						user_account.first_name + ' ' + user_account.last_name, 
+						report.name,
+						project.name,
+						utilities.format_date(report_schedule.due_date), 
+					)
+					send_mail('แจ้งเตือนการส่งรายงาน', message, 'application.testbed@gmail.com', ['crosalot@gmail.com'], fail_silently=False)
+				
+				# Case due date
+				for report_schedule in ReportSchedule.objects.filter(report_project=report_project, due_date=today, state=NO_ACTIVITY):
+					print report_schedule.due_date.strftime('%d %B %Y').decode('utf-8') + ' send to ' + user.email
 
-	# Case due date
-	report_schedule = ReportSchedule.objects.filter(due_date=today)
-	text = u'คุณ %s มี %s ภายใต้ %s ที่ต้องส่งภายในวันนี้ %s'
-	send_mail_to_pm(report_schedule, text)
-
-def send_mail_to_pm(report_schedule, text):
-	for rep in report_schedule:
-		project = rep.report_project.project
-		manager = project.manager
-		email = manager.user.email
-
-		# Variable use for email
-		full_name = manager.first_name + ' ' + manager.last_name
-		project_name = project.name
-		report_name = rep.report_project.report.name
-		before_n_day = settings.REPORT_DAYS_ALERT
-		due_date = rep.due_date.strftime('%d %B %Y').decode('utf-8')
-
-		message = text % (full_name, report_name, project_name, due_date)
-
-		send_mail('แจ้งเตือนการส่งรายงาน', message, 'smtp.gmail.com', [email])
+					message = u'คุณ %s มี %s ภายใต้ %s ที่ต้องส่งภายในวันนี้่ %s \nถ้าเกินวันนี้ไปจะถือว่ารายงานนี้ล่าช้ากว่ากำหนด' % (
+						user_account.first_name + ' ' + user_account.last_name, 
+						report.name,
+						project.name,
+						utilities.format_date(report_schedule.due_date), 
+					)
+					send_mail('แจ้งเตือนการส่งรายงาน', message, 'application.testbed@gmail.com', ['crosalot@gmail.com'], fail_silently=False)
