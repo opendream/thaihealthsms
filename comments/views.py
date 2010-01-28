@@ -1,15 +1,21 @@
 from datetime import datetime
 
-from django.http import HttpResponse, Http404
+from django.conf import settings
+from django.core.mail import send_mass_mail
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.db.models import Q
+from django.http import HttpResponse, Http404
+from django.template.loader import render_to_string
 from django.utils import simplejson
+
+from functions import get_comment_object
 
 from comments.models import *
 from domain.models import Activity, UserAccount, Project, UserRoleResponsibility
 from report.models import ReportSchedule
 
-from thaihealthsms.helper.utilities import format_abbr_date
+from thaihealthsms.helper.utilities import format_abbr_date, format_date
 
 @login_required
 def ajax_post_object_comment(request, object_name, object_id):
@@ -42,15 +48,24 @@ def ajax_post_object_comment(request, object_name, object_id):
 			else:
 				target_project = report_schedule.report_project.project
 			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(target_project,))
-
-		for r in role_resps:
-			CommentReceiver.objects.create(comment=comment, receiver=r.user, sent_on=comment.sent_on)
-
-		receivers = request.POST.getlist('to')
-		for receiver in receivers:
-			CommentReceiver.objects.create(comment=comment, receiver=UserAccount(id=receiver), sent_on=comment.sent_on)
 		
-		# TODO: Send Email
+		email_recipient_list = list()
+		
+		for r in role_resps:
+			CommentReceiver.objects.create(comment=comment, receiver=r.user)
+			email_recipient_list.append(r.user.user.email)
+		
+		CommentReceiver.objects.create(comment=comment, receiver=request.user.get_profile(), is_read=True) # Create receiver record for sender
+		
+		object = get_comment_object(comment.object_name, comment.object_id)
+		
+		email_render_dict = {'comment':comment, 'object':object, 'site':Site.objects.get_current()}
+		email_subject = render_to_string('system/comment_email_subject.txt', email_render_dict)
+		email_message = render_to_string('system/comment_email_message.txt', email_render_dict)
+		
+		datatuple = ((email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, email_recipient_list),)
+		
+		send_mass_mail(datatuple, fail_silently=True)
 		
 		return HttpResponse(simplejson.dumps({'id': comment.id,}))
 		
@@ -68,27 +83,34 @@ def ajax_reply_comment(request, comment_id):
 		if comment:
 			message = request.POST['message'].strip()
 			comment_reply = CommentReply.objects.create(comment=comment, content=message, sent_by=request.user.get_profile())
-
-			for receiver in comment.commentreceiver_set.all():
-				if receiver.is_read:
-					receiver.is_read = False
-					receiver.save()
-
-			# TODO: Send Email
-
-			return HttpResponse(simplejson.dumps({'id': comment_reply.id,}))
+			
+			email_recipient_list = list()
+			
+			for receiver in comment.receivers.all():
+				if receiver.id == request.user.get_profile().id:
+					CommentReplyReceiver.objects.create(reply=comment_reply, receiver=receiver, is_read=True)
+				else:
+					CommentReplyReceiver.objects.create(reply=comment_reply, receiver=receiver)
+					email_recipient_list.append(receiver.user.email)
+			
+			object = get_comment_object(comment_reply.comment.object_name, comment_reply.comment.object_id)
+			
+			email_render_dict = {'comment':comment_reply.comment, 'comment_reply':comment_reply, 'object':object, 'site':Site.objects.get_current()}
+			email_subject = render_to_string('system/comment_reply_email_subject.txt', email_render_dict)
+			email_message = render_to_string('system/comment_reply_email_message.txt', email_render_dict)
+			
+			datatuple = ((email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, email_recipient_list),)
+			
+			send_mass_mail(datatuple, fail_silently=True)
+			
+			return HttpResponse(simplejson.dumps({'id': comment_reply.id,
+				'first_name':comment_reply.sent_by.first_name,
+				'last_name':comment_reply.sent_by.last_name,
+				'date_timestamp':format_date(comment_reply.sent_on),
+				'time_timestamp':'%02d:%02d' % (comment_reply.sent_on.hour, comment_reply.sent_on.minute),}))
+		
 		else:
 			return HttpResponse(simplejson.dumps({'error': '404',}))
 	else:
 		raise Http404
 
-def ajax_query_comment_receivers(request):
-	query_string = request.GET['tag']
-	
-	users = UserAccount.objects.filter(Q(first_name__istartswith=query_string) | Q(last_name__istartswith=query_string))
-	
-	receivers = list()
-	for user in users:
-		receivers.append({'value':user.id, 'caption':user.first_name+" "+user.last_name})
-	
-	return HttpResponse(simplejson.dumps(receivers))

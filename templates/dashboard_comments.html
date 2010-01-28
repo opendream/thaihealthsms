@@ -20,13 +20,6 @@
 		<div class="clear"></div>
 	</div>
 </div>
-<div class="ss_sub_tab_navi">
-	<ul>
-		<li class="selected">{% trans 'Inbox' %}</li>
-		<li><a href="{% url view_dashboard_comments_outbox %}">{% trans 'Outbox' %}</a></li>
-	</ul>
-	<div class="clear"></div>
-</div>
 {% endblock %}
 
 {% block body_content %}
@@ -47,15 +40,28 @@
 			
 			<ul class="comments">
 				{% for comment in object.comments %}
-				<li>
-					<div class="sender">{{comment.comment.sent_by.first_name}} {{comment.comment.sent_by.last_name}}
-					  <div class="metadata">
+				<li {% if comment.is_read %}class="read"{% else %}class="unread"{% endif %}>
+					<div class="sender">
+						{{comment.sent_by.first_name}} {{comment.sent_by.last_name}}
+						<div class="metadata">
 						{% blocktrans with comment.sent_on|thai_date as c_date and comment.sent_on|date:'H:i' as c_time %}Send at {{ c_date }} Time {{ c_time }} o'clock{% endblocktrans %}
-					  </div>
+						</div>
 					</div>
-					<p>{{comment.comment.message}}</p>
-					{% if comment.comment.commentreply_set.all %}
-						<div class="feedback">{% trans 'Feedbacks' %}: {{ comment.comment.commentreply_set.all.count }}</div>
+					<p>{{comment.message}}</p>
+					{% if comment.replies %}
+					<ul class="reply_comments">
+						{% for reply in comment.replies %}
+						<li>
+							<div class="sender">
+								{{reply.sent_by.first_name}} {{reply.sent_by.last_name}}
+								<div class="metadata">
+								{% blocktrans with reply.sent_on|thai_date as c_date and reply.sent_on|date:'H:i' as c_time %}Send at {{ c_date }} Time {{ c_time }} o'clock{% endblocktrans %}
+								</div>
+							</div>
+							<p>{{reply.content}}</p>
+						</li>
+						{% endfor %}
+					</ul>
 					{% endif %}
 				</li>
 				{% endfor %}
@@ -64,7 +70,7 @@
 		{% endfor %}
 	</ul>
 	{% else %}
-	<div class="ss_no_information">{% trans 'There are no new comment.' %}</div>
+	<div class="ss_no_information">ไม่มีความคิดเห็นใหม่</div>
 	{% endif %}
 </div>
 {% endblock %}

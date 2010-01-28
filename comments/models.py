@@ -19,13 +19,18 @@ class CommentReceiver(models.Model):
 	comment = models.ForeignKey('Comment')
 	receiver = models.ForeignKey('domain.UserAccount', related_name='comment_receiver')
 	is_read = models.BooleanField(default=False)
-	sent_on = models.DateTimeField() # Save value as in Comment
 
 class CommentReply(models.Model):
 	comment = models.ForeignKey('Comment')
 	content = models.CharField(max_length=1024)
 	sent_on = models.DateTimeField(auto_now_add=True)
-	sent_by = models.ForeignKey('domain.UserAccount')
+	sent_by = models.ForeignKey('domain.UserAccount', related_name='reply_sent_by')
+	receivers = models.ManyToManyField('domain.UserAccount', through='CommentReplyReceiver')
 
 	class Meta:
 		ordering = ['sent_on']
+
+class CommentReplyReceiver(models.Model):
+	reply = models.ForeignKey('CommentReply')
+	receiver = models.ForeignKey('domain.UserAccount', related_name='comment_reply_receiver')
+	is_read = models.BooleanField(default=False)

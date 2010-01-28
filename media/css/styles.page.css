@@ -121,23 +121,32 @@ ADMIN ORGANIZATION
 .overview_page .reports_section ul li {margin:10px 5px;list-style:disc;}
 
 /*
-COMMENTS PAGE
+COMMENTS PAGE ###############################################################################
 */
-.comments_page .comments li {margin-bottom:15px;border:1px solid #A9C5DB;}
-.comments_page .comments li .sender {color:#333;font-size:108%;font-weight:bold;background-color:#A9C5DB;padding:5px 10px;}
-.comments_page .comments li p {font-size:116%;padding:10px;}
+
+.comments_page .comments li {border:1px solid #A9C5DB;margin-bottom:15px;}
+.comments_page .comments li .sender {color:#333;font-size:108%;font-weight:bold;padding:5px 10px;}
 .comments_page .comments li .metadata {float:right;color:#333;font-weight:normal;}
+.comments_page .comments li p {font-size:116%;padding:10px;}
 
+.comments_page .comments li.unread {border:1px solid #A9C5DB;}
+.comments_page .comments li.unread .sender {background-color:#A9C5DB;}
 .comments_page .comments li.read {border:1px solid #CCC;}
-.comments_page .comments li.read .sender {color:#333;font-size:108%;font-weight:bold;background-color:#DDD;padding:5px 10px;}
+.comments_page .comments li.read .sender {background-color:#DDD;}
 
-.comments_page .comments .reply_comment_panel {padding:10px;}
 .comments_page .comments .receivers {font-size:108%;padding-top:10px;margin:0px 10px;border-top:1px dashed #CCC;}
 .comments_page .comments .receivers h4 {display:inline;color:#666;margin-right:5px;}
 .comments_page .comments .receivers ul {display:inline;}
 .comments_page .comments .receivers ul li {border:1px solid #DDD;color:#666;margin-right:10px;padding:2px 5px;display:inline-block;display:-moz-inline-stack;*display:inline;list-style:none;zoom:1;}
-.comments_page .comments .indented { padding-left: 35px; }
-.comments_page .comments .indented .reply-comment-item { padding: 10px; }
+
+.comments_page .comments .reply_comment_panel {padding:10px;}
+
+.comments_page .comments .reply_comments {margin:0px 20px 15px;}
+.comments_page .comments .reply_comments li {margin-bottom:10px;}
+.comments_page .comments .reply_comments li.unread {border:1px solid #A9C5DB;}
+.comments_page .comments .reply_comments li.unread .sender {background-color:#A9C5DB;}
+.comments_page .comments .reply_comments li.read {border:1px solid #CCC;}
+.comments_page .comments .reply_comments li.read .sender {background-color:#DDD;}
 
 /*
 COMMENT INBOX PAGE
@@ -148,8 +157,13 @@ COMMENT INBOX PAGE
 .comment_inbox_page .comments li .sender {color:#333;font-size:108%;font-weight:bold;background-color:#A9C5DB;padding:5px 10px;}
 .comment_inbox_page .comments li p {font-size:116%;padding:10px;}
 .comment_inbox_page .comments li .metadata {float:right;color:#333;font-weight:normal;}
-.comment_inbox_page .feedback {background-color:#ddd; color:#666; padding: 5px 10px;}
 
+.comment_inbox_page .comments li.read {border:1px solid #CCC;}
+.comment_inbox_page .comments li.read .sender {background-color:#DDD;}
+
+.comment_inbox_page .comments .reply_comments {margin:10px 20px;}
+.comment_inbox_page .comments .reply_comments li {margin:0px 0px 10px 0px;border:1px solid #A9C5DB;}
+.comment_inbox_page .comments .reply_comments li .sender {font-weight:normal;font-size:100%;background-color:#A9C5DB;}
 
 /*
 MASTER PLAN TABLE PAGE
@@ -332,6 +346,9 @@ Project Report Modify
 .project_report_modify .radio_choice div {margin-bottom:10px;}
 .project_report_modify .radio_choice select {margin:0px 10px;}
 .project_report_modify .radio_choice label {font-size:1em;display:inline;}
+
+
+
 
 /*
 ACTIVITY ###############################################################################

@@ -155,59 +155,47 @@ def _view_project_manager_assistant_frontpage(request):
 	project = responsibility[0].projects.all()[0]
 	return redirect("/project/%d/" % project.id)
 
+def _comments_sorting(x, y):
+	return cmp(x.sent_on, y.sent_on)
+
 @login_required
 def view_dashboard_comments(request):
 	user_account = request.user.get_profile()
-
+	
+	comments = set()
+	for received_comment in CommentReceiver.objects.filter(is_read=False, receiver=user_account):
+		comments.add(received_comment.comment)
+	
+	for received_comment in CommentReplyReceiver.objects.filter(is_read=False, receiver=user_account):
+		comments.add(received_comment.reply.comment)
+	
+	comment_list = list(comments)
+	comment_list.sort(_comments_sorting, reverse=True)
+	
+	for comment in comments:
+		comment.is_read = CommentReceiver.objects.get(comment=comment, receiver=user_account).is_read
+		
+		receivers = CommentReplyReceiver.objects.filter(is_read=False, reply__comment=comment, receiver=user_account).order_by('reply__sent_on')
+		replies = list()
+		for receiver in receivers:
+			replies.append(receiver.reply)
+		comment.replies = replies
+	
 	object_list = list()
 	object_dict = dict()
-
-	# Comments that the user has recieved.
-	comments = CommentReceiver.objects.filter(receiver=request.user.get_profile(), is_read=False).order_by("-sent_on")
-	for comment in comments:
-		hash_str = "%s%d" % (comment.comment.object_name, comment.comment.object_id)
+	
+	for comment in comment_list:
+		hash_str = "%s%d" % (comment.object_name, comment.object_id)
 		if hash_str not in object_list:
-			object = None
-
-			if comment.comment.object_name == 'activity':
-				object = Activity.objects.get(pk=comment.comment.object_id)
-
-			elif comment.comment.object_name == 'project':
-				object = Project.objects.get(pk=comment.comment.object_id)
-
-			elif comment.comment.object_name == 'report':
-				object = ReportSchedule.objects.get(pk=comment.comment.object_id)
-
+			object = comments_functions.get_comment_object(comment.object_name, comment.object_id)
+			
 			if object:
 				object_list.append(hash_str)
-				object_dict[hash_str] = {'comment':comment.comment, 'object':object, 'comments':[comment]}
+				object_dict[hash_str] = {'comment':comment, 'object':object, 'comments':[comment]}
 
 		else:
 			object_dict[hash_str]['comments'].append(comment)
-
-	# Comments that the user has sent.
-	#comments = Comment.objects.filter(sent_by_id=request.user.id)
-	#for comment in comments:
-	#	hash_str = "%s%d" % (comment.object_name, comment.object_id)
-	#	if hash_str not in object_list:
-	#		object = None
-
-	#		if comment.object_name == 'activity':
-	#			object = Activity.objects.get(pk=comment.object_id)
-
-	#		elif comment.object_name == 'project':
-	#			object = Project.objects.get(pk=comment.object_id)
-
-	#		elif comment.object_name == 'report':
-	#			object = ReportSchedule.objects.get(pk=comment.object_id)
-
-	#		if object:
-	#			object_list.append(hash_str)
-	#			object_dict[hash_str] = {'comment':comment, 'object':object, 'comments':[comment]}
-
-	#	else:
-	#		object_dict[hash_str]['comments'].append(comment)
-
+	
 	objects = list()
 	for object_hash in object_list:
 		objects.append(object_dict[object_hash])
@@ -216,7 +204,8 @@ def view_dashboard_comments(request):
 
 @login_required
 def view_dashboard_comments_outbox(request):
-	return render_response(request, "dashboard_comments_outbox.html", {'objects':objects})
+	user_account = request.user.get_profile()
+	return redirect('view_dashboard_comments')
 
 @login_required
 def view_dashboard_my_projects(request):
@@ -1266,7 +1255,12 @@ def view_project_comments(request, project_id):
 	comments = comments_functions.retrieve_visible_comments(request, 'project', project.id)
 	
 	# Mark comments as read
-	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='project', comment__object_id=project.id).update(is_read=True)
+	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='project',\
+		comment__object_id=project.id).update(is_read=True)
+	
+	CommentReplyReceiver.objects.filter(receiver=request.user.get_profile(),\
+		reply__comment__object_name='project',\
+		reply__comment__object_id=project.id).update(is_read=True)
 	
 	return render_response(request, "project_comments.html", {'project':project, 'comments':comments})
 
@@ -1284,8 +1278,13 @@ def view_activity_comments(request, activity_id):
 	
 	comments = comments_functions.retrieve_visible_comments(request, 'activity', activity.id)
 	
+	# Mark comments as read
 	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='activity', \
 		comment__object_id=activity_id).update(is_read=True)
+	
+	CommentReplyReceiver.objects.filter(receiver=request.user.get_profile(),\
+		reply__comment__object_name='activity',\
+		reply__comment__object_id=activity_id).update(is_read=True)
 
 	return render_response(request, "activity_comments.html", {'activity':activity, 'comments':comments,})
 
@@ -1393,10 +1392,13 @@ def view_report_comments(request, report_id):
 	
 	comments = comments_functions.retrieve_visible_comments(request, 'report', report.id)
 	
-	for comment in comments:
-		print comment.receivers.all()
-	
-	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='report', \
+	# Mark comments as read
+	CommentReceiver.objects.filter(receiver=request.user.get_profile(),\
+		comment__object_name='report',\
 		comment__object_id=report.id).update(is_read=True)
-
+	
+	CommentReplyReceiver.objects.filter(receiver=request.user.get_profile(),\
+		reply__comment__object_name='report',\
+		reply__comment__object_id=report.id).update(is_read=True)
+	
 	return render_response(request, "report_comments.html", {'report_schedule':report, 'comments':comments, })

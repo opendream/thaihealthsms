@@ -8,7 +8,7 @@ from domain.constants import PROJECT_TYPE_TEXT
 from domain.models import Project, UserAccount, UserRoleResponsibility
 from thaihealthsms.helper.utilities import format_date
 from thaihealthsms.helper.utilities import who_responsible
-from comments.models import CommentReceiver
+from comments.models import CommentReceiver, CommentReplyReceiver
 
 register = template.Library()
 
@@ -17,7 +17,12 @@ register = template.Library()
 #
 @register.simple_tag
 def get_unread_comments(user_account_id):
-	return CommentReceiver.objects.filter(receiver=UserAccount(id=user_account_id), is_read=False).count()
+	user_account = UserAccount(id=user_account_id)
+	
+	unread_count = CommentReceiver.objects.filter(receiver=user_account, is_read=False).count()\
+		 + CommentReplyReceiver.objects.filter(receiver=user_account, is_read=False).count()
+	
+	return unread_count
 
 #
 # TEMPLATE HEADER TAGS

@@ -33,11 +33,13 @@ $(document).ready(function() {
 {% block body_content %}
 <div class="projects_table_page">
 	
+	{% responsible user 'project_manager,project_manager_assistant' project %}
 	<div class="ss_control_panel">
 		<ul>
 			<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_project_add project.id %}">เพิ่มโครงการ</a></li>
 		</ul>
 	</div>
+	{% endresponsible %}
 	
 	{% if projects %}
 	<table>

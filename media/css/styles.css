@@ -101,7 +101,6 @@ h1.title {font-size:138.5%;font-weight:bold;color:#ED6912;margin-bottom:20px;bor
 .ss_child_page_header a:link, .ss_child_page_header a:visited, .ss_child_page_header a:active {font-size:0.7em;margin-left:15px;}
 
 /* Form Styles */
-.ss_form {}
 .ss_form ul {margin-left:30px;}
 .ss_form li {margin-bottom:15px;}
 .ss_form li label {display:block;margin-bottom:5px;font-size:116%;color:#333;}
@@ -136,24 +135,12 @@ POST COMMENT DIALOG
 .comment_dialog .button-panel .loading {margin-left:10px;display:none;}
 .comment_dialog .button-panel .loading img {vertical-align:text-bottom;}
 
-
-/*#reply-comment-box { padding: 10px; }
-
-.reply-comment-link */
-
 /* Activity Calendar */
-.yui-skin-sam {overflow:hidden}
 .yui-calendar .has-event {background-color:#FFA !important;}
 
 #activity-calendar .calheader {color:#096;}
 #activity-calendar .calweekdaycell {background:none;color:#666;font-weight:normal;}
 #activity-calendar .calbody td.selected a:link,#activity-calendar .calbody td.selected a:visited ,#activity-calendar .calbody td.selected a:active {background-color:#096;color:#FFF;}
 
-/*#activity-calendar .calheader {color:#333;}
-#activity-calendar .calweekdaycell {background-color:#096;font-weight:normal;color:#FFF;}*/
-
 .qtip-content ul li a:link, .qtip-content ul li a:visited, .qtip-content ul li a:active {color:#FFC;}
 .qtip-content ul li a:hover {background:none;color:#9CF;}
-
-
-

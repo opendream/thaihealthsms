@@ -69,6 +69,8 @@ TEMPLATE_DIRS = (
 	os.path.join(_base, "templates"),
 )
 
+WEBSITE_ADDRESS = 'sms.thaihealth.or.th'
+
 AUTH_PROFILE_MODULE = 'domain.UserAccount'
 ACCOUNT_ACTIVATION_DAYS = 3
 LOGIN_REDIRECT_URL = "/dashboard/"

@@ -6,6 +6,7 @@ from datetime import datetime, date, timedelta
 from django.conf import settings
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
 
 from domain.models import *
 from report.models import *
@@ -19,7 +20,10 @@ def after_syncdb(sender, **kwargs):
 	"""
 	THIS IS REAL PRODUCTION CODE
 	"""
-
+	
+	# Site Information ###############
+	Site.objects.all().update(domain=settings.WEBSITE_ADDRESS, name=settings.WEBSITE_ADDRESS)
+	
 	# User Roles ##################
 	sector_admin_role, created = Group.objects.get_or_create(name='sector_admin')
 	GroupName.objects.get_or_create(group=sector_admin_role, name='ผู้ดูแลระบบของสำนัก')
