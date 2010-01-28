@@ -74,7 +74,7 @@ def print_activity_header(user, activity):
 	html += '<div class="parent"><a href="/project/%d/">%s %s</a> &#187; <a href="/project/%d/">%s %s</a></div>' % (activity.project.parent_project.id, activity.project.parent_project.ref_no, activity.project.parent_project.name, activity.project.id, activity.project.ref_no, activity.project.name)
 	html += '<div class="title"><span>' + _('Activity') + ':</span> ' + activity.name + '</div>'
 	
-	if not responsible(user, 'project_manager,project_manager_assistant', activity.parent_project):
+	if not responsible(user, 'project_manager,project_manager_assistant', activity.project):
 		html += '<div class="info"><a href="#" class="post-activity-comment" rel="activity/' + str(activity.id) + '">' + _('Comment') + ' &raquo; ' + _('Activity') + '</a></div>'
 	
 	return html

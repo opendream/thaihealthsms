@@ -544,7 +544,7 @@ def view_administer_users_edit(request, user_id):
 			'first_name':user.get_profile().first_name,\
 			'last_name':user.get_profile().last_name,\
 			'role':role,\
-			'sector':user.get_profile().sector,\
+			'sector':user.get_profile().sector.id,\
 			'responsible':responsible});
 
 		if responsible:
