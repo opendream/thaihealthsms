@@ -14,7 +14,7 @@ class Report(models.Model):
 	need_approval = models.BooleanField(default=False) # Need approval from sector manager assistant
 	created = models.DateTimeField(auto_now_add=True)
 	created_by = models.ForeignKey('domain.UserAccount')
-	
+
 	schedule_cycle = models.IntegerField(default=3) # 1:Daily, 2:Weekly, 3:Monthly, 4:Yearly
 	schedule_cycle_length = models.IntegerField(default=1)
 	schedule_monthly_date = models.IntegerField(default=1) # 0 is end of month
@@ -24,6 +24,7 @@ class Report(models.Model):
 class ReportProject(models.Model):
 	report = models.ForeignKey('Report')
 	project = models.ForeignKey('domain.Project')
+	is_active = models.BooleanField(default=True)
 
 class ReportSchedule(models.Model):
 	report_project = models.ForeignKey('ReportProject')

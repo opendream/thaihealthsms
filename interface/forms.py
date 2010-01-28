@@ -163,6 +163,7 @@ class MasterPlanEditProjectForm(forms.Form):
 	ref_no = forms.CharField(max_length=64, label='เลขที่โครงการ')
 	name = forms.CharField(max_length=512, label='ชื่อโครงการ')
 	description = forms.CharField(widget=forms.Textarea(), required=False, label='รายละเอียด')
+	reports = ReportMultipleChoiceField(queryset=Report.objects.all(), label="รายงานที่ต้องส่ง")
 
 #
 # Plan Form

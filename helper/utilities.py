@@ -3,6 +3,7 @@ from datetime import date
 
 from domain.models import MasterPlanMonthPeriod
 from domain.models import UserRoleResponsibility
+import calendar
 
 THAI_MONTH_NAME = ('', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม')
 THAI_MONTH_ABBR_NAME = ('', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.')
@@ -66,7 +67,7 @@ def user_has_role(user, roles):
 
 def responsible(user, roles, dept_obj):
 	has_responsibility = False
-	
+
 	for responsibility_item in UserRoleResponsibility.objects.filter(user=user):
 		if responsibility_item.role.name in roles:
 			if type(dept_obj).__name__ == 'Sector':
@@ -79,7 +80,7 @@ def responsible(user, roles, dept_obj):
 			elif type(dept_obj).__name__ == 'Project':
 				if dept_obj in responsibility_item.projects.all():
 					has_responsibility = True
-	
+
 	return has_responsibility
 
 # Who responsible
@@ -96,6 +97,19 @@ def who_responsible(department):
 		users.append(responsibility_item.user)
 
 	return users
+
+def schedule_month_date(report, year, month):
+	'''
+	Return datetime.date object of ReportSchedule due date
+	of specific month and year
+	'''
+
+	day = report.schedule_monthly_date
+	first_day, last_day = calendar.monthrange(year, month)
+	if day == 0 or day > last_day:
+		day = last_day
+
+	return date(year, month, day)
 
 def set_message(request, text, status='message'):
 	if len(request.session.get('messages', [])) == 0:
