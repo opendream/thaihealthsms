@@ -249,7 +249,8 @@ def view_administer(request):
 @login_required
 def view_administer_organization(request):
 	user_account = request.user.get_profile()
-	if not request.user.is_superuser: return access_denied(request)
+	if not request.user.is_superuser:
+		return access_denied(request)
 
 	sectors = Sector.objects.all().order_by('ref_no')
 	for sector in sectors:
@@ -269,7 +270,8 @@ def view_administer_organization(request):
 @login_required
 def view_administer_organization_add_sector(request):
 	user_account = request.user.get_profile()
-	if not request.user.is_superuser: return access_denied(request)
+	if not request.user.is_superuser:
+		return access_denied(request)
 
 	if request.method == 'POST':
 		form = SectorForm(request.POST)
@@ -285,7 +287,8 @@ def view_administer_organization_add_sector(request):
 @login_required
 def view_administer_organization_edit_sector(request, sector_id):
 	user_account = request.user.get_profile()
-	if not request.user.is_superuser: return access_denied(request)
+	if not request.user.is_superuser:
+		return access_denied(request)
 
 	sector = get_object_or_404(Sector, pk=sector_id)
 
@@ -306,7 +309,8 @@ def view_administer_organization_edit_sector(request, sector_id):
 @login_required
 def view_administer_organization_delete_sector(request, sector_id):
 	user_account = request.user.get_profile()
-	if not request.user.is_superuser: return access_denied(request)
+	if not request.user.is_superuser:
+		return access_denied(request)
 
 	sector = get_object_or_404(Sector, pk=sector_id)
 
@@ -321,7 +325,8 @@ def view_administer_organization_delete_sector(request, sector_id):
 @login_required
 def view_administer_organization_add_masterplan(request):
 	user_account = request.user.get_profile()
-	if not request.user.is_superuser: return access_denied(request)
+	if not request.user.is_superuser:
+		return access_denied(request)
 
 	if request.method == 'POST':
 		form = MasterPlanForm(request.POST)
@@ -351,7 +356,8 @@ def view_administer_organization_add_masterplan(request):
 @login_required
 def view_administer_organization_edit_masterplan(request, master_plan_id):
 	user_account = request.user.get_profile()
-	if not request.user.is_superuser: return access_denied(request)
+	if not request.user.is_superuser:
+		return access_denied(request)
 
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
@@ -404,7 +410,8 @@ def view_administer_organization_delete_masterplan(request, master_plan_id):
 @login_required
 def view_administer_users(request):
 	user_account = request.user.get_profile()
-	if not request.user.is_superuser: return access_denied(request)
+	if not request.user.is_superuser:
+		return access_denied(request)
 
 	users = User.objects.filter(is_superuser=False).order_by('id')
 	for user in users:
@@ -418,7 +425,8 @@ def view_administer_users(request):
 
 @login_required
 def view_administer_users_add(request):
-	if not request.user.is_superuser: return access_denied(request)
+	if not request.user.is_superuser:
+		return access_denied(request)
 
 	if request.method == 'POST':
 		form = UserAccountForm(request.POST)
@@ -552,23 +560,13 @@ def view_administer_users_edit(request, user_id):
 
 @login_required
 def view_administer_users_password(request, user_id):
-	if not request.user.is_superuser: return access_denied(request)
+	if not request.user.is_superuser:
+		return access_denied(request)
 
 	user = User.objects.get(pk=user_id)
 	user_account = UserAccount.objects.get(user=user)
 
 	return render_response(request, "administer_users_password.html", {'user_account': user_account})
-
-@login_required
-def view_administer_users_status(request, user_id):
-	user_account = request.user.get_profile()
-	if not request.user.is_superuser: return access_denied(request)
-
-	user = User.objects.get(pk=user_id)
-	user.is_active = not user.is_active
-	user.save()
-
-	return HttpResponse(simplejson.dumps({'status': 'complete'}))
 
 #
 # SECTOR
@@ -597,7 +595,8 @@ def view_sector_overview(request, sector_id):
 def view_sector_reports(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
 
-	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', sector): return access_denied(request)
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', sector):
+		return access_denied(request)
 
 	reports = Report.objects.filter(sector=sector).order_by('created')
 
@@ -610,7 +609,8 @@ def view_sector_reports(request, sector_id):
 def view_sector_add_report(request, sector_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
 
-	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', sector): return access_denied(request)
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', sector):
+		return access_denied(request)
 
 	if request.method == 'POST':
 		form = SectorReportForm(request.POST)
@@ -636,7 +636,8 @@ def view_sector_add_report(request, sector_id):
 def view_sector_edit_report(request, sector_id, report_id):
 	sector = get_object_or_404(Sector, pk=sector_id)
 
-	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', sector): return access_denied(request)
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', sector):
+		return access_denied(request)
 
 	report = get_object_or_404(Report, pk=report_id)
 	if request.method == 'POST':
@@ -705,7 +706,8 @@ def view_master_plan_plans(request, master_plan_id):
 def view_master_plan_organization(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
-	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector):
+		return access_denied(request)
 
 	plans = Plan.objects.filter(master_plan=master_plan)
 
@@ -721,7 +723,8 @@ def view_master_plan_organization(request, master_plan_id):
 def view_master_plan_add_plan(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
-	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector):
+		return access_denied(request)
 
 	if request.method == 'POST':
 		form = PlanForm(request.POST)
@@ -740,7 +743,8 @@ def view_master_plan_add_plan(request, master_plan_id):
 def view_master_plan_edit_plan(request, master_plan_id, plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
-	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector):
+		return access_denied(request)
 
 	plan = get_object_or_404(Plan, pk=plan_id)
 
@@ -764,7 +768,8 @@ def view_master_plan_delete_plan(request, master_plan_id, plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 	plan = get_object_or_404(Plan, pk=plan_id)
 
-	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector):
+		return access_denied(request)
 
 	if not Project.objects.filter(plan=plan).count():
 		plan.delete()
@@ -778,7 +783,8 @@ def view_master_plan_delete_plan(request, master_plan_id, plan_id):
 def view_master_plan_add_project(request, master_plan_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
-	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector):
+		return access_denied(request)
 
 	class CustomMasterPlanAddProjectForm(MasterPlanAddProjectForm):
 		plan = PlanChoiceField(queryset=Plan.objects.filter(master_plan=master_plan), label="สังกัดกลุ่มแผนงาน", empty_label=None)
@@ -839,7 +845,8 @@ def view_master_plan_add_project(request, master_plan_id):
 def view_master_plan_edit_project(request, master_plan_id, project_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
-	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector):
+		return access_denied(request)
 
 	project = get_object_or_404(Project, pk=project_id)
 
@@ -912,7 +919,8 @@ def view_master_plan_edit_project(request, master_plan_id, project_id):
 def view_master_plan_delete_project(request, master_plan_id, project_id):
 	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
 
-	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector): return access_denied(request)
+	if not utilities.responsible(request.user, 'sector_manager_assistant,sector_admin', master_plan.sector):
+		return access_denied(request)
 
 	project = get_object_or_404(Project, pk=project_id)
 
@@ -1053,7 +1061,7 @@ def view_project_reports(request, project_id):
 def view_project_reports_list(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 
-	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
+	if not utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
 		return redirect('view_project_reports', (project.id))
 
 	report_projects = ReportProject.objects.filter(project=project)
@@ -1073,7 +1081,7 @@ def view_project_reports_list(request, project_id):
 def view_project_reports_add(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 
-	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
+	if not utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
 		return redirect('view_project_reports', (project.id))
 
 	if request.method == 'POST':
@@ -1135,7 +1143,7 @@ def view_project_report_edit(request, project_id, report_id):
 	project = get_object_or_404(Project, pk=project_id)
 	report = get_object_or_404(Report, pk=report_id)
 
-	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
+	if not utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
 		return redirect('view_project_reports', (project.id))
 
 	if request.method == 'POST':
@@ -1165,7 +1173,7 @@ def view_project_reports_send(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 	reports = report_functions.get_nextdue_and_overdue_reports(project_id)
 
-	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
+	if not utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
 		return redirect('view_project_reports', (project.id))
 
 	for report in reports:
@@ -1372,7 +1380,7 @@ def view_report_overview(request, report_id):
 	if request.method == 'POST':
 		project = report_schedule.report_project.project
 
-		if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
+		if not utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
 			return redirect('view_report_overview', (report_schedule.id))
 
 		submit_type = request.POST.get('submit')

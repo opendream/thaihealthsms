@@ -22,7 +22,6 @@ urlpatterns = patterns('interface.views',
 	url(r'^administer/users/add/$', 'view_administer_users_add', name='view_administer_users_add'),
 	url(r'^administer/users/(?P<user_id>\d+)/edit/$', 'view_administer_users_edit', name='view_administer_users_edit'),
 	url(r'^administer/users/(?P<user_id>\d+)/password/$', 'view_administer_users_password', name='view_administer_users_password'),
-	url(r'^administer/users/(?P<user_id>\d+)/status/$', 'view_administer_users_status', name="view_administer_users_status"),	
 
 	# Sector
 	url(r'^sector/(?P<sector_id>\d+)/$', 'view_sector_overview', name='view_sector_overview'),
