@@ -5,7 +5,9 @@ from dateutil.relativedelta import relativedelta
 
 from django.db.models import Q
 from django.db.models import Min, Max
-from django.core.mail import send_mail
+from django.core.mail import send_mass_mail
+from django.template.loader import render_to_string
+from django.contrib.sites.models import Site
 from django.conf import settings
 
 from domain.models import *
@@ -107,6 +109,8 @@ def get_all_reports_schedule_by_project(project):
 def notify_overdue_schedule():
 	print 'Start notify'
 	today = date.today()
+	site = Site.objects.get_current()
+	users_mail = {}
 	
 	for report in Report.objects.all():
 		print 'Report: ' + report.name
@@ -117,26 +121,38 @@ def notify_overdue_schedule():
 				user_account = user_role_responsibility.user
 				user = user_account.user
 				
-				# Case before due date n days
-				for report_schedule in ReportSchedule.objects.filter(report_project=report_project, due_date=today+timedelta(report.notify_days), state=NO_ACTIVITY):
-					print report_schedule.due_date.strftime('%d %B %Y').decode('utf-8') + ' send to ' + user.email
-					
-					message = u'คุณ %s มี %s ภายใต้ %s ที่ต้องส่งภายในวันที่ %s' % (
-						user_account.first_name + ' ' + user_account.last_name, 
-						report.name,
-						project.name,
-						utilities.format_date(report_schedule.due_date), 
-					)
-					send_mail('แจ้งเตือนการส่งรายงาน', message, 'application.testbed@gmail.com', [user.email], fail_silently=False)
+				report_schedules = list()
 				
 				# Case due date
 				for report_schedule in ReportSchedule.objects.filter(report_project=report_project, due_date=today, state=NO_ACTIVITY):
 					print report_schedule.due_date.strftime('%d %B %Y').decode('utf-8') + ' send to ' + user.email
-
-					message = u'คุณ %s มี %s ภายใต้ %s ที่ต้องส่งภายในวันนี้่ %s \nถ้าเกินวันนี้ไปจะถือว่ารายงานนี้ล่าช้ากว่ากำหนด' % (
-						user_account.first_name + ' ' + user_account.last_name, 
-						report.name,
-						project.name,
-						utilities.format_date(report_schedule.due_date), 
-					)
-					send_mail('แจ้งเตือนการส่งรายงาน', message, 'application.testbed@gmail.com', [user.email], fail_silently=False)
+					report_schedule.sticky = 'วันนี้'
+					if not users_mail.get(user.id):
+						users_mail[user.id] = {
+							'user_account': user_account, 
+							'site':Site.objects.get_current(),
+							'report_schedules': list()
+						}
+					users_mail[user.id]['report_schedules'].append(report_schedule)
+					
+				# Case before due date n days
+				for report_schedule in ReportSchedule.objects.filter(report_project=report_project, due_date=today+timedelta(report.notify_days), state=NO_ACTIVITY):
+					print report_schedule.due_date.strftime('%d %B %Y').decode('utf-8') + ' send to ' + user.email
+				
+					if not users_mail.get(user.id):
+						users_mail[user.id] = {
+							'user_account': user_account, 
+							'site':Site.objects.get_current(),
+							'report_schedules': list()
+						}
+					users_mail[user.id]['report_schedules'].append(report_schedule)
+					
+	for user_id, user_mail in users_mail.items():
+		email_recipient_list = [user_mail.user_account.user.email]
+		#email_recipient_list = ['crosalot@gmail.com']
+		
+		email_subject = render_to_string('email/notify_report_subject.txt', user_mail)
+		email_message = render_to_string('email/notify_report_message.txt', user_mail)
+	
+		datatuple = ((email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, email_recipient_list),)
+		send_mass_mail(datatuple, fail_silently=True)
