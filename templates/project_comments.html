@@ -53,17 +53,15 @@ $(document).ready(function() {
 			{% if not project.parent_project %}
 			<li><a href="{% url view_project_projects project.id %}">{% trans 'Projects' %}</a></li>
 			<li><a href="{% url view_project_reports project.id %}">{% trans 'Reports' %}</a></li>
+			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />{% trans 'Comments' %}</li>
 			{% else %}
 			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
-			{% endif %}
 			<li class="right_item selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />{% trans 'Comments' %}</li>
-			{% responsible user 'project_manager,project_manager_assistant' project %}
-			{% ifequal project.prefix_name project.PROJECT_IS_PROGRAM %}
-			<li class="right_item"><a href="{% url view_project_edit project.id %}">แก้ไขแผนงาน</a></li>
-			{% else %}
+			{% responsible user 'project_manager,project_manager_assistant' project.parent_project %}
 			<li class="right_item"><a href="{% url view_project_edit project.id %}">แก้ไขโครงการ</a></li>
-			{% endifequal %}
 			{% endresponsible %}
+			{% endif %}
+			
 		</ul>
 		<div class="clear"></div>
 	</div>

@@ -23,17 +23,14 @@
 			{% if not project.parent_project %}
 			<li><a href="{% url view_project_projects project.id %}">โครงการ</a></li>
 			<li class="selected">รายงาน</li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
 			{% else %}
 			<li><a href="{% url view_project_activities project.id %}">กิจกรรม</a></li>
-			{% endif %}
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
-			{% responsible user 'project_manager,project_manager_assistant' project %}
-			{% ifequal project.prefix_name project.PROJECT_IS_PROGRAM %}
-			<li class="right_item"><a href="{% url view_project_edit project.id %}">แก้ไขแผนงาน</a></li>
-			{% else %}
+			{% responsible user 'project_manager,project_manager_assistant' project.parent_project %}
 			<li class="right_item"><a href="{% url view_project_edit project.id %}">แก้ไขโครงการ</a></li>
-			{% endifequal %}
 			{% endresponsible %}
+			{% endif %}
 		</ul>
 		<div class="clear"></div>
 	</div>
