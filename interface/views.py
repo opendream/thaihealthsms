@@ -714,7 +714,7 @@ def view_master_plan_organization(request, master_plan_id):
 	for plan in plans:
 		plan.projects = Project.objects.filter(plan=plan).order_by('-start_date')
 		for project in plan.projects:
-			if Project.objects.filter(parent_project=project).count():
+			if Project.objects.filter(parent_project=project).count() or ReportSchedule.objects.filter(report_project__project=project).exclude(state=NO_ACTIVITY).count():
 				project.has_child = True
 
 	return render_response(request, "master_plan_organization.html", {'master_plan':master_plan, 'plans':plans})
@@ -920,10 +920,12 @@ def view_master_plan_delete_project(request, master_plan_id, project_id):
 
 	project = get_object_or_404(Project, pk=project_id)
 
-	if Project.objects.filter(parent_project=project).count() or ReportProject.objects.filter(project=project).count():
+	if Project.objects.filter(parent_project=project).count() or ReportSchedule.objects.filter(report_project__project=project).exclude(state=NO_ACTIVITY).count():
 		set_message(request, u"ไม่สามารถลบแผนงาน%s ได้ เนื่องจากแผนงานยังมีโครงการหรือรายงานอยู่" % project.name)
 
 	else:
+		ReportSchedule.objects.filter(report_project__project=project, state=NO_ACTIVITY).delete()
+		ReportProject.objects.filter(project=project).delete()
 		project.delete()
 		set_message(request, u"ลบแผนงาน%s เรียบร้อย" % project.name)
 

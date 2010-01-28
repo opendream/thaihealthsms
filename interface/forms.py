@@ -146,6 +146,8 @@ class PlanChoiceField(forms.ModelChoiceField):
 		return "%s %s" % (obj.ref_no, obj.name)
 
 class ReportMultipleChoiceField(forms.ModelMultipleChoiceField):
+	widget = forms.CheckboxSelectMultiple
+
 	def label_from_instance(self, obj):
 		return "%s" % obj.name
 
@@ -163,7 +165,7 @@ class MasterPlanEditProjectForm(forms.Form):
 	ref_no = forms.CharField(max_length=64, label='เลขที่โครงการ')
 	name = forms.CharField(max_length=512, label='ชื่อโครงการ')
 	description = forms.CharField(widget=forms.Textarea(), required=False, label='รายละเอียด')
-	reports = ReportMultipleChoiceField(queryset=Report.objects.all(), label="รายงานที่ต้องส่ง")
+	reports = ReportMultipleChoiceField(queryset=Report.objects.all(), label="รายงานที่ต้องส่ง", widget=forms.CheckboxSelectMultiple)
 
 #
 # Plan Form
