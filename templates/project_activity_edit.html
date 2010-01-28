@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load interface_tags %}
+{% load interface_tags i18n helper %}
 
 {% block post_comment_ajax_url %}/post-comment/object/activity/{{activity.id}}/{% endblock %}
 {% block post_comment_ajax_callback %}{% endblock %}
@@ -27,8 +27,16 @@ $(document).ready(function() {
 <div class="ss_tab_navi">
 	<div class="tabs">
 		<ul>
-			<li class="selected">ภาพรวม</li>
-			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_activity_comments activity.id %}">ความคิดเห็น</a></li>
+			<li><a href="{% url view_activity_overview activity.id %}">{% trans 'Overview' %}</a></li>
+			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_activity_comments activity.id %}">{% trans 'Comments' %}</a></li>
+			<li class="selected right_item">แก้ไขกิจกรรม</li>
+			{% responsible user 'project_manager,project_manager_assistant' project %}
+			{% ifequal project.prefix_name project.PROJECT_IS_PROGRAM %}
+			<li class="right_item"><a href="{% url view_project_edit project.id %}">แก้ไขแผนงาน</a></li>
+			{% else %}
+			<li class="right_item"><a href="{% url view_project_edit project.id %}">แก้ไขโครงการ</a></li>
+			{% endifequal %}
+			{% endresponsible %}
 		</ul>
 		<div class="clear"></div>
 	</div>

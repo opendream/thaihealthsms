@@ -37,7 +37,13 @@ $(document).ready(function() {
 			<li><a href="{% url view_project_activities project.id %}">{% trans 'Activities' %}</a></li>
 			{% endif %}
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">{% trans 'Comments' %}</a></li>
+			{% responsible user 'project_manager,project_manager_assistant' project %}
+			{% ifequal project.prefix_name project.PROJECT_IS_PROGRAM %}
+			<li class="selected right_item">แก้ไขแผนงาน</li>
+			{% else %}
 			<li class="selected right_item">แก้ไขโครงการ</li>
+			{% endifequal %}
+			{% endresponsible %}
 		</ul>
 		<div class="clear"></div>
 	</div>
