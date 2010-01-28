@@ -1,6 +1,11 @@
 {% load helper %}
-คุณ {{user_account.first_name}} {{user_account.last_name}} ได้รับการแจ้งเตือนเกี่ยวกับรายงานที่ต้องส่งภายในวันที่
-	{% for report_schedule in report_schedules %}
-  - {{report_schedule.sticky}} {{report_schedule.due_date|thai_date}}: {{report_schedule.report_project.report.name}} ภายใต้ {{report_schedule.report_project.project.name}}
-    http://{{site.name}}/report/{{report_schedule.id}}/
-	{% endfor %}
+{% if due_report_schedules %}
+คุณมีรายงานที่กำหนดส่งในวันนี้ดังต่อไปนี้
+{% for report_schedule in due_report_schedules %}
+{{report_schedule.report_project.report.name}} [http://{{site.name}}/report/{{report_schedule.id}}/]{% endfor %}
+{% endif %}
+{% if nextdue_report_schedules %}
+คุณมีรายงานที่ต้องส่งดังต่อไปนี้
+{% for report_schedule in nextdue_report_schedules %}
+{{report_schedule.report_project.report.name}} - ส่งภายในวันที่ {{report_schedule.due_date|thai_date}} [http://{{site.name}}/report/{{report_schedule.id}}/]{% endfor %}
+{% endif %}

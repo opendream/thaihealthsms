@@ -107,16 +107,16 @@ def get_all_reports_schedule_by_project(project):
 	return report_projects
 
 def notify_overdue_schedule():
-	print 'Start notify'
+	#print 'Start notify'
 	today = date.today()
 	site = Site.objects.get_current()
 	users_mail = {}
 	
 	for report in Report.objects.all():
-		print 'Report: ' + report.name
+		#print 'Report: ' + report.name
 		for report_project in ReportProject.objects.filter(report=report):
 			project = report_project.project
-			print 'Project: ' + project.name
+			#print 'Project: ' + project.name
 			for user_role_responsibility in UserRoleResponsibility.objects.filter(projects=project, role__name__in=('project_manager', 'project_manager_assistant')):
 				user_account = user_role_responsibility.user
 				user = user_account.user
@@ -125,34 +125,36 @@ def notify_overdue_schedule():
 				
 				# Case due date
 				for report_schedule in ReportSchedule.objects.filter(report_project=report_project, due_date=today, state=NO_ACTIVITY):
-					print report_schedule.due_date.strftime('%d %B %Y').decode('utf-8') + ' send to ' + user.email
-					report_schedule.sticky = 'วันนี้'
+					#print report_schedule.due_date.strftime('%d %B %Y').decode('utf-8') + ' send to ' + user.email
 					if not users_mail.get(user.id):
 						users_mail[user.id] = {
 							'user_account': user_account, 
 							'site':Site.objects.get_current(),
-							'report_schedules': list()
+							'due_report_schedules': list(),
+							'nextdue_report_schedules': list(),
 						}
-					users_mail[user.id]['report_schedules'].append(report_schedule)
+					users_mail[user.id]['due_report_schedules'].append(report_schedule)
 					
 				# Case before due date n days
 				for report_schedule in ReportSchedule.objects.filter(report_project=report_project, due_date=today+timedelta(report.notify_days), state=NO_ACTIVITY):
-					print report_schedule.due_date.strftime('%d %B %Y').decode('utf-8') + ' send to ' + user.email
-				
+					#print report_schedule.due_date.strftime('%d %B %Y').decode('utf-8') + ' send to ' + user.email
 					if not users_mail.get(user.id):
 						users_mail[user.id] = {
 							'user_account': user_account, 
 							'site':Site.objects.get_current(),
-							'report_schedules': list()
+							'due_report_schedules': list(),
+							'nextdue_report_schedules': list(),
 						}
-					users_mail[user.id]['report_schedules'].append(report_schedule)
-					
+					users_mail[user.id]['nextdue_report_schedules'].append(report_schedule)
+	
+	datatuple = list()
 	for user_id, user_mail in users_mail.items():
 		email_recipient_list = [user_mail.user_account.user.email]
-		#email_recipient_list = ['crosalot@gmail.com']
+		#email_recipient_list = ['panuta@gmail.com']
 		
-		email_subject = render_to_string('email/notify_report_subject.txt', user_mail)
-		email_message = render_to_string('email/notify_report_message.txt', user_mail)
+		email_subject = render_to_string('email/notify_report_subject.txt', user_mail).strip(' \n\t')
+		email_message = render_to_string('email/notify_report_message.txt', user_mail).strip(' \n\t')
+		
+		datatuple.append((email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, email_recipient_list))
 	
-		datatuple = ((email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, email_recipient_list),)
-		send_mass_mail(datatuple, fail_silently=True)
+	send_mass_mail(datatuple, fail_silently=True)

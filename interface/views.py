@@ -645,7 +645,7 @@ def view_sector_edit_report(request, sector_id, report_id):
 			report.need_approval = form.cleaned_data['need_approval']
 			report.notify_days = form.cleaned_data['notify_days']
 			report.save()
-			set_message(request, u"แก้ไขรายงาน%s เรียบร้อย" % report_name)
+			set_message(request, u"แก้ไขรายงาน%s เรียบร้อย" % report.name)
 
 			return redirect('view_sector_reports', (sector.id))
 
