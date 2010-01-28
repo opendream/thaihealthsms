@@ -406,12 +406,14 @@ def view_administer_users(request):
 	user_account = request.user.get_profile()
 	if not request.user.is_superuser: return access_denied(request)
 
-	users = User.objects.filter(is_superuser=False)
+	users = User.objects.filter(is_superuser=False).order_by('id')
 	for user in users:
 		responsibility = UserRoleResponsibility.objects.filter(user=user.get_profile())[0]
 		user.role = GroupName.objects.get(group=responsibility.role).name
-		user.projects = responsibility.projects.all()
-
+		
+		if responsibility.role.name == 'project_manager' or responsibility.role.name == 'project_manager_assistant':
+			user.projects = responsibility.projects.all()
+	
 	return render_response(request, "administer_users.html", {'users': users})
 
 @login_required
@@ -444,7 +446,7 @@ def view_administer_users_add(request):
 			user.groups.add(group)
 			responsibility = UserRoleResponsibility.objects.create(user=user_account, role=group)
 
-			if role == 'project_manage' or role == 'project_manage_assistant':
+			if role == 'project_manager' or role == 'project_manager_assistant':
 				project = Project.objects.get(pk=responsible)
 				responsibility.projects.add(project)
 			else:
@@ -491,24 +493,23 @@ def view_administer_users_edit(request, user_id):
 			user_account.last_name = last_name
 			user_account.sector = sector
 			user_account.save()
+			
+			group = Group.objects.get(name=role)
+			user.groups.clear()
+			user.groups.add(group)
+			
+			UserRoleResponsibility.objects.filter(user=user_account).delete()
+			responsibility = UserRoleResponsibility.objects.create(user=user_account, role=group)
+			
+			if role == 'project_manager' or role == 'project_manager_assistant':
+				project = Project.objects.get(pk=responsible)
+				responsibility.projects.clear()
+				responsibility.projects.add(project)
+			else:
+				responsibility.sectors.clear()
+				responsibility.sectors.add(sector)
 
-			user_role = user.groups.all()[0]
-
-			if role != user_role.name:
-				group = Group.objects.get(name=role)
-				user.groups.delete()
-				user.groups.add(group)
-
-				UserRoleResponsibility.objects.filter(user=user_account).delete()
-				responsibility = UserRoleResponsibility.objects.create(user=user_account, role=group)
-
-				if role == 'project_manage' or role == 'project_manage_assistant':
-					project = Project.objects.get(pk=responsible)
-					responsibility.projects.add(project)
-				else:
-					responsibility.sectors.add(sector)
-
-			return redirect('view_administer_users_password', user.id)
+			return redirect('view_administer_users')
 
 		else:
 			if request.POST.get('responsible'):
@@ -795,7 +796,6 @@ def view_master_plan_add_project(request, master_plan_id):
 
 			project.ref_no = cleaned_data['ref_no']
 			project.name = cleaned_data['name']
-			project.description = cleaned_data['description']
 			project.start_date = cleaned_data['start_date']
 			project.end_date = cleaned_data['end_date']
 			project.save()
@@ -854,7 +854,6 @@ def view_master_plan_edit_project(request, master_plan_id, project_id):
 			project.plan = cleaned_data['plan']
 			project.ref_no = cleaned_data['ref_no']
 			project.name = cleaned_data['name']
-			project.description = cleaned_data['description']
 			project.save()
 
 			report_old = [report_project.report for report_project in ReportProject.objects.filter(project=project, is_active=True)]
@@ -998,7 +997,6 @@ def view_project_edit(request, project_id):
 			if form.is_valid():
 				project.ref_no = form.cleaned_data.get('ref_no')
 				project.name = form.cleaned_data.get('name')
-				project.description = form.cleaned_data.get('description', '')
 				project.start_date = form.cleaned_data.get('start_date')
 				project.end_date = form.cleaned_data.get('end_date')
 				project.save()

@@ -2,26 +2,6 @@
 {% load helper %}
 
 {% block html_head %}
-<script type="text/javascript">
-	$(document).ready(function() {
-		$('.user-status').click(function(e) {
-			e.preventDefault()
-			var a = $(this);
-			$.getJSON($(this).attr('href'), {}, function(resp) {
-				if (a.hasClass('disable')) {
-					a.children('img').attr('src', '{{MEDIA_URL}}/images/user_active.png');
-					a.children('img').attr('title', 'สถานะพร้อมใช้งาน');
-				}
-				else {
-					a.children('img').attr('src', '{{MEDIA_URL}}/images/user_disable.png');
-					a.children('img').attr('title', 'สถานะถูกระงับ');
-				}
-				a.toggleClass('disable');
-				
-			})
-		})
-	})
-</script>
 {% endblock %}
 
 {% block body_title %}
