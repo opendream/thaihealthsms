@@ -60,8 +60,8 @@ def ajax_post_object_comment(request, object_name, object_id):
 		object = get_comment_object(comment.object_name, comment.object_id)
 		
 		email_render_dict = {'comment':comment, 'object':object, 'site':Site.objects.get_current()}
-		email_subject = render_to_string('system/comment_email_subject.txt', email_render_dict)
-		email_message = render_to_string('system/comment_email_message.txt', email_render_dict)
+		email_subject = render_to_string('email/notify_comment_subject.txt', email_render_dict)
+		email_message = render_to_string('email/notify_comment_message.txt', email_render_dict)
 		
 		datatuple = ((email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, email_recipient_list),)
 		
@@ -96,8 +96,8 @@ def ajax_reply_comment(request, comment_id):
 			object = get_comment_object(comment_reply.comment.object_name, comment_reply.comment.object_id)
 			
 			email_render_dict = {'comment':comment_reply.comment, 'comment_reply':comment_reply, 'object':object, 'site':Site.objects.get_current()}
-			email_subject = render_to_string('system/comment_reply_email_subject.txt', email_render_dict)
-			email_message = render_to_string('system/comment_reply_email_message.txt', email_render_dict)
+			email_subject = render_to_string('email/notify_comment_reply_subject.txt', email_render_dict)
+			email_message = render_to_string('email/notify_comment_reply_message.txt', email_render_dict)
 			
 			datatuple = ((email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, email_recipient_list),)
 			
