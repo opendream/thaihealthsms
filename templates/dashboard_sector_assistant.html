@@ -81,7 +81,7 @@ $(document).ready(function() {
 											<div class="report_details">
 												{% if report_schedule.overdue %}<span class="due_date overdue_date">เลยกำหนดมาแล้ว {{report_schedule.due_date|elapse}}</span>{% endif %}
 												{% if report_schedule.submitted_on %}<span class="due_date">ส่งรายงานเมื่อวันที่ {{report_schedule.submitted_on|thai_display_datetime}}</span>{% endif %}
-												<span class="comment"><img src="{{MEDIA_URL}}/images/icon_comments.png" class="icon"/> {% if report_schedule.comment_count %}{{report_schedule.comment_count}}{% else %}0{% endif %} <a href="#" class="post-report-comment" rel="report/{{report_schedule.id}}">เขียนความคิดเห็น</a></span>
+												<span class="comment">[ <a href="{% url view_report_comments report_schedule.id %}">{% if report_schedule.comment_count %}{{report_schedule.comment_count}}{% else %}0{% endif %} ความคิดเห็น</a> ] <a href="#" class="post-report-comment" rel="report/{{report_schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/icon_comments.png" class="icon"/></a></span>
 											</div>
 										</li>
 									{% endfor %}

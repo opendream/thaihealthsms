@@ -8,25 +8,26 @@ html, body {background-color:#F3F3F3;}
 
 .calendarbox {border:1px solid #999;}
 
-/* Login Page */
-.login_page .logo {margin:30px auto;text-align:center;}
-.login_page h1 {text-align:center;font-size:182%;margin:30px 0px 20px;color:#017c54;font-weight:bold;}
-.login_page form {margin:0px auto;width:400px;border:1px solid #CCC;padding:10px 15px;background-color:#FFF;}
-.login_page form ul {margin:0px;padding:0px 20px;}
-.login_page form li {margin:15px;list-style:none;font-size:100%;}
-.login_page form li label {display:block;margin:0px 0px 4px;font-size:93%;}
-.login_page form li input {width:320px;}
-.login_page form li.button_panel {}
-.login_page form li.button_panel button {padding:3px 15px;font-size:77%;}
-.login_page form li.button_panel a:link, .login_page form li.button_panel a:visited, .login_page form li.button_panel a:active {font-size:77%;margin-left:15px;}
-.login_page form .errors {margin:15px 0px;color:#C30;}
-.login_page form .errorlist {margin:0px;padding:0px;color:#C30;}
-.login_page form .errorlist li {margin:3px 0px 0px 0px;padding:0px;font-size:85%;}
+/*
+ENTRANCE PAGE
+*/
+.entrance_page .logo {margin:20px auto;text-align:center;}
+.entrance_page h1 {text-align:center;font-size:182%;margin:20px 0px;color:#017c54;font-weight:bold;}
+.entrance_page h2 {font-size:123.1%;margin:10px 30px 20px;color:#2D8659;padding:5px 0px;border-bottom:1px solid #999;}
+.entrance_page p {margin:0px 10px 10px 30px;}
 
-/* First Time Login Page */
-.first_login_page h2 {font-size:131%;margin-left:20px;}
-.first_login_page {}
-
+.entrance_page #entrance_content {margin:0px auto;width:450px;border:1px solid #CCC;padding:10px 15px;background-color:#FFF;}
+.entrance_page form ul {margin:0px;padding:0px 20px;}
+.entrance_page form li {margin:15px;list-style:none;font-size:100%;}
+.entrance_page form li label {display:block;margin:0px 0px 4px;font-size:93%;}
+.entrance_page form li input {width:350px;}
+.entrance_page form .button_panel {margin:20px 0px 20px 35px;}
+.entrance_page form .button_panel button {padding:3px 15px;font-size:80%;width:110px;font-weight:bold;}
+.entrance_page form .button_panel span {margin-left:25px;}
+.entrance_page form .button_panel a:link, .entrance_page form .button_panel a:visited, .entrance_page form .button_panel a:active {font-size:85%;margin:0px 5px;}
+.entrance_page form .errors {margin:15px 0px;color:#C30;}
+.entrance_page form .errorlist {margin:0px;padding:0px;color:#C30;}
+.entrance_page form .errorlist li {margin:3px 0px 0px 0px;padding:0px;font-size:85%;}
 
 /* Base Template */
 .body_header {background:url('../images/html_header_bg.gif') #666 repeat-x;border-bottom:1px solid #999;height:40px;}

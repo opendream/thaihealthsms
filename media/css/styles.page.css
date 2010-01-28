@@ -24,7 +24,8 @@ DASHBOARD PAGE
 .dashboard_page .report_checkup ul.reports li .due_date {}
 .dashboard_page .report_checkup ul.reports li .overdue_date {background-color:#C33;color:white;padding:0px 5px;}
 .dashboard_page .report_checkup ul.reports li .report_details .due_date {margin-right:10px;}
-.dashboard_page .report_checkup ul.reports li .comment a:link, .dashboard_page .report_checkup ul.reports li .comment a:visited, .dashboard_page .report_checkup ul.reports li .comment a:active {margin-left:6px;}
+.dashboard_page .report_checkup ul.reports li a.post-report-comment:link, .dashboard_page .report_checkup ul.reports li a.post-report-comment:visited, .dashboard_page .report_checkup ul.reports li a.post-report-comment:active {margin-left:5px;}
+.dashboard_page .report_checkup ul.reports li a.post-report-comment:hover {background:none !important;}
 .dashboard_page .report_checkup .ss_no_information {margin-left:15px;}
 
 .dashboard_my_projects_page h2 {font-size:138.5%;color:#FFF;padding:8px 10px 4px;margin:5px 0px 10px;background-color:#399;border-bottom:3px solid #9CC;}

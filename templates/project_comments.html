@@ -83,7 +83,7 @@ $(document).ready(function() {
 					</div>
 				</div>
 				<p>{{comment.message}}</p>
-				<div id="reply-comment-box" class="reply_comment_panel"><img src="{{MEDIA_URL}}/images/comment_reply.png" class="icon"/> <a href="#" id="comment-{{ comment.id }}" class="reply-comment">{% trans 'Reply' %}</a></div>
+				<div id="reply-comment-box" class="reply_comment_panel"><img src="{{MEDIA_URL}}/images/comment_reply.png" class="icon"/> <a href="#" id="comment-{{ comment.id }}" class="reply-comment" title="ตอบกลับความคิดเห็น">{% trans 'Reply' %}</a></div>
 				<div class="receivers">
 					<h4>{% trans 'Receivers' %}:</h4>
 					<ul>

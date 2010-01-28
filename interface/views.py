@@ -76,7 +76,7 @@ def view_first_time_login(request):
 		form = ChangeFirstTimePasswordForm()
 
 	next = request.GET.get('next', '')
-	return render_response(request, "registration/user_first_time_login.html", {'form':form, 'next':next})
+	return render_response(request, "registration/first_time_login.html", {'form':form, 'next':next})
 
 def view_change_password(request):
 	if request.method == 'POST':
@@ -96,7 +96,7 @@ def view_change_password(request):
 	else:
 		form = ChangePasswordForm()
 
-	return render_response(request, "registration/user_change_password.html", {'form':form,})
+	return render_response(request, "registration/change_password.html", {'form':form,})
 
 #
 # FRONTPAGE
