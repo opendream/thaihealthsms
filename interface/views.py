@@ -49,7 +49,6 @@ def hooked_login(request, template_name='registration/login.html', redirect_fiel
 
 @login_required
 def view_first_time_login(request):
-
 	if request.user.is_authenticated():
 		if request.user.is_superuser or (not request.user.is_superuser and not request.user.get_profile().random_password):
 			return redirect('/')
@@ -209,7 +208,6 @@ def view_dashboard_comments_outbox(request):
 
 @login_required
 def view_dashboard_my_projects(request):
-
 	if utilities.user_has_role(request.user, 'sector_manager_assistant'):
 		if request.method == 'POST':
 			projects = request.POST.getlist('project')
@@ -224,9 +222,8 @@ def view_dashboard_my_projects(request):
 
 		else:
 			responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile())
-
-			master_plans = MasterPlan.objects.filter(sector=request.user.get_profile().sector)
-
+			master_plans = MasterPlan.objects.filter(sector=request.user.get_profile().sector).order_by('ref_no')
+			
 			for master_plan in master_plans:
 				master_plan.projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
 				for project in master_plan.projects: project.responsible = _responsible_this_project(project, responsibility.projects.all())
@@ -963,7 +960,7 @@ def view_project_projects(request, project_id):
 def view_project_add(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 
-	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
 		if request.method == "POST":
 			form = ProjectForm(request.POST)
 			if form.is_valid():
@@ -995,7 +992,7 @@ def view_project_edit(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 	head_project = project.parent_project if project.parent_project else project
 
-	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
+	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', head_project):
 		if request.method == "POST":
 			form = ProjectForm(request.POST)
 			if form.is_valid():
@@ -1023,7 +1020,7 @@ def view_project_delete(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 	head_project = project.parent_project if project.parent_project else project
 
-	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
+	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', head_project):
 		if Activity.objects.filter(project=project).count():
 			set_message(request, 'ยังมีกิจกรรมอยู่ภายใต้โครงการ ต้องลบกิจกรรมก่อนลบโครงการ')
 			return redirect('view_project_overview', (project.id))
@@ -1058,7 +1055,7 @@ def view_project_reports(request, project_id):
 def view_project_reports_list(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 
-	if not utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
 		return redirect('view_project_reports', (project.id))
 
 	report_projects = ReportProject.objects.filter(project=project)
@@ -1078,7 +1075,7 @@ def view_project_reports_list(request, project_id):
 def view_project_reports_add(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 
-	if not utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
 		return redirect('view_project_reports', (project.id))
 
 	if request.method == 'POST':
@@ -1140,7 +1137,7 @@ def view_project_report_edit(request, project_id, report_id):
 	project = get_object_or_404(Project, pk=project_id)
 	report = get_object_or_404(Report, pk=report_id)
 
-	if not utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
 		return redirect('view_project_reports', (project.id))
 
 	if request.method == 'POST':
@@ -1170,7 +1167,7 @@ def view_project_reports_send(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 	reports = report_functions.get_nextdue_and_overdue_reports(project_id)
 
-	if not utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
 		return redirect('view_project_reports', (project.id))
 
 	for report in reports:
@@ -1256,7 +1253,7 @@ def view_activity_add(request, project_id):
 
 	head_project = project.parent_project if project.parent_project else project
 
-	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
+	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', head_project):
 		if request.method == "POST":
 			form = ActivityForm(request.POST)
 			if form.is_valid():
@@ -1289,7 +1286,7 @@ def view_activity_edit(request, activity_id):
 
 	head_project = project.parent_project if project.parent_project else project
 
-	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
+	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', head_project):
 		if request.method == 'POST':
 			form = ActivityForm(request.POST)
 			if form.is_valid():
@@ -1321,7 +1318,7 @@ def view_activity_delete(request, activity_id):
 
 	head_project = project.parent_project if project.parent_project else project
 
-	if utilities.responsible(request.user, ('project_manager','project_manager_assistant'), head_project):
+	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', head_project):
 		activity.delete()
 		set_message(request, 'ลบกิจกรรมเรียบร้อย')
 
@@ -1375,9 +1372,9 @@ def view_report_overview(request, report_id):
 	report_schedule = get_object_or_404(ReportSchedule, pk=report_id)
 
 	if request.method == 'POST':
-		project = report_schedule.report_project.report.project
+		project = report_schedule.report_project.project
 
-		if not utilities.responsible(request.user, ('project_manager','project_manager_assistant'), project):
+		if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
 			return redirect('view_report_overview', (report_schedule.id))
 
 		submit_type = request.POST.get('submit')
@@ -1431,6 +1428,8 @@ def view_report_overview(request, report_id):
 		elif submit_type == 'submit-report':
 			schedule_id = request.POST.get("schedule_id")
 			schedule = ReportSchedule.objects.get(pk=schedule_id)
+			
+			from datetime import datetime
 
 			schedule.state = SUBMIT_ACTIVITY
 			schedule.submitted_on = datetime.now()

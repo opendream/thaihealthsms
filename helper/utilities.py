@@ -56,6 +56,7 @@ def make_random_user_password():
 # Roles
 def user_has_role(user, roles):
 	user_groups = user.groups.all()
+	roles = roles.split(',')
 
 	if user_groups:
 		user_roles = set([group.name for group in user_groups])
@@ -67,7 +68,8 @@ def user_has_role(user, roles):
 
 def responsible(user, roles, dept_obj):
 	has_responsibility = False
-
+	roles = roles.split(',')
+	
 	for responsibility_item in UserRoleResponsibility.objects.filter(user=user):
 		if responsibility_item.role.name in roles:
 			if type(dept_obj).__name__ == 'Sector':

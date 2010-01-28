@@ -13,7 +13,7 @@
 {% block body_title %}
 <div class="ss_header">
 <div class="container">
-	{% print_project_header project %}
+	{% print_project_header user project %}
 </div>
 </div>
 <div class="ss_tab_navi">
@@ -42,6 +42,7 @@
 
 <div class="project_report_modify">	
 	<form method="post" action="." class="ss_form">
+		<div class="instruction">รายงานที่สร้างจากภายในหน้านี้ ใช้สำหรับภายในแผนงานเดียวเท่านั้น หากต้องการสร้างรายงานสำหรับหลายแผนงาน ติดต่อผู้ช่วยผู้อำนวยการสำนัก เพื่อสร้างรายงานจากภายในหน้าของสำนัก</div>
 		<ul>
 			<li>
 				<label for="id_name">{{form.name.label}}:</label>

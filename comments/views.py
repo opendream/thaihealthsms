@@ -67,7 +67,9 @@ def ajax_post_object_comment(request, object_name, object_id):
 		
 		send_mass_mail(datatuple, fail_silently=True)
 		
-		return HttpResponse(simplejson.dumps({'id': comment.id,}))
+		updated_comment_count = Comment.objects.filter(object_id=object_id, object_name=object_name).count()
+		
+		return HttpResponse(simplejson.dumps({'id':comment.id, 'object_id':object_id, 'object_name':object_name, 'count':updated_comment_count}))
 		
 	else:
 		raise Http404

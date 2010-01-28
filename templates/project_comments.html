@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% load interface_tags i18n helper %}
 
-{% block post_comment_ajax_callback %}{% endblock %}
+{% block post_comment_ajax_callback %}
+window.location.reload();
+{% endblock %}
 
 {% block html_head %}
 <script type="text/javascript">
@@ -43,7 +45,7 @@ $(document).ready(function() {
 {% block body_title %}
 <div class="ss_header">
 <div class="container">
-	{% print_project_header project %}
+	{% print_project_header user project %}
 </div>
 </div>
 <div class="ss_tab_navi">

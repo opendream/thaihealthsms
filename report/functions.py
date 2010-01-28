@@ -35,7 +35,7 @@ def get_submitted_and_overdue_reports(project):
 		
 		for schedule in schedules:
 			schedule.need_approval = schedule.report_project.report.need_approval and schedule.state == SUBMIT_ACTIVITY
-			schedule.overdue = schedule.state == NO_ACTIVITY
+			schedule.overdue = schedule.state == NO_ACTIVITY and schedule.due_date < current_date
 				
 		report_project.schedules = schedules
 
@@ -63,7 +63,7 @@ def get_nextdue_and_overdue_reports(project):
 			schedule.waiting = schedule.state == SUBMIT_ACTIVITY
 			schedule.rejected = schedule.state == REJECT_ACTIVITY
 			
-			schedule.overdue = schedule.state == NO_ACTIVITY
+			schedule.overdue = schedule.state == NO_ACTIVITY and schedule.due_date < current_date
 			if schedule.overdue: schedule.overdue_period = (current_date - schedule.due_date).days
 			
 			

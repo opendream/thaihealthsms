@@ -11,30 +11,39 @@ YAHOO.util.Event.onDOMReady(function(){
 	for(var i=0; i<date_pickers.length; i++) {
 		YAHOO.util.Event.on(date_pickers[i], "click", function(e) {
 			activeCalendarInputID = e.target.id;
-			
-			var date_value = YAHOO.util.Dom.get(activeCalendarInputID + '_value').getAttribute('value');
-			
-			if(date_value != '') {
-				var date_array = date_value.split('-');
-				
-				calendarWidget.select(date_array[1] + '/' + date_array[2] + '/' + (parseInt(date_array[0]) + 543));
-				calendarWidget.cfg.setProperty("pagedate", date_array[1] + '/' + (parseInt(date_array[0]) + 543));
-				calendarWidget.render();
-				
-			} else {
-				var seldate = calendarWidget.getSelectedDates();
-				
-				if (seldate.length > 0) {
-					calendarWidget.cfg.setProperty("pagedate", seldate[0]);
-					calendarWidget.render();
-				}
-			}
-			
-			calendarDialog.cfg.setProperty('context', [activeCalendarInputID, "tl", "bl"]);
-			calendarDialog.show();
+			triggerYUICalendar();
 		});
 	}
+	
+	// Open Date Picker calendar when click at textbox
+	$(".yui_date_picker_textbox").click(function(e) {
+		activeCalendarInputID = $(this).parent().find(".yui_date_picker").attr('id');
+		triggerYUICalendar();
+	});
 });
+
+function triggerYUICalendar() {
+	var date_value = YAHOO.util.Dom.get(activeCalendarInputID + '_value').getAttribute('value');
+	
+	if(date_value != '') {
+		var date_array = date_value.split('-');
+		
+		calendarWidget.select(date_array[1] + '/' + date_array[2] + '/' + (parseInt(date_array[0]) + 543));
+		calendarWidget.cfg.setProperty("pagedate", date_array[1] + '/' + (parseInt(date_array[0]) + 543));
+		calendarWidget.render();
+		
+	} else {
+		var seldate = calendarWidget.getSelectedDates();
+		
+		if (seldate.length > 0) {
+			calendarWidget.cfg.setProperty("pagedate", seldate[0]);
+			calendarWidget.render();
+		}
+	}
+	
+	calendarDialog.cfg.setProperty('context', [activeCalendarInputID, "tl", "bl"]);
+	calendarDialog.show();
+}
 
 function initializeYUICalendar() {
 	var Event = YAHOO.util.Event, Dom = YAHOO.util.Dom;
@@ -45,9 +54,10 @@ function initializeYUICalendar() {
 		// Hide Calendar if we click anywhere in the document other than the calendar
 		Event.on(document, "click", function(e) {
 			var showBtn = Dom.get(activeCalendarInputID);
+			var showTextbox = Dom.get(activeCalendarInputID+'_display');
 			var el = Event.getTarget(e);
 			var dialogEl = calendarDialog.element;
-			if (el != dialogEl && !Dom.isAncestor(dialogEl, el) && el != showBtn && !Dom.isAncestor(showBtn, el)) {
+			if (el != dialogEl && !Dom.isAncestor(dialogEl, el) && el != showBtn && !Dom.isAncestor(showBtn, el) && el != showTextbox && !Dom.isAncestor(showTextbox, el)) {
 				calendarDialog.hide();
 			}
 		});

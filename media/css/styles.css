@@ -113,8 +113,11 @@ h1.title {font-size:138.5%;font-weight:bold;color:#ED6912;margin-bottom:20px;bor
 .ss_form .single_line {margin:25px 0px;}
 .ss_form .single_line label {display:inline;}
 .ss_form .single_line select {margin:0px 10px;}
+.ss_form .single_line input {margin:0px 10px;}
 
 .ss_form .radio_choices {}
+
+.ss_form .instruction {border:1px solid #CCC;background-color:#FFC;padding:10px;margin:15px 0px;}
 
 .ss_form .LONG input {width:500px;}
 .ss_form .MAX input {width:95%;}

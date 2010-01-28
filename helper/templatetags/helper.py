@@ -141,7 +141,7 @@ class ResponsibleNode(template.Node):
     
 	def render(self, context):
 		user = self.user.resolve(context)
-		roles = self.roles.split(',')
+		roles = self.roles
 		dept_obj = self.dept_obj.resolve(context)
 		
 		if utilities_responsible(user, roles, dept_obj):

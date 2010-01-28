@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 {% load helper interface_tags %}
 
+{% block post_comment_ajax_callback %}
+$("#report-" + data.object_id + " .comment_count").html(data.count + " ความคิดเห็น")
+{% endblock %}
+
+
 {% block html_head %}
 <script type="text/javascript">
 $(document).ready(function() {
@@ -19,7 +24,6 @@ $(document).ready(function() {
 	});
 	
 	bindCommentBox($(".post-report-comment"));
-	
 });
 </script>
 {% endblock %}
@@ -72,7 +76,7 @@ $(document).ready(function() {
 								<h4>{{report.report.name}}</h4>
 								<ul class="reports">
 									{% for report_schedule in report.schedules %}
-										<li rel="{{report_schedule.id}}">
+										<li id="report-{{report_schedule.id}}" rel="{{report_schedule.id}}">
 											<div class="schedule">{{report_schedule.due_date|thai_abbr_date}} <span class="permalink"><a href="{% url view_report_overview report_schedule.id %}">หน้ารายงาน</a></span></div>
 											<div class="report_approval">
 												{% if report_schedule.need_approval %}<button class="approve-report">รับรองรายงาน</button><button class="reject-report">ตีกลับรายงาน</button>{% endif %}
@@ -81,7 +85,7 @@ $(document).ready(function() {
 											<div class="report_details">
 												{% if report_schedule.overdue %}<span class="due_date overdue_date">เลยกำหนดมาแล้ว {{report_schedule.due_date|elapse}}</span>{% endif %}
 												{% if report_schedule.submitted_on %}<span class="due_date">ส่งรายงานเมื่อวันที่ {{report_schedule.submitted_on|thai_display_datetime}}</span>{% endif %}
-												<span class="comment">[ <a href="{% url view_report_comments report_schedule.id %}">{% if report_schedule.comment_count %}{{report_schedule.comment_count}}{% else %}0{% endif %} ความคิดเห็น</a> ] <a href="#" class="post-report-comment" rel="report/{{report_schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/icon_comments.png" class="icon"/></a></span>
+												<span class="comment">[ <a href="{% url view_report_comments report_schedule.id %}" class="comment_count">{% if report_schedule.comment_count %}{{report_schedule.comment_count}}{% else %}0{% endif %} ความคิดเห็น</a> ] <a href="#" class="post-report-comment" rel="report/{{report_schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/icon_comments.png" class="icon"/></a></span>
 											</div>
 										</li>
 									{% endfor %}
