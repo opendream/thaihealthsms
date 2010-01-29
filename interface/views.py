@@ -803,7 +803,7 @@ def view_master_plan_add_project(request, master_plan_id):
 
 	class CustomMasterPlanAddProjectForm(MasterPlanAddProjectForm):
 		plan = PlanChoiceField(queryset=Plan.objects.filter(master_plan=master_plan), label="สังกัดกลุ่มแผนงาน", empty_label=None)
-		reports = ReportMultipleChoiceField(queryset=Report.objects.filter(sector=master_plan.sector), label="รายงานที่ต้องส่ง")
+		reports = ReportMultipleChoiceField(required=False, queryset=Report.objects.filter(sector=master_plan.sector), label="รายงานที่ต้องส่ง")
 
 	if request.method == 'POST':
 		form = CustomMasterPlanAddProjectForm(request.POST)
@@ -867,7 +867,7 @@ def view_master_plan_edit_project(request, master_plan_id, project_id):
 
 	class CustomMasterPlanAddProjectForm(MasterPlanEditProjectForm):
 		plan = PlanChoiceField(queryset=Plan.objects.filter(master_plan=master_plan), label="สังกัดกลุ่มแผนงาน", empty_label=None)
-		reports = ReportMultipleChoiceField(queryset=Report.objects.filter(sector=master_plan.sector), label="รายงานที่ต้องส่ง")
+		reports = ReportMultipleChoiceField(required=False, queryset=Report.objects.filter(sector=master_plan.sector), label="รายงานที่ต้องส่ง")
 
 	if request.method == 'POST':
 		form = CustomMasterPlanAddProjectForm(request.POST)
