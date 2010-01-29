@@ -1237,10 +1237,10 @@ def view_project_activities(request, project_id):
 	# Find activities in past month, current month and next month.
 	num = 3
 	prev_month_ = prev_month(current_date.year, current_date.month, num)
-	start = date(*prev_month_, day=1)
+	start = date(prev_month_[0], prev_month_[1], 1)
 	next_month_ = next_month(current_date.year, current_date.month, num)
-	end = date(*next_month_, day=calendar.monthrange(*next_month_)[1])
-
+	end = date(next_month_[0], next_month_[1], day=calendar.monthrange(next_month_[0], next_month_[1])[1])
+	
 	prev_month_ = "%04d%02d" % prev_month(current_date.year, current_date.month)
 	next_month_ = "%04d%02d" % next_month(current_date.year, current_date.month)
 
@@ -1262,9 +1262,9 @@ def view_project_activities_ajax(request, project_id, yearmonth):
 	num = 3
 	prev_month_ = prev_month(year, month, num)
 	next_month_ = next_month(year, month, num)
-
-	start = date(*prev_month_, day=1)
-	end = date(*next_month_, day=calendar.monthrange(*next_month_)[1])
+	
+	start = date(prev_month_[0], prev_month_[1], day=1)
+	end = date(next_month_[0], next_month_[1], day=calendar.monthrange(next_month_[0], next_month_[1])[1])
 
 	prev_month_ = "%04d%02d" % prev_month(year, month)
 	next_month_ = "%04d%02d" % next_month(year, month)
