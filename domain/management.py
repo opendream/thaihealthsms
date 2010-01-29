@@ -88,7 +88,7 @@ def after_syncdb(sender, **kwargs):
 	BELOW CODE IS FOR PROTOTYPE-PURPOSE ONLY
 	"""
 	
-	
+	"""
 	if not Sector.objects.all():
 
 		# Sector ##################
@@ -301,7 +301,7 @@ def after_syncdb(sender, **kwargs):
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(-7), submitted_on=datetime.now(), state=SUBMIT_ACTIVITY)
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(-14), submitted_on=datetime.now(), state=SUBMIT_ACTIVITY)
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(-21), submitted_on=datetime.now(), state=APPROVE_ACTIVITY, approval_on=datetime.now())
-
+	"""
 
 from django.db.models.signals import post_syncdb
 post_syncdb.connect(after_syncdb, dispatch_uid="domain.management")
