@@ -79,7 +79,7 @@ class ChangePasswordForm(forms.Form):
 
 class SectorChoiceField(forms.ModelChoiceField):
 	def label_from_instance(self, obj):
-		return "%d %s" % (obj.id, obj.name)
+		return "%d %s" % (obj.ref_no, obj.name)
 
 class PlanChoiceField(forms.ModelChoiceField):
 	def label_from_instance(self, obj):
@@ -153,17 +153,17 @@ class ReportMultipleChoiceField(forms.ModelMultipleChoiceField):
 
 class MasterPlanAddProjectForm(forms.Form):
 	plan = PlanChoiceField(queryset=Plan.objects.all(), label="สังกัดกลุ่มแผนงาน", empty_label=None)
-	ref_no = forms.CharField(max_length=64, label='เลขที่โครงการ')
-	name = forms.CharField(max_length=512, label='ชื่อโครงการ')
+	ref_no = forms.CharField(max_length=64, label='เลขที่แผนงาน')
+	name = forms.CharField(max_length=512, label='ชื่อแผนงาน')
 	start_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_start_date'}), label='เริ่ม')
 	end_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_end_date'}), label='ถึง')
-	reports = ReportMultipleChoiceField(queryset=Report.objects.all(), label="รายงานที่ต้องส่ง")
+	reports = ReportMultipleChoiceField(queryset=Report.objects.all(), required=False, label="รายงานที่ต้องส่ง")
 
 class MasterPlanEditProjectForm(forms.Form):
 	plan = PlanChoiceField(queryset=Plan.objects.all(), label="สังกัดกลุ่มแผนงาน", empty_label=None)
-	ref_no = forms.CharField(max_length=64, label='เลขที่โครงการ')
-	name = forms.CharField(max_length=512, label='ชื่อโครงการ')
-	reports = ReportMultipleChoiceField(queryset=Report.objects.all(), label="รายงานที่ต้องส่ง", widget=forms.CheckboxSelectMultiple)
+	ref_no = forms.CharField(max_length=64, label='เลขที่แผนงาน')
+	name = forms.CharField(max_length=512, label='ชื่อแผนงาน')
+	reports = ReportMultipleChoiceField(queryset=Report.objects.all(), required=False, label="รายงานที่ต้องส่ง", widget=forms.CheckboxSelectMultiple)
 
 #
 # Plan Form

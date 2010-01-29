@@ -33,6 +33,7 @@
 {% endresponsible %}
 
 <div class="hierarchy_page hierarchy_master_plan_page">
+	{% if plans %}
 	{% for plan in plans %}
 		<h2>{{plan.ref_no}} {{plan.name}}</h2>
 		{% if not plan.projects %}
@@ -48,5 +49,8 @@
 			</ul>
 		{% endif %}
 	{% endfor %}
+	{% else %}
+	<div class="ss_no_information">ไม่มีข้อมูล</div>
+	{% endif %}
 </div>
 {% endblock %}

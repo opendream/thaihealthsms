@@ -30,9 +30,6 @@ $(document).ready(function() {
 			<li><a href="{% url view_activity_overview activity.id %}">{% trans 'Overview' %}</a></li>
 			<li class="right_item"><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_activity_comments activity.id %}">{% trans 'Comments' %}</a></li>
 			<li class="selected right_item">แก้ไขกิจกรรม</li>
-			{% responsible user 'project_manager,project_manager_assistant' project.parent_project %}
-			<li class="right_item"><a href="{% url view_project_edit project.id %}">แก้ไขโครงการ</a></li>
-			{% endresponsible %}
 		</ul>
 		<div class="clear"></div>
 	</div>

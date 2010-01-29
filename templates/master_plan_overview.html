@@ -26,6 +26,7 @@
 {% block body_content %}
 <div class="overview_page">	
 	<h2>แผนงาน/โครงการ ในปี {{current_year|add:'543'}}</h2>
+	{% if master_plan.plans %}
 	<div class="hierarchy_section master_plan_hierarchy_section">
 		{% for plan in master_plan.plans %}
 			<h3>{{plan.ref_no}} {{plan.name}}</h3>
@@ -45,6 +46,8 @@
 			{% endif %}
 		{% endfor %}
 	</div>
-	
+	{% else %}
+	<div class="ss_no_information">ไม่มีข้อมูล</div>
+	{% endif %}
 </div>
 {% endblock %}

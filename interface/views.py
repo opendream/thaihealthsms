@@ -336,16 +336,19 @@ def view_administer_organization_add_masterplan(request):
 			sector = form.cleaned_data['sector']
 			year_start = form.cleaned_data['year_start'] - 543
 			year_end = form.cleaned_data['year_end'] - 543
-
+			
 			# Get default month period, we know that there's existing one.
 			default_month_period = MasterPlanMonthPeriod.objects.get(is_default=True)
-
+			
+			if default_month_period.use_lower_year_number and default_month_period.start_month != 1 and default_month_period.end_month != 12:
+				year_start = year_start - 1
+			
 			year_period_start = date(year_start, default_month_period.start_month, 1)
 			year_period_end = date(year_end, default_month_period.end_month, 1)
 			year_period, created = MasterPlanYearPeriod.objects.get_or_create(start=year_period_start, end=year_period_end, month_period=default_month_period)
-
+			
 			MasterPlan.objects.create(sector=sector, ref_no=ref_no, name=name, year_period=year_period)
-
+			
 			return redirect('view_administer_organization')
 
 	else:
@@ -372,6 +375,9 @@ def view_administer_organization_edit_masterplan(request, master_plan_id):
 
 			# Get default month period, we know that there's existing one.
 			default_month_period = MasterPlanMonthPeriod.objects.get(is_default=True)
+			
+			if default_month_period.use_lower_year_number and default_month_period.start_month != 1 and default_month_period.end_month != 12:
+				year_start = year_start - 1
 
 			year_period_start = date(year_start, default_month_period.start_month, 1)
 			year_period_end = date(year_end, default_month_period.end_month, 1)
@@ -1392,7 +1398,7 @@ def view_report_overview(request, report_id):
 			file_response = ReportScheduleFileResponse.objects.create(schedule=schedule, uploaded_by=request.user.get_profile())
 
 			# Uploading directory
-			uploading_directory = "%s/%d/" % (settings.REPORT_SUBMIT_FILE_PATH, schedule.id)
+			uploading_directory = "%s/%d/%d/" % (settings.REPORT_SUBMIT_FILE_PATH, schedule.report_project.report.id, schedule.id)
 			if not os.path.exists(uploading_directory): os.makedirs(uploading_directory)
 
 			# Uploading file
@@ -1456,7 +1462,7 @@ def view_report_overview(request, report_id):
 		report_schedule.status_code = 'waiting'
 	elif report_schedule.state == APPROVE_ACTIVITY:
 		report_schedule.status_code = 'approved'
-	elif report_schedule.state == APPROVE_ACTIVITY:
+	elif report_schedule.state == REJECT_ACTIVITY:
 		report_schedule.status_code = 'rejected'
 
 	report_schedule.allow_modifying = report_schedule.status_code in ('overdue', 'not_submitted', 'rejected')

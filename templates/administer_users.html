@@ -30,6 +30,7 @@
 </div>
 
 <div class="user_management_page">
+	{% if users %}
 	<table>
 		<tr>
 			<th></th>
@@ -62,5 +63,8 @@
 		</tr>
 		{% endfor %}
 	</table>
+	{% else %}
+	<div class="ss_no_information">ไม่มีผู้ใช้</div>
+	{% endif %}
 </div>
 {% endblock %}

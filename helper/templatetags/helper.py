@@ -92,9 +92,9 @@ class IfAdminNode(template.Node):
 		if user.is_superuser:
 			is_admin = True
 			
-		else:
-			if Group.objects.get(name='sector_admin') in user.groups.all():
-				is_admin = True
+		#else:
+		#	if Group.objects.get(name='sector_admin') in user.groups.all():
+		#		is_admin = True
 		
 		if is_admin:
 			output = self.nodelist_true.render(context)

@@ -28,6 +28,7 @@
 <div class="master_plan_add_plan_page">
 <div class="ss_child_page_header">เพิ่มแผนงาน<a href="{% url view_master_plan_organization master_plan.id %}">กลับไปหน้าจัดโครงสร้างแผนหลัก &#187;</a></div>
 <form action="" method="POST" class="ss_form">
+{{form.errors}}
 	<ul>
 		<li><label for="id_plan">{{form.plan.label}}</label><div class="input">{{form.plan}}</div>{{form.plan.errors}}</li>
 		<li><label for="id_ref_no">{{form.ref_no.label}}</label><div class="input SHORT">{{form.ref_no}}</div>{{form.ref_no.errors}}</li>

@@ -48,7 +48,7 @@ class MasterPlanMonthPeriod(models.Model):
 	start_month = models.IntegerField()
 	end_month = models.IntegerField()
 	is_default = models.BooleanField(default=False)
-	use_lower_year_number = models.BooleanField(default=False) # e.g. Oct 2008 - Sep 2009 use 2009 as a year number
+	use_lower_year_number = models.BooleanField(default=True) # e.g. Oct 2008 - Sep 2009 use 2009 as a year number
 
 class Plan(models.Model):
 	master_plan = models.ForeignKey('MasterPlan')

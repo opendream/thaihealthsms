@@ -163,7 +163,7 @@ $(document).ready(function() {
 					<ul class="files">
 						{% for file in report_schedule.files %}
 						<li>
-							<div class="filename"><a href="{{REPORT_SUBMIT_FILE_URL}}{{report_schedule.id}}/{{file.filename}}">{{file.filename}}</a></div>
+							<div class="filename"><a href="{{REPORT_SUBMIT_FILE_URL}}{{report_schedule.report_project.report.id}}/{{report_schedule.id}}/{{file.filename}}">{{file.filename}}</a></div>
 							<div class="metadata">จัดเก็บเมื่อวันที่ {{file.uploaded|thai_display_datetime}} โดย {{file.uploaded_by.first_name}} {{file.uploaded_by.last_name}}
 							{% responsible user 'project_manager,project_manager_assistant' report_schedule.report_project.project %}
 							{% if report_schedule.allow_modifying %}

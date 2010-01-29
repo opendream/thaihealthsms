@@ -25,8 +25,8 @@ def after_syncdb(sender, **kwargs):
 	Site.objects.all().update(domain=settings.WEBSITE_ADDRESS, name=settings.WEBSITE_ADDRESS)
 	
 	# User Roles ##################
-	sector_admin_role, created = Group.objects.get_or_create(name='sector_admin')
-	GroupName.objects.get_or_create(group=sector_admin_role, name='ผู้ดูแลระบบของสำนัก')
+	#sector_admin_role, created = Group.objects.get_or_create(name='sector_admin')
+	#GroupName.objects.get_or_create(group=sector_admin_role, name='ผู้ดูแลระบบของสำนัก')
 
 	sector_manager_role, created = Group.objects.get_or_create(name='sector_manager')
 	GroupName.objects.get_or_create(group=sector_manager_role, name='ผู้อำนวยการสำนัก')
@@ -51,18 +51,18 @@ def after_syncdb(sender, **kwargs):
 			User.objects.get(username=admin[0])
 
 		except User.DoesNotExist:
-			#random_password = User.objects.make_random_password()
-			random_password = 'password'
+			random_password = User.objects.make_random_password()
+			#random_password = 'password'
 			admin_user = User.objects.create_user(admin[0], admin[1], random_password)
 			admin_user.is_superuser = True
 			admin_user.is_staff = True
 			admin_user.save()
 
 			email_content = 'Username: %s\nPassword: %s\n' % (admin[0], random_password)
-			# send_mail('Your account for Strategy Management Systems', email_content, settings.SYSTEM_NOREPLY_EMAIL, [admin[1]])
+			send_mail('บัญชีผู้ดูแลระบบ Strategy Management Systems', email_content, settings.SYSTEM_NOREPLY_EMAIL, [admin[1]])
 
 			admin_account = admin_user.get_profile()
-			admin_account.first_name = "Administration"
+			admin_account.first_name = admin[0]
 			admin_account.last_name = ""
 			admin_account.save()
 
@@ -84,7 +84,8 @@ def after_syncdb(sender, **kwargs):
 	"""
 	BELOW CODE IS FOR PROTOTYPE-PURPOSE ONLY
 	"""
-
+	
+	"""
 	if not Sector.objects.all():
 
 		# Sector ##################
@@ -99,16 +100,16 @@ def after_syncdb(sender, **kwargs):
 		# Users ##################
 
 		# Sector Admin
-		sector_admin1 = User.objects.create_user("sector_admin1", "sector_admin1@example.com", "password")
-		sector_admin1.groups.add(sector_admin_role)
+		#sector_admin1 = User.objects.create_user("sector_admin1", "sector_admin1@example.com", "password")
+		#sector_admin1.groups.add(sector_admin_role)
 
-		sector_admin_account1 = sector_admin1.get_profile()
-		sector_admin_account1.sector = sector7
-		sector_admin_account1.first_name = "Sector"
-		sector_admin_account1.last_name = "Admin"
-		sector_admin_account1.save()
+		#sector_admin_account1 = sector_admin1.get_profile()
+		#sector_admin_account1.sector = sector7
+		#sector_admin_account1.first_name = "Sector"
+		#sector_admin_account1.last_name = "Admin"
+		#sector_admin_account1.save()
 
-		user_responsibility = UserRoleResponsibility.objects.create(user=sector_admin_account1, role=sector_admin_role)
+		#user_responsibility = UserRoleResponsibility.objects.create(user=sector_admin_account1, role=sector_admin_role)
 
 		# Sector Managers
 		sector_manager1 = User.objects.create_user("sector7", "sector1@example.com", "password")
@@ -297,118 +298,8 @@ def after_syncdb(sender, **kwargs):
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(-7), submitted_on=datetime.now(), state=SUBMIT_ACTIVITY)
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(-14), submitted_on=datetime.now(), state=SUBMIT_ACTIVITY)
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(-21), submitted_on=datetime.now(), state=APPROVE_ACTIVITY, approval_on=datetime.now())
-
-
-		"""
-		# Next due
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(16))
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(32))
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() + timedelta(16))
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() + timedelta(32))
-
-		# Late
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(16))
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(16))
-
-		# Rejected
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(4), submitted_on=date.today(), last_activity=REJECT_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(4), submitted_on=date.today(), last_activity=REJECT_ACTIVITY)
-
-		# Approved
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(30), submitted_on=date.today() - timedelta(31), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(60), submitted_on=date.today() - timedelta(61), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(90), submitted_on=date.today() - timedelta(91), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(120), submitted_on=date.today() - timedelta(121), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(150), submitted_on=date.today() - timedelta(151), last_activity=APPROVE_ACTIVITY)
-
-		report_project11 = ReportProject.objects.create(report=report1, project=project1201_1)
-		report_project12 = ReportProject.objects.create(report=report2, project=project1201_1)
-
-		# Next due
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(16))
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() + timedelta(32))
-
-		# Late
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(16))
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(16))
-
-		# Submitted
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(4), submitted_on=date.today())
-
-		# Rejected
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(4), submitted_on=date.today(), last_activity=REJECT_ACTIVITY)
-
-		# Approved
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(30), submitted_on=date.today() - timedelta(31), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(60), submitted_on=date.today() - timedelta(61), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(90), submitted_on=date.today() - timedelta(91), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(120), submitted_on=date.today() - timedelta(121), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(150), submitted_on=date.today() - timedelta(151), last_activity=APPROVE_ACTIVITY)
-
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(30), submitted_on=date.today() - timedelta(31), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(60), submitted_on=date.today() - timedelta(61), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(90), submitted_on=date.today() - timedelta(91), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(120), submitted_on=date.today() - timedelta(121), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(150), submitted_on=date.today() - timedelta(151), last_activity=APPROVE_ACTIVITY)
-
-
-		report_project11 = ReportProject.objects.create(report=report1, project=project1201_2)
-		report_project12 = ReportProject.objects.create(report=report2, project=project1201_2)
-
-
-		# Next due
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(16))
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() + timedelta(32))
-
-		# Late
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(16))
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(16))
-
-		# Rejected
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(4), submitted_on=date.today(), last_activity=REJECT_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(4), submitted_on=date.today(), last_activity=REJECT_ACTIVITY)
-
-		# Approved
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(30), submitted_on=date.today() - timedelta(31), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(60), submitted_on=date.today() - timedelta(61), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(90), submitted_on=date.today() - timedelta(91), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(120), submitted_on=date.today() - timedelta(121), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(150), submitted_on=date.today() - timedelta(151), last_activity=APPROVE_ACTIVITY)
-
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(30), submitted_on=date.today() - timedelta(31), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(60), submitted_on=date.today() - timedelta(61), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(90), submitted_on=date.today() - timedelta(91), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(120), submitted_on=date.today() - timedelta(121), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(150), submitted_on=date.today() - timedelta(151), last_activity=APPROVE_ACTIVITY)
-
-		report_project11 = ReportProject.objects.create(report=report1, project=project1201_1_001)
-		report_project12 = ReportProject.objects.create(report=report2, project=project1201_1_001)
-
-		# Next due
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(32))
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() + timedelta(16))
-
-		# Late
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(17))
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(17))
-
-		# Rejected
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(5), submitted_on=date.today(), last_activity=REJECT_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(5), submitted_on=date.today(), last_activity=REJECT_ACTIVITY)
-
-		# Approved
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(30), submitted_on=date.today() - timedelta(31), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(60), submitted_on=date.today() - timedelta(61), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(90), submitted_on=date.today() - timedelta(91), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(120), submitted_on=date.today() - timedelta(121), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() - timedelta(150), submitted_on=date.today() - timedelta(151), last_activity=APPROVE_ACTIVITY)
-
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(30), submitted_on=date.today() - timedelta(31), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(60), submitted_on=date.today() - timedelta(61), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(90), submitted_on=date.today() - timedelta(91), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(120), submitted_on=date.today() - timedelta(121), last_activity=APPROVE_ACTIVITY)
-		ReportSchedule.objects.create(report_project=report_project12, due_date=date.today() - timedelta(150), submitted_on=date.today() - timedelta(151), last_activity=APPROVE_ACTIVITY)
-		"""
+	"""
+	
 
 		
 

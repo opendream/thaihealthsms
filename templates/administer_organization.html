@@ -41,12 +41,13 @@ $(document).ready(function() {
 <div class="ss_control_panel">
 	<ul>
 		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_administer_organization_add_sector %}">เพิ่มสำนัก</a></li>
-		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_administer_organization_add_masterplan %}">เพิ่มแผนหลัก</a></li>
+		{% if sectors %}<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_administer_organization_add_masterplan %}">เพิ่มแผนหลัก</a></li>{% endif %}
 	</ul>
 </div>
 
 <div class="organization_page">
 	<h2>สำนัก</h2>
+	{% if sectors %}
 	<table class="sectors_table">
 		<tr>
 			<th></th>
@@ -68,8 +69,12 @@ $(document).ready(function() {
 		</tr>
 		{% endfor %}
 	</table>
+	{% else %}
+	<div class="ss_no_information">ไม่มีสำนัก</div>
+	{% endif %}
 
 	<h2>แผนหลัก</h2>
+	{% if master_plans %}
 	<table class="master_plans_table">
 		<tr>
 			<th></th>
@@ -95,5 +100,8 @@ $(document).ready(function() {
 		</tr>
 		{% endfor %}
 	</table>
+	{% else %}
+	<div class="ss_no_information">ไม่มีแผนหลัก</div>
+	{% endif %}
 </div>
 {% endblock %}

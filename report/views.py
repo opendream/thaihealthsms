@@ -43,7 +43,7 @@ def ajax_delete_report_file(request):
 		file_id = request.POST['id']
 		
 		file_response = ReportScheduleFileResponse.objects.get(pk=file_id)
-		uploading_directory = "%s/%d/%d/" % (settings.REPORT_SUBMIT_FILE_PATH, file_response.schedule.id, file_response.id)
+		uploading_directory = "%s/%d/%d/" % (settings.REPORT_SUBMIT_FILE_PATH, file_response.schedule.report_project.report.id, file_response.schedule.id)
 		
 		import os
 		os.remove(uploading_directory + file_response.filename)
