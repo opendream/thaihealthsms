@@ -70,6 +70,8 @@ def responsible(user, roles, dept_obj):
 	has_responsibility = False
 	roles = roles.split(',')
 	
+	if 'admin' in roles and user.is_superuser: return True
+	
 	for responsibility_item in UserRoleResponsibility.objects.filter(user=user):
 		if responsibility_item.role.name in roles:
 			if type(dept_obj).__name__ == 'Sector':

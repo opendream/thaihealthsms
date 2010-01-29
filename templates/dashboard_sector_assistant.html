@@ -5,7 +5,6 @@
 $("#report-" + data.object_id + " .comment_count").html(data.count + " ความคิดเห็น")
 {% endblock %}
 
-
 {% block html_head %}
 <script type="text/javascript">
 $(document).ready(function() {
@@ -13,14 +12,14 @@ $(document).ready(function() {
 		var liObject = $(this).closest("li");
 		$.post("{% url ajax_approve_report_schedule %}", {id:liObject.attr("rel")}, function(data) {
 			liObject.hide('slow');
-		});
+		}, "json");
 	});
 	
 	$(".reject-report").click(function(e) {
 		var liObject = $(this).closest("li");
 		$.post("{% url ajax_reject_report_schedule %}", {id:liObject.attr("rel")}, function(data) {
-			liObject.hide('slow');
-		});
+			liObject.find(".report_approval").html('<div><span class="rejected_on">ตีกลับเมื่อวันที่ ' + data.timestamp + '</span></div>');
+		}, "json");
 	});
 	
 	bindCommentBox($(".post-report-comment"));

@@ -43,23 +43,25 @@ def after_syncdb(sender, **kwargs):
 
 	# Administrator ##################
 	admins = settings.ADMINS
-
+	
 	from django.core.mail import send_mail
-
+	
 	for admin in admins:
 		try:
 			User.objects.get(username=admin[0])
 
 		except User.DoesNotExist:
 			random_password = User.objects.make_random_password()
-			#random_password = 'password'
 			admin_user = User.objects.create_user(admin[0], admin[1], random_password)
 			admin_user.is_superuser = True
 			admin_user.is_staff = True
 			admin_user.save()
-
-			email_content = 'Username: %s\nPassword: %s\n' % (admin[0], random_password)
-			send_mail('บัญชีผู้ดูแลระบบ Strategy Management Systems', email_content, settings.SYSTEM_NOREPLY_EMAIL, [admin[1]])
+			
+			email_render_dict = {'username':admin[0], 'password':random_password, 'settings':settings, 'site':Site.objects.get_current()}
+			email_subject = render_to_string('email/create_admin_subject.txt', email_render_dict)
+			email_message = render_to_string('email/create_admin_message.txt', email_render_dict)
+			
+			send_mail(email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, [admin[1]])
 
 			admin_account = admin_user.get_profile()
 			admin_account.first_name = admin[0]

@@ -15,6 +15,7 @@ ENTRANCE PAGE
 .entrance_page h1 {text-align:center;font-size:182%;margin:20px 0px;color:#017c54;font-weight:bold;}
 .entrance_page h2 {font-size:123.1%;margin:10px 30px 20px;color:#2D8659;padding:5px 0px;border-bottom:1px solid #999;}
 .entrance_page p {margin:0px 10px 10px 30px;}
+.entrance_page .instruction {background-color:#FFC;padding:5px 10px;margin:10px 30px;border:1px solid #CCC;}
 
 .entrance_page #entrance_content {margin:0px auto;width:450px;border:1px solid #CCC;padding:10px 15px;background-color:#FFF;}
 .entrance_page form ul {margin:0px;padding:0px 20px;}

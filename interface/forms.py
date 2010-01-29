@@ -20,13 +20,21 @@ date_cycle = [(0, 'วันสิ้นเดือน'),(1,1),(2,2),(3,3),(4,4
 sectors = [(sector.id, '%s %s' % (sector.ref_no, sector.name)) for sector in Sector.objects.all().order_by('ref_no')]
 roles = [(group_name.group.name, group_name.name) for group_name in GroupName.objects.all()]
 
+class SectorChoiceField(forms.ModelChoiceField):
+	def label_from_instance(self, obj):
+		return "%d %s" % (obj.ref_no, obj.name)
+
+class PlanChoiceField(forms.ModelChoiceField):
+	def label_from_instance(self, obj):
+		return "%s %s" % (obj.ref_no, obj.name)
+
 class UserAccountForm(forms.Form):
 	username = forms.CharField(max_length=500, label='ชื่อผู้ใช้')
 	email = forms.EmailField(label='อีเมล')
 	first_name = forms.CharField(max_length=500, required=False, label='ชื่อจริง')
 	last_name = forms.CharField(max_length=500, required=False, label='นามสกุล')
 	role = forms.CharField(widget=forms.Select(choices=roles), label='ตำแหน่ง')
-	sector = forms.IntegerField(widget=forms.Select(choices=sectors), label='สังกัดสำนัก')
+	sector = SectorChoiceField(required=True, queryset=Sector.objects.all().order_by('ref_no'), empty_label=None, label='สังกัดสำนัก')
 	responsible = forms.IntegerField(widget=forms.HiddenInput(), required=False, label='เลือกแผนหลัก จากนั้นเลือกแผนงานที่รับผิดชอบ')
 
 class ChangeFirstTimePasswordForm(forms.Form):
@@ -76,14 +84,6 @@ class ChangePasswordForm(forms.Form):
 				del cleaned_data["old_password"]
 
 		return cleaned_data
-
-class SectorChoiceField(forms.ModelChoiceField):
-	def label_from_instance(self, obj):
-		return "%d %s" % (obj.ref_no, obj.name)
-
-class PlanChoiceField(forms.ModelChoiceField):
-	def label_from_instance(self, obj):
-		return "%s %s" % (obj.ref_no, obj.name)
 
 class ReportMultipleChoiceField(forms.ModelMultipleChoiceField):
 	def label_from_instance(self, obj):

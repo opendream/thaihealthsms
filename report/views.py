@@ -2,10 +2,12 @@ from datetime import datetime, date
 
 from django.conf import settings
 from django.http import HttpResponse, Http404
+from django.utils import simplejson
 
 from report import functions as report_functions
 from report.models import *
 
+from helper.utilities import format_display_datetime
 
 def get_nextdue(request):
 	report_functions.get_program_nextdue_schedules(1)
@@ -19,7 +21,7 @@ def ajax_approve_report_schedule(request):
 		report_schedule.approval_on = datetime.now()
 		report_schedule.save()
 		
-		return HttpResponse("")
+		return HttpResponse(simplejson.dumps({'timestamp':format_display_datetime(report_schedule.approval_on)}))
 		
 	else:
 		raise Http404
@@ -33,7 +35,7 @@ def ajax_reject_report_schedule(request):
 		report_schedule.approval_on = datetime.now()
 		report_schedule.save()
 		
-		return HttpResponse("")
+		return HttpResponse(simplejson.dumps({'timestamp':format_display_datetime(report_schedule.approval_on)}))
 		
 	else:
 		raise Http404

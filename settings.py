@@ -101,6 +101,8 @@ INSTALLED_APPS = (
 
 # ===== SMS Settings ===== #
 
+SYSTEM_NAME = 'Thai Health Strategy Management Systems'
+
 # Report Submitted File
 REPORT_SUBMIT_FILE_PATH = os.path.join(_base, "media/report")
 REPORT_SUBMIT_FILE_URL = "/m/report/"

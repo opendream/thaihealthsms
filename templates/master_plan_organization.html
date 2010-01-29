@@ -74,7 +74,7 @@ $(document).ready(function() {
 					<td class="controls">
 					<a href="{% url view_master_plan_edit_project master_plan.id project.id %}" title="แก้ไขแผนงาน"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
 					{% if project.has_child %}
-					<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบแผนงานที่มีโครงการย่อยได้"/>
+					<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบแผนงานที่มีโครงการย่อยหรือมีรายงานได้"/>
 					{% else %}
 					<a href="{% url view_master_plan_delete_project master_plan.id project.id %}" title="ลบแผนงาน" class="delete-program"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
 					{% endif %}

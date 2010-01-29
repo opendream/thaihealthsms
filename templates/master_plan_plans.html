@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block body_content %}
-{% responsible user 'sector_manager_assistant,sector_admin' master_plan.sector %}
+{% responsible user 'admin,sector_manager_assistant,sector_admin' master_plan.sector %}
 <div class="ss_control_panel">
 	<ul>
 		<li><img src="{{MEDIA_URL}}/images/icon_organization.png" class="icon"/><a href="{% url view_master_plan_organization master_plan.id %}">จัดการโครงสร้างแผนหลัก</a></li>

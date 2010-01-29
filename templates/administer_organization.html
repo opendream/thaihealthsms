@@ -65,7 +65,7 @@ $(document).ready(function() {
 				{% endif %}
 			</td>
 			<td class="sector_number">{{sector.ref_no}}</td>
-			<td class="sector_name">{{sector.name}}</td>
+			<td class="sector_name"><a href="/sector/{{sector.id}}/">{{sector.name}}</a></td>
 		</tr>
 		{% endfor %}
 	</table>
@@ -94,7 +94,7 @@ $(document).ready(function() {
 				{% endif %}
 			</td>
 			<td class="ref_no">{{master_plan.ref_no}}</td>
-			<td class="name">{{master_plan.name}}</td>
+			<td class="name"><a href="/master_plan/{{master_plan.id}}/">{{master_plan.name}}</a></td>
 			<td class="sector">{{master_plan.sector.ref_no}}</td>
 			<td class="year">{{master_plan.start}} - {{master_plan.end}}</td>
 		</tr>

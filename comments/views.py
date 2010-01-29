@@ -21,14 +21,14 @@ from thaihealthsms.helper.utilities import format_abbr_date, format_date
 def ajax_post_object_comment(request, object_name, object_id):
 	if request.method == "POST":
 		if object_name not in ('activity', 'project', 'report'): raise Http404
-
+		
 		message = request.POST['message'].strip()
 		comment = Comment.objects.create(message=message, object_id=object_id, object_name=object_name, \
 			sent_by=request.user.get_profile())
 		
 		comment_receiver_roles = CommentReceiverRole.objects.filter(object_name=object_name)
 		roles = [r.role for r in comment_receiver_roles]
-
+		
 		if object_name == 'activity':
 			activity = Activity.objects.get(pk=object_id)
 			if activity.project.parent_project:
@@ -40,7 +40,7 @@ def ajax_post_object_comment(request, object_name, object_id):
 		elif object_name == 'project':
 			project = Project.objects.get(pk=object_id)
 			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(project,))
-
+		
 		elif object_name == 'report':
 			report_schedule = ReportSchedule.objects.get(pk=object_id)
 			if report_schedule.report_project.project.parent_project:
@@ -81,7 +81,7 @@ def ajax_reply_comment(request, comment_id):
 			comment = Comment.objects.get(pk=comment_id)
 		except Comment.DoesNotExist:
 			return HttpResponse(simplejson.dumps({'error': '404',}))
-
+		
 		if comment:
 			message = request.POST['message'].strip()
 			comment_reply = CommentReply.objects.create(comment=comment, content=message, sent_by=request.user.get_profile())
@@ -115,4 +115,3 @@ def ajax_reply_comment(request, comment_id):
 			return HttpResponse(simplejson.dumps({'error': '404',}))
 	else:
 		raise Http404
-
