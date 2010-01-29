@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
+from django.template.loader import render_to_string
 
 from domain.models import *
 from report.models import *
@@ -57,7 +58,7 @@ def after_syncdb(sender, **kwargs):
 			admin_user.is_staff = True
 			admin_user.save()
 			
-			email_render_dict = {'username':admin[0], 'password':random_password, 'settings':settings, 'site':Site.objects.get_current()}
+			email_render_dict = {'username':admin[0], 'password':random_password, 'settings':settings, 'site_name':settings.WEBSITE_ADDRESS}
 			email_subject = render_to_string('email/create_admin_subject.txt', email_render_dict)
 			email_message = render_to_string('email/create_admin_message.txt', email_render_dict)
 			
@@ -65,7 +66,7 @@ def after_syncdb(sender, **kwargs):
 
 			admin_account = admin_user.get_profile()
 			admin_account.first_name = admin[0]
-			admin_account.last_name = ""
+			admin_account.last_name = ''
 			admin_account.save()
 
 	# Master Plan
@@ -301,9 +302,6 @@ def after_syncdb(sender, **kwargs):
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(-14), submitted_on=datetime.now(), state=SUBMIT_ACTIVITY)
 		ReportSchedule.objects.create(report_project=report_project11, due_date=date.today() + timedelta(-21), submitted_on=datetime.now(), state=APPROVE_ACTIVITY, approval_on=datetime.now())
 	"""
-	
-
-		
 
 from django.db.models.signals import post_syncdb
 post_syncdb.connect(after_syncdb, dispatch_uid="domain.management")
