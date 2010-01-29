@@ -853,8 +853,10 @@ def view_master_plan_add_project(request, master_plan_id):
 			return redirect('view_master_plan_organization', (master_plan_id))
 	else:
 		form = CustomMasterPlanAddProjectForm()
-
-	return render_response(request, "master_plan_add_project.html", {'master_plan':master_plan, 'form':form})
+	
+	show_reports_in_form = Report.objects.filter(sector=master_plan.sector).count() > 0
+	
+	return render_response(request, "master_plan_add_project.html", {'master_plan':master_plan, 'form':form, 'show_reports_in_form':show_reports_in_form})
 
 @login_required
 def view_master_plan_edit_project(request, master_plan_id, project_id):
@@ -927,8 +929,10 @@ def view_master_plan_edit_project(request, master_plan_id, project_id):
 	else:
 		report_projects = ReportProject.objects.filter(project=project, is_active=True)
 		form = CustomMasterPlanAddProjectForm(initial={'plan':project.plan.pk, 'ref_no':project.ref_no, 'name':project.name, 'description':project.description, 'reports':[report_project.report.id for report_project in report_projects]})
-
-	return render_response(request, "master_plan_edit_project.html", {'master_plan':master_plan, 'form':form})
+	
+	show_reports_in_form = Report.objects.filter(sector=master_plan.sector).count() > 0
+	
+	return render_response(request, "master_plan_edit_project.html", {'master_plan':master_plan, 'form':form, 'show_reports_in_form':show_reports_in_form})
 
 @login_required
 def view_master_plan_delete_project(request, master_plan_id, project_id):

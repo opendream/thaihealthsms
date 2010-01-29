@@ -24,8 +24,6 @@
 {% endblock %}
 
 {% block body_content %}
-
-<div class="master_plan_add_plan_page">
 <div class="ss_child_page_header">เพิ่มแผนงาน<a href="{% url view_master_plan_organization master_plan.id %}">กลับไปหน้าจัดโครงสร้างแผนหลัก &#187;</a></div>
 <form action="" method="POST" class="ss_form">
 {{form.errors}}
@@ -39,11 +37,10 @@
 			{{form.start_date.errors}}
 			{{form.end_date.errors}}
 		</li>
+		{% if show_reports_in_form %}
 		<li><label for="id_reports">{{form.reports.label}}</label><div class="input">{{form.reports}}</div></li>
-		<li><input type="submit" value="เพิ่มแผนงาน" /></li>
+		{% endif %}
 	</ul>
+	<div class="button_panel"><button type="submit">เพิ่มแผนงาน</button></div>
 </form>
-</div>
-</div>
-
 {% endblock %}

@@ -24,17 +24,12 @@
 {% endblock %}
 
 {% block body_content %}
-
-<div class="master_plan_add_project_page">
 <div class="ss_child_page_header">เพิ่มกลุ่มแผนงาน <a href="{% url view_master_plan_organization master_plan.id %}">กลับไปหน้าจัดโครงสร้างแผนหลัก &#187;</a></div>
 <form action="" method="POST" class="ss_form">
 	<ul>
 		<li><label for="id_ref_no">{{form.ref_no.label}}</label><div class="input SHORT">{{form.ref_no}}</div>{{form.ref_no.errors}}</li>
 		<li><label for="id_name">{{form.name.label}}</label><div class="input LONG">{{form.name}}</div>{{form.ref_no.errors}}</li>
-		<li><input type="submit" value="เพิ่มกลุ่มแผนงาน" /></li>
 	</ul>
+	<div class="button_panel"><button type="submit">เพิ่มกลุ่มแผนงาน</button></div>
 </form>
-</div>
-
-
 {% endblock %}
