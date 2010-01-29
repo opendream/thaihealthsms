@@ -69,6 +69,7 @@ $(document).ready(function() {
 				<td class="ref_no">{{plan.ref_no}}</td>
 				<td colspan="3" class="name">{{plan.name}}</td>
 			</tr>
+			{% if plan.projects %}
 			{% for project in plan.projects %}
 				<tr>
 					<td class="controls">
@@ -85,6 +86,13 @@ $(document).ready(function() {
 					<td class="end_date">{% if project.end_date %}{{project.end_date|thai_date}}{% else %}ยังไม่กำหนด{% endif %}</td>
 				</tr>
 			{% endfor %}
+			{% else %}
+			<tr>
+				<td></td>
+				<td></td>
+				<td colspan="3" class="ss_no_information">ไม่มีแผนงานภายใต้กลุ่มแผนงานนี้</td>
+			</tr>
+			{% endif %}
 		{% endfor %}
 	</table>
 	{% else %}

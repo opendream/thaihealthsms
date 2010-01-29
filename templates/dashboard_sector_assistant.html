@@ -62,6 +62,8 @@ $(document).ready(function() {
 	</div>
 	
 	<div class="left_panel">
+		<div class="sector_link"><img src="{{MEDIA_URL}}/images/sector_home.png" class="icon"/> <a href="{% url view_sector_overview user_account.sector.id %}">ไปหน้าภาพรวมสำนัก</a></div>
+		
 		<h2>ตรวจสอบการส่งรายงาน</h2>
 		{% if projects %}
 		<div class="report_checkup">

@@ -8,6 +8,7 @@ DASHBOARD PAGE
 .dashboard_page .right_panel .sector_link {font-size:138.5%;margin-bottom:10px;}
 
 .dashboard_page .left_panel {margin-right:290px;}
+.dashboard_page .left_panel .sector_link {font-size:123.1%;margin-bottom:20px;}
 .dashboard_page .left_panel h2 {font-size:138.5%;color:#FFF;padding:8px 10px 4px;margin:5px 0px 10px;background-color:#399;border-bottom:3px solid #9CC;}
 
 .dashboard_page .report_checkup h3 {font-size:123.1%;color:#333;padding:0px 0px 5px;margin:5px 0px 10px;border-bottom:2px solid #666;}
@@ -17,7 +18,7 @@ DASHBOARD PAGE
 .dashboard_page .report_checkup ul.reports li .schedule {font-size:123.1%;font-weight:bold;}
 .dashboard_page .report_checkup ul.reports li .schedule .permalink {font-weight:normal;font-size:0.8em;margin-left:15px;}
 .dashboard_page .report_checkup ul.reports li .report_approval {margin-top:10px;}
-.dashboard_page .report_checkup ul.reports li .report_approval button {margin-right:10px;}
+.dashboard_page .report_checkup ul.reports li .report_approval button {margin-right:10px;width:120px;}
 .dashboard_page .report_checkup ul.reports li.no_information {color:#666;}
 .dashboard_page .report_checkup ul.reports li .rejected_on {background-color:#CCC;}
 .dashboard_page .report_checkup ul.reports li .report_details {margin-top:10px;font-size:108%;}

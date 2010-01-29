@@ -397,6 +397,10 @@ def view_administer_organization_edit_masterplan(request, master_plan_id):
 	else:
 		year_start = master_plan.year_period.start.year + 543
 		year_end = master_plan.year_period.end.year + 543
+		
+		if master_plan.year_period.month_period.use_lower_year_number and master_plan.year_period.start.month != 1 and master_plan.year_period.end.month != 12:
+			year_start = year_start+1
+		
 		form = MasterPlanForm(initial={'sector':master_plan.sector.id, 'ref_no':master_plan.ref_no, 'name':master_plan.name, 'year_start':year_start, 'year_end':year_end})
 
 	return render_response(request, "administer_organization_edit_masterplan.html", {'form':form})

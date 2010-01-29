@@ -61,7 +61,7 @@ $(document).ready(function() {
 				{% for project in current_projects %}
 					<li>
 						<h3><a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a></h3>
-						<div class="item_overview"><span>ระยะเวลา <em>{{project.start_date|thai_date}} - {{project.end_date|thai_date}}</em></span></div>
+						<div class="item_overview"><span>ระยะเวลา <em>{% if project.start_date and project.end_date %}{{project.start_date|thai_date}} - {{project.end_date|thai_date}}{% else %}ไม่กำหนด{% endif %}</em></span></div>
 					</li>
 				{% endfor %}
 			</ul>
@@ -77,7 +77,7 @@ $(document).ready(function() {
 				{% for activity in current_activities %}
 				<li>
 					<h3><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></h3>
-					<div class="item_overview"><span>ระยะเวลา <em>{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}</em></span></div>
+					<div class="item_overview"><span>ระยะเวลา <em>{% if activity.start_date and activity.end_date %}{{activity.start_date|thai_date}} - {{activity.end_date|thai_date}}{% else %}ไม่กำหนด{% endif %}</em></span></div>
 				</li>
 				{% endfor %}
 			</ul>

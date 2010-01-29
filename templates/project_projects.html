@@ -52,8 +52,8 @@ $(document).ready(function() {
 		<tr>
 			<td class="ref_no">{{project.ref_no}}</td>
 			<td class="name"><a href="{% url view_project_overview project.id %}">{{project.name}}</a></td>
-			<td class="start_date">{{project.start_date|thai_abbr_date}}</td>
-			<td class="end_date">{{project.end_date|thai_abbr_date}}</td>
+			<td class="start_date">{% if project.start_date %}{{project.start_date|thai_abbr_date}}{% else %}ไม่กำหนด{% endif %}</td>
+			<td class="end_date">{% if project.end_date %}{{project.end_date|thai_abbr_date}}{% else %}ไม่กำหนด{% endif %}</td>
 		</tr>
 		{% endfor %}
 	</table>

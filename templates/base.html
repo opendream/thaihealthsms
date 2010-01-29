@@ -43,7 +43,11 @@ function postComment() {
 		$.post("/post-comment/" + comment_url + "/", {'message': message}, function(data) {
 			$("#post-comment-dialog .loading").hide();
 			$.fn.colorbox.close();
-			{% block post_comment_ajax_callback %}{% endblock %}
+			if(data.id == 0) {
+				alert("ไม่สามารถส่งความคิดเห็นได้ เนื่องจากไม่มีข้อมูลผู้รับผิดชอบ");
+			} else {
+				{% block post_comment_ajax_callback %}{% endblock %}
+			}
 		}, "json");
 	}
 }

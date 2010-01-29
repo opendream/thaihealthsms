@@ -44,6 +44,7 @@ $(document).ready(function() {
 {% endresponsible %}
 
 <div class="report_project_list_page">
+	{% if report_projects %}
 	{% for report_project in report_projects %}
 		<h2>{{report_project.report.name}}</h2>
 		
@@ -60,6 +61,8 @@ $(document).ready(function() {
 		<div class="ss_no_information">ไม่มีรายงาน</div>
 		{% endif %}
 	{% endfor %}
+	{% else %}
+	<div class="ss_no_information">ไม่มีรายงาน</div>
+	{% endif %}
 </div>
-
 {% endblock %}

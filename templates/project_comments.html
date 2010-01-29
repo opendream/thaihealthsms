@@ -87,7 +87,9 @@ $(document).ready(function() {
 					<h4>{% trans 'Receivers' %}:</h4>
 					<ul>
 						{% for receiver in comment.receivers.all %}
+							{% ifnotequal receiver.id comment.sent_by.id %}
 							<li>{{receiver.first_name}} {{receiver.last_name}}</li>
+							{% endifnotequal %}
 						{% endfor %}
 					</ul>
 				</div>
