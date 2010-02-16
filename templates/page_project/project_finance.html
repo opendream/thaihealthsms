@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% load interface_tags i18n helper_tags %}
+
+{% block post_comment_ajax_url %}/post-comment/object/project/{{project.id}}/{% endblock %}
+
+{% block html_head %}
+<link href="{{MEDIA_URL}}/yui/container/assets/skins/sam/container.css" type="text/css" media="all" rel="stylesheet" />
+<link href="{{MEDIA_URL}}/yui/calendar/assets/skins/sam/calendar.css" type="text/css" media="all" rel="stylesheet" />
+
+<link href="{{MEDIA_URL}}/css/yui.calendar.widget.css" type="text/css" media="all" rel="stylesheet" />
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/element/element-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/container/container-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/calendar/calendar-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/scripts/yui.calendar.widget.js"></script>
+
+<script type="text/javascript">
+var activeClaimScheduleID;
+$(document).ready(function() {
+	$("#adding-claim-template .add-claim-button").click(function(e) {
+		e.preventDefault();
+		var buttonObject = $(this);
+		buttonObject.attr("disabled", "disabled");
+		
+		var claim_on = $("#adding-claim-template input[name='claim_on']").val();
+		var claim_amount = $("#adding-claim-template input[name='claim_amount']").val();
+		
+		$.post("{% url ajax_claim_finance_schedule %}", {schedule_id:activeClaimScheduleID, claim_on:claim_on, claim_amount:claim_amount}, function(data) {
+			buttonObject.attr("disabled", "");
+			$("#adding-claim-template").closest("tr").hide();
+			
+			if(data.error == "invalid") {
+				alert("ข้อมูลไม่อยู่ในรูปแบบที่ถูกต้อง");
+			} else {
+				$(".schedule-revisions-" + activeClaimScheduleID).parent().prepend(data.claim_html);
+				$(".schedule-revisions-" + activeClaimScheduleID).parent().find(".empty").remove();
+				
+				$("#schedule-" + activeClaimScheduleID + " td.result").html('<input type="text" name="result" value="' + claim_amount + '" /> บาท');
+				
+				$("#schedule-" + activeClaimScheduleID + " td.result input").change(function() {
+					$(this).addClass("changed");
+					$(this).parent().parent().find(".update-finance").attr("disabled", "");
+				});
+			}
+		}, "json");
+	});
+	
+	$("#adding-claim-template .cancel-button").click(function(e) {
+		e.preventDefault();
+		$("#adding-claim-template").closest("tr").hide();
+		$(".claim-button").show();
+	});
+	
+	$(".claim-button").click(function(e) {
+		e.preventDefault();
+		activeClaimScheduleID = $(this).attr("rel");
+		
+		$('<tr class="claim"><td></td><td colspan="4"></td></tr>').insertAfter($(this).closest("tr"));
+		$(this).closest("tr").next().find("td:last").append($("#adding-claim-template"));
+		
+		$("#adding-claim-template input").val("");
+		$("#adding-claim-template").show();
+		
+		$("#adding-claim-template input[name='claim_amount']").focus();
+		
+		$(this).hide();
+	});
+	
+	$(".update-finance").click(function(e) {
+		e.preventDefault();
+		var buttonObject = $(this);
+		var schedule_id = $(this).attr("rel");
+		
+		var trObject = $(this).parent().parent();
+		var target_on;
+		var target;
+		var result;
+		
+		if(trObject.find("input[name='target_on']").size() == 0) {
+			target_on = "";
+		} else {
+			target_on = trObject.find("input[name='target_on']").val();
+			if(target_on == "") {
+				alert("กรุณากรอกวันที่คาดการณ์");
+				return;
+			}
+		}
+		
+		if(trObject.find("input[name='target']").size() == 0) {
+			target = "";
+		} else {
+			target = trObject.find("input[name='target']").val();
+			if(target == "") {
+				alert("กรุณากรอกตัวเลขการคาดการณ์");
+				return;
+			}
+		}
+		
+		if(trObject.find("input[name='result']").size() == 0) {
+			result = "";
+		} else {
+			result = trObject.find("input[name='result']").val();
+			if(result == "") {
+				alert("กรุณากรอกตัวเลขการเบิกจ่าย");
+				return;
+			}
+		}
+		
+		$(this).attr("disabled", "disabled").html("กำลังดำเนินการ");
+		$.post("{% url ajax_update_finance_value %}", {schedule_id:schedule_id, target_on:target_on, target:target, result:result}, function(data) {
+			buttonObject.html("บันทึกข้อมูล");
+			buttonObject.parent().parent().find("input").removeClass("changed");
+			
+			if(data.claim_html != "") {
+				$(".schedule-revisions-" + schedule_id).parent().prepend(data.claim_html);
+			} else if(data.revision_html != "") {
+				$(".schedule-revisions-" + schedule_id).prepend(data.revision_html);
+				$(".schedule-revisions-" + schedule_id).parent().find("div.empty").remove(); // Remove no revisions text
+			}
+		}, "json");
+	});
+	
+	$("table input").change(function(e) {
+		$(this).addClass("changed");
+		$(this).parent().parent().find(".update-finance").attr("disabled", "");
+	});
+	
+	bindCommentBox($(".post-schedule-comment"));
+});
+
+function onPostCommentCallback(data, sender, target) {
+	if(sender.hasClass('post-schedule-comment')) {
+		$("#schedule-" + data.object_id + " .comment_count").text(data.count + " ความคิดเห็น");
+	}
+}
+
+function onCalendarChangeCallback(input_id, selDate, new_value, new_display_value) {
+	$("#" + input_id).parent().parent().parent().find(".update-finance").attr("disabled", "");
+}
+</script>
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header user project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
+			<li><a href="{% url view_project_projects project.id %}">โครงการ</a></li>
+			<li><a href="{% url view_project_reports project.id %}">รายงาน</a></li>
+			<li><a href="{% url view_project_kpi project.id %}">ตัวชี้วัด</a></li>
+			<li class="selected">แผนการเงิน</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="project_finance_page">
+	{% if schedules %}
+	<table>
+		<tr>
+			<th></th>
+			<th>วันที่คาดการณ์</th>
+			<th>คาดการณ์</th>
+			<th>เบิกจ่ายจริง</th>
+			<th></th>
+		</tr>
+	{% for schedule in schedules %}
+		<tr id="schedule-{{schedule.id}}">
+			<td class="link">
+				<img src="{{MEDIA_URL}}/images/page_go.png" class="icon" /> <a href="{% url view_finance_overview schedule.id %}">หน้างวดเบิกจ่าย</a>
+			</td>
+			<td class="date">
+				{% responsible user 'sector_manager_assistant' project %}
+				<span class="yui_date_picker_panel">
+					<input type="hidden" name="target_on" value="{{schedule.target_on|date:"Y-n-j"}}" id="id_target_on_{{schedule.id}}_value"/>
+					<input type="text" value="{{schedule.target_on|date:"j F"}} {{schedule.target_on.year|add:543}}" id="id_target_on_{{schedule.id}}_display" readonly="readonly" class="yui_date_picker_textbox"/>
+					<img src="/m/images/icon_date_picker.png" id="id_target_on_{{schedule.id}}" class="yui_date_picker"/>
+				</span>
+				{% else %}
+				{{schedule.target_on|abbr_date}}
+				{% endresponsible %}
+			</td>
+			<td class="target">
+				{% responsible user 'sector_manager_assistant' project %}
+				<input type="text" name="target" value="{{schedule.target}}" />
+				{% else %}
+				{{schedule.target}}
+				{% endresponsible %}
+				บาท
+			</td>
+			<td class="result">
+				{% responsible user 'sector_manager_assistant,project_manager,project_manager_assistant' project %}
+					{% if schedule.claimed_on %}
+					<input type="text" name="result" value="{{schedule.result}}" /> บาท
+					{% else %}
+					<button class="claim-button" rel="{{schedule.id}}">เบิกจ่าย</button>
+					{% endif %}
+				{% else %}
+					{% if schedule.claimed_on %}
+					{{schedule.result}} บาท
+					{% else %}
+					ยังไม่มีการเบิกจ่าย
+					{% endif %}
+				{% endresponsible %}
+			</td>
+			<td class="controls">
+				{% responsible user 'sector_manager_assistant,project_manager,project_manager_assistant' project %}
+				<button class="update-finance" disabled="disabled" rel="{{schedule.id}}">บันทึกข้อมูล</button>
+				{% endresponsible %}
+				<span class="comment_count">{{schedule.comments}} ความคิดเห็น</span> <a href="#" class="post-schedule-comment" rel="finance/{{schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon" /></a>
+			</td>
+		</tr>
+		<tr class="revision">
+			<td></td>
+			<td colspan="4">
+				{% if not schedule.revisions and not schedule.claimed_on %}
+				<div class="empty">ไม่มีประวัติการแก้ไข</div>
+				{% endif %}
+				{% if  schedule.claimed_on %}
+				<div class="claimed">เบิกจ่ายไปเมื่อวันที่ {{schedule.claimed_on|abbr_date}} เป็นจำนวนเงิน {{schedule.result}} บาท</div>
+				{% endif %}
+				<ul class="schedule-revisions-{{schedule.id}}">
+					{% for revision in schedule.revisions %}
+					<li>{% display_finance_revision_html revision %}</li>
+					{% endfor %}
+				</ul>
+			</td>
+		</tr>
+	{% endfor %}
+	</table>
+	{% else %}
+	<div class="ss_no_information">ไม่มีข้อมูลแผนการเงิน</div>
+	{% endif %}
+</div>
+
+<div id="adding-claim-template">
+	<label for="id_adding_claim_amount">จำนวนเงินที่เบิกจ่าย:</label>
+	<input type="text" name="claim_amount" id="id_adding_claim_amount"/> บาท
+	<label for="id_adding_claim_date">เบิกจ่าย ณ วันที่:</label>
+	<span class="yui_date_picker_panel">
+		<input type="hidden" name="claim_on" value="" id="id_claimed_on_value"/>
+		<input type="text" value="" id="id_claimed_on_display" readonly="readonly" class="yui_date_picker_textbox"/>
+		<img src="/m/images/icon_date_picker.png" id="id_claimed_on" class="yui_date_picker"/>
+	</span>
+	<button class="add-claim-button">ตกลง</button>
+	<button class="cancel-button">ยกเลิก</button>
+</div>
+{% endblock %}

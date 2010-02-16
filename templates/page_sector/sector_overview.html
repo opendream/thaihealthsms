@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load helper_tags interface_tags %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_sector_header sector %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li class="selected">ภาพรวม</li>
+			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
+			{% responsible user 'admin,sector_manager_assistant,sector_admin' sector %}
+			<li class="right_item"><a href="{% url view_sector_manage_organization sector.id %}">จัดการสำนัก</a></li>
+			{% endresponsible %}
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="overview_page">
+	<h2>แผนหลักที่รับผิดชอบ</h2>
+	<ul class="master_plans">
+		{% for master_plan in master_plans %}
+		<li><h3><a href="/master_plan/{{master_plan.id}}/">แผนหลัก {{master_plan.ref_no}} {{master_plan.name}}</a></h3></li>
+		{% endfor %}
+	</ul>
+	<h2>ภาพรวมตัวชี้วัด</h2>
+	<div class="kpi_overview">
+		{% for master_plan in master_plans %}
+		<h3>แผนหลัก {{master_plan.ref_no}} {{master_plan.name}}</h3>
+		{% if master_plan.categories %}
+		<table>
+			<tr>
+				<th></th>
+				<th class="year">ปี {{master_plan.previous_year}}</th>
+				<th class="year">ปี {{master_plan.current_year}}</th>
+			</tr>
+			{% for category in master_plan.categories %}
+			<tr>
+				<td class="category">{{category.name}}</td>
+				
+				<td>
+					{% ifequal category.previous_year -1 %}
+					<div class="ss_bar_graph ss_bar_graph_disabled"></div>
+					<div class="graph_value graph_value_disabled">ไม่มีข้อมูล</div>
+					{% else %}
+					<div class="ss_bar_graph">
+						<div class="{% display_kpi_graph_class category.previous_year %}" style="width:{{category.previous_year}}%;"></div>
+					</div>
+					<div class="graph_value">{{category.previous_year}}%</div>
+					{% endifequal %}
+				</td>
+				
+				<td>
+					{% ifequal category.current_year -1 %}
+					<div class="ss_bar_graph ss_bar_graph_disabled"></div>
+					<div class="graph_value graph_value_disabled">ไม่มีข้อมูล</div>
+					{% else %}
+					<div class="ss_bar_graph">
+						<div class="{% display_kpi_graph_class category.current_year %}" style="width:{{category.current_year}}%;"></div>
+					</div>
+					<div class="graph_value">{{category.current_year}}%</div>
+					{% endifequal %}
+				</td>
+			</tr>
+			{% endfor %}
+		</table>
+		{% else %}
+		<div class="ss_no_information">ไม่มีข้อมูลตัวชี้วัดในแผนนี้</div>
+		{% endif %}
+		{% endfor %}
+	</div>
+	<h2>ภาพรวมการเบิกจ่าย</h2>
+	<div class="finance_overview">
+		<ul>
+			{% for master_plan in master_plans %}
+			<li>
+				<h3>แผนหลัก {{master_plan.ref_no}} {{master_plan.name}}</h3>
+				{% ifequal master_plan.all_target -1 %}
+					<div class="ss_no_information">ไม่มีข้อมูลการเบิกจ่ายภายใต้แผนหลักนี้</div>
+				{% else %}
+					<div class="graph_label">การเบิกจ่ายตามการคาดการณ์</div>
+					<div class="ss_bar_graph">
+						<div style="width:{{master_plan.percent_target}}%;"></div>
+					</div>
+					<div class="graph_value">{{master_plan.sum_target}} / {{master_plan.all_target}} บาท</div>
+					
+					<div class="graph_label">การเบิกจ่ายจริง</div>
+					<div class="ss_bar_graph">
+						<div class="{% display_finance_graph_class master_plan.sum_target master_plan.sum_result %}" style="width:{{master_plan.percent_result}}%;"></div>
+					</div>
+					<div class="graph_value">{{master_plan.sum_result}} / {{master_plan.all_target}} บาท</div>
+					
+					<ul class="recent">
+					{% for event in master_plan.events %}
+						<li>
+							<span>{{event.date|abbr_date}}</span>
+							
+							{% ifequal event.type 'late' %}
+							<a href="{% url view_project_overview event.data.project.id %}">แผนงาน {{event.data.project.ref_no}}</a>
+							เลยงวดการเบิกจ่ายมาแล้ว {{event.data.target_on|elapse}}
+							{% endifequal %}
+							
+							{% ifequal event.type 'postpone' %}
+							<a href="{% url view_project_overview event.data.schedule.project.id %}">แผนงาน {{event.data.schedule.project.ref_no}}</a>
+							เลื่อนงวดการเบิกเงินจากวันที่ {{event.data.org_target_on|abbr_date}} เป็นวันที่ {{event.data.new_target_on|abbr_date}}
+							{% endifequal %}
+						</li>
+					{% endfor %}
+					</ul>
+				{% endifequal %}
+			</li>
+		  	{% endfor %}
+		</ul>
+	</div>
+</div>
+{% endblock %}

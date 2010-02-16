@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header ss_header_border">
+	<div class="container">
+		<div class="title">ภาพรวมสำนักทั้งหมด</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="sectors_page">
+	{% for sector in sectors %}
+	<h2><a href="{% url view_sector_overview sector.id %}">สำนัก {{sector.ref_no}} {{sector.name}}</a></h2>
+	<ul>
+		{% for master_plan in sector.master_plans %}
+		<li><a href="{% url view_master_plan_overview master_plan.id %}">แผนหลัก {{master_plan.ref_no}} {{master_plan.name}}</a></li>
+		{% endfor %}
+	</ul>
+	{% endfor %}
+</div>
+{% endblock %}

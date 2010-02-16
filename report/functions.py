@@ -1,16 +1,33 @@
 # -*- encoding:utf-8 -*-
-
+import calendar
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 
 from django.db.models import Q
 from django.db.models import Min, Max
-from django.core.mail import send_mail
+from django.core.mail import send_mass_mail
+from django.template.loader import render_to_string
+from django.contrib.sites.models import Site
 from django.conf import settings
 
-from domain.models import Project
+from accounts.models import *
+from domain.models import *
 from report.models import *
 from comments.models import *
+from helper import utilities
+
+def get_report_due_date(report, year, month):
+	'''
+	Provide report object, month and year
+	Return supposedly due date for that month and year
+	'''
+
+	day = report.schedule_monthly_date
+	first_day, last_day = calendar.monthrange(year, month)
+	if day == 0 or day > last_day:
+		day = last_day
+
+	return date(year, month, day)
 
 def get_submitted_and_overdue_reports(project):
 	"""
@@ -23,6 +40,8 @@ def get_submitted_and_overdue_reports(project):
 	report_projects = ReportProject.objects.filter(project=project, report__need_checkup=True)
 	current_date = date.today()
 	
+	has_schedules = False
+	
 	for report_project in report_projects:
 		
 		schedules = ReportSchedule.objects \
@@ -30,12 +49,17 @@ def get_submitted_and_overdue_reports(project):
 			.filter((Q(report_project__report__need_approval=True) & Q(state=SUBMIT_ACTIVITY)) | (Q(state=NO_ACTIVITY) & Q(due_date__lt=current_date)) | Q(state=REJECT_ACTIVITY) | (Q(due_date__gte=current_date) & Q(state=SUBMIT_ACTIVITY))) \
 			.exclude(state=CANCEL_ACTIVITY).order_by('-due_date')
 		
+		if schedules: has_schedules = True
+		
 		for schedule in schedules:
 			schedule.need_approval = schedule.report_project.report.need_approval and schedule.state == SUBMIT_ACTIVITY
-			schedule.overdue = schedule.state == NO_ACTIVITY
+			schedule.overdue = schedule.state == NO_ACTIVITY and schedule.due_date < current_date
 				
 		report_project.schedules = schedules
-
+	
+	if not has_schedules:
+		return list()
+	
 	return report_projects
 
 def get_nextdue_and_overdue_reports(project):
@@ -60,7 +84,7 @@ def get_nextdue_and_overdue_reports(project):
 			schedule.waiting = schedule.state == SUBMIT_ACTIVITY
 			schedule.rejected = schedule.state == REJECT_ACTIVITY
 			
-			schedule.overdue = schedule.state == NO_ACTIVITY
+			schedule.overdue = schedule.state == NO_ACTIVITY and schedule.due_date < current_date
 			if schedule.overdue: schedule.overdue_period = (current_date - schedule.due_date).days
 			
 			
@@ -103,31 +127,54 @@ def get_all_reports_schedule_by_project(project):
 
 	return report_projects
 
-def notify_due_report():
+def notify_overdue_schedule():
+	#print 'Start notify'
 	today = date.today()
-	# Case before due date n days
-	report_schedule = ReportSchedule.objects.filter(due_date=today.replace(day=today.day+settings.REPORT_DAYS_ALERT))
-	text = u'คุณ %s มี %s ภายใต้ %s ที่ต้องส่งภายในวันที่ %s'
-	send_mail_to_pm(report_schedule, text)
-
-	# Case due date
-	report_schedule = ReportSchedule.objects.filter(due_date=today)
-	text = u'คุณ %s มี %s ภายใต้ %s ที่ต้องส่งภายในวันนี้ %s'
-	send_mail_to_pm(report_schedule, text)
-
-def send_mail_to_pm(report_schedule, text):
-	for rep in report_schedule:
-		project = rep.report_project.project
-		manager = project.manager
-		email = manager.user.email
-
-		# Variable use for email
-		full_name = manager.first_name + ' ' + manager.last_name
-		project_name = project.name
-		report_name = rep.report_project.report.name
-		before_n_day = settings.REPORT_DAYS_ALERT
-		due_date = rep.due_date.strftime('%d %B %Y').decode('utf-8')
-
-		message = text % (full_name, report_name, project_name, due_date)
-
-		send_mail('แจ้งเตือนการส่งรายงาน', message, 'smtp.gmail.com', [email])
+	site = Site.objects.get_current()
+	users_mail = {}
+	
+	for report in Report.objects.all():
+		#print 'Report: ' + report.name
+		for report_project in ReportProject.objects.filter(report=report):
+			project = report_project.project
+			#print 'Project: ' + project.name
+			for user_role_responsibility in UserRoleResponsibility.objects.filter(projects=project, role__name__in=('project_manager', 'project_manager_assistant')):
+				user_account = user_role_responsibility.user
+				user = user_account.user
+				
+				report_schedules = list()
+				
+				# Case due date
+				for report_schedule in ReportSchedule.objects.filter(report_project=report_project, due_date=today, state=NO_ACTIVITY):
+					#print report_schedule.due_date.strftime('%d %B %Y').decode('utf-8') + ' send to ' + user.email
+					if not users_mail.get(user.id):
+						users_mail[user.id] = {
+							'user_account': user_account, 
+							'site':Site.objects.get_current(),
+							'due_report_schedules': list(),
+							'nextdue_report_schedules': list(),
+						}
+					users_mail[user.id]['due_report_schedules'].append(report_schedule)
+					
+				# Case before due date n days
+				for report_schedule in ReportSchedule.objects.filter(report_project=report_project, due_date=today+timedelta(report.notify_days), state=NO_ACTIVITY):
+					#print report_schedule.due_date.strftime('%d %B %Y').decode('utf-8') + ' send to ' + user.email
+					if not users_mail.get(user.id):
+						users_mail[user.id] = {
+							'user_account': user_account, 
+							'site':Site.objects.get_current(),
+							'due_report_schedules': list(),
+							'nextdue_report_schedules': list(),
+						}
+					users_mail[user.id]['nextdue_report_schedules'].append(report_schedule)
+	
+	datatuple = list()
+	for user_id, user_mail in users_mail.items():
+		email_recipient_list = [user_mail.user_account.user.email]
+		
+		email_subject = render_to_string('email/notify_report_subject.txt', user_mail).strip(' \n\t')
+		email_message = render_to_string('email/notify_report_message.txt', user_mail).strip(' \n\t')
+		
+		datatuple.append((email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, email_recipient_list))
+	
+	send_mass_mail(datatuple, fail_silently=True)

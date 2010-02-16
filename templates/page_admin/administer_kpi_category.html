@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load helper_tags %}
+
+{% block html_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$(".delete-category").click(function(e) {
+		if(!window.confirm("ยืนยันการลบตัวชี้วัด?")) {
+			e.preventDefault();
+		}
+	});
+});
+</script>
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	<div class="title"><span>จัดการระบบ</span> ตัวชี้วัด</div>
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_administer_organization %}">โครงสร้างองค์กร</a></li>
+			<li><a href="{% url view_administer_users %}">ผู้ใช้ระบบ</a></li>
+			<li class="selected">ตัวชี้วัด</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+<div class="ss_sub_tab_navi">
+	<ul>
+		<li><a href="{% url view_administer_kpi %}">ตัวชี้วัดระดับองค์กร</a></li>
+		<li class="selected">ประเภทตัวชี้วัด</li>
+	</ul>
+	<div class="clear"></div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_control_panel">
+	<ul>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_administer_kpi_category_add %}">สร้างประเภทตัวชี้วัด</a></li>
+	</ul>
+	<div class="clear"></div>
+</div>
+
+<div class="org_table admin_kpi_page">
+	{% if kpi_categories %}
+	<table>
+		<tr>
+			<th class="controls"></th>
+			<th class="name">ชื่อประเภท</th>
+		</tr>
+		{% for kpi_category in kpi_categories %}
+		<tr>
+			<td class="controls">
+				<a href="{% url view_administer_kpi_category_edit kpi_category.id %}" title="แก้ไขประเภทตัวชี้วัด"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+				{% if kpi_category.has_child %}
+				<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบประเภทตัวชี้วัดได้ เนื่องจากยังมีตัวชี้วัดในประเภทนี้อยู่"/>
+				{% else %}
+				<a href="{% url view_administer_kpi_category_delete kpi_category.id %}" title="ลบประเภทตัวชี้วัด" class="delete-category"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+				{% endif %}
+			</td>
+			<td class="name">{{kpi_category.name}}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	{% else %}
+	<div class="ss_no_information">ไม่มีประเภทตัวชี้วัด</div>
+	{% endif %}
+</div>
+{% endblock %}

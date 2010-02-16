@@ -9,6 +9,7 @@ TEMPLATE_DEBUG = DEBUG
 # This firstname and lastname can be changed later)
 ADMINS = (
 	('admin', 'application.testbed@gmail.com'),
+	('panuta', 'panuta@gmail.com'),
 )
 
 MANAGERS = ADMINS
@@ -55,6 +56,7 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
 	'django.middleware.common.CommonMiddleware',
+	'django.middleware.transaction.TransactionMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.locale.LocaleMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -67,7 +69,10 @@ TEMPLATE_DIRS = (
 	os.path.join(_base, "templates"),
 )
 
-AUTH_PROFILE_MODULE = 'domain.UserAccount'
+#WEBSITE_ADDRESS = 'sms.thaihealth.or.th'
+WEBSITE_ADDRESS = 'sms.opendream.in.th'
+
+AUTH_PROFILE_MODULE = 'accounts.UserAccount'
 ACCOUNT_ACTIVATION_DAYS = 3
 LOGIN_REDIRECT_URL = "/dashboard/"
 
@@ -86,14 +91,21 @@ INSTALLED_APPS = (
 	'django.contrib.sessions',
 	'django.contrib.sites',
 	'registration',
+	'thaihealthsms.accounts',
+	'thaihealthsms.administer',
 	'thaihealthsms.comments',
+	'thaihealthsms.dashboard',
 	'thaihealthsms.domain',
-	'thaihealthsms.helper',
+	'thaihealthsms.finance',
 	'thaihealthsms.interface',
+	'thaihealthsms.helper',
+	'thaihealthsms.kpi',
 	'thaihealthsms.report',
 )
 
 # ===== SMS Settings ===== #
+
+SYSTEM_NAME = 'Thai Health Strategy Management Systems'
 
 # Report Submitted File
 REPORT_SUBMIT_FILE_PATH = os.path.join(_base, "media/report")

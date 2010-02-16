@@ -1,137 +1,107 @@
-from datetime import datetime
 
-from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from django.utils import simplejson
+from django.shortcuts import get_object_or_404
 
-from comments.models import *
-from domain.models import Activity, UserAccount, Project, UserRoleResponsibility
+from helper.shortcuts import render_response, access_denied
+
+from domain.models import Project, Activity
 from report.models import ReportSchedule
 
-from thaihealthsms.helper.utilities import format_abbr_date
+from comments.models import *
+from comments.functions import retrieve_visible_comments, get_comment_object
 
 @login_required
-def ajax_post_user_comment(request, user_id):
-	if request.method == "POST":
-		message = request.POST['message'].strip()
-		comment = Comment.objects.create(message=message, sent_by=request.user.get_profile())
+def view_dashboard_comments(request):
+	user_account = request.user.get_profile()
+
+	comments = set()
+	for received_comment in CommentReceiver.objects.filter(is_read=False, receiver=user_account):
+		comments.add(received_comment.comment)
+
+	for received_comment in CommentReplyReceiver.objects.filter(is_read=False, receiver=user_account):
+		comments.add(received_comment.reply.comment)
+
+	comment_list = list(comments)
+	comment_list.sort(_comments_sorting, reverse=True)
+
+	for comment in comment_list:
+		comment.is_read = CommentReceiver.objects.get(comment=comment, receiver=user_account).is_read
 		
-		receivers = request.POST.getlist('to')
+		receivers = CommentReplyReceiver.objects.filter(is_read=False, reply__comment=comment, receiver=user_account).order_by('reply__sent_on')
+		replies = list()
 		for receiver in receivers:
-			CommentReceiver.objects.create(comment=comment, receiver=UserAccount(id=receiver), sent_on=comment.sent_on)
-		
-		# TODO: Send Email
-		
-		return HttpResponse(simplejson.dumps({'id': comment.id,}))
-		
-	else:
-		raise Http404
+			replies.append(receiver.reply)
+		comment.replies = replies
 
-@login_required
-def ajax_post_object_comment(request, object_name, object_id):
-	if request.method == "POST":
-		if object_name not in ('activity', 'project', 'program', 'report'): raise Http404
+	object_list = list()
+	object_dict = dict()
 
-		message = request.POST['message'].strip()
-		comment = Comment.objects.create(message=message, object_id=object_id, object_name=object_name, \
-			sent_by=request.user.get_profile())
-		
-		if object_name == "activity":
-			activity = Activity.objects.get(pk=object_id)
-			comment_receiver_roles = CommentReceiverRole.objects.filter(object_name='program')
-			roles = [r.role for r in comment_receiver_roles]
-			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(activity.project,))
-		
-		elif object_name == "project" or object_name == "program":
-			project = Project.objects.get(pk=object_id)
-			comment_receiver_roles = CommentReceiverRole.objects.filter(object_name=object_name)
-			roles = [r.role for r in comment_receiver_roles]
-			role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(project,))
-			print len(role_resps)
+	for comment in comment_list:
+		hash_str = "%s%d" % (comment.object_name, comment.object_id)
+		if hash_str not in object_list:
+			object = get_comment_object(comment.object_name, comment.object_id)
 
-		#elif object_name == "report":
-		#	report_schedule = ReportSchedule.objects.get(pk=object_id)
-		#	role_resps = UserRoleResponsibility.objects.filter(role__in=(roles), projects__in=(report_schedule,))
+			if object:
+				object_list.append(hash_str)
+				object_dict[hash_str] = {'comment':comment, 'object':object, 'comments':[comment]}
 
-		for r in role_resps:
-			CommentReceiver.objects.create(comment=comment, receiver=r.user, sent_on=comment.sent_on)
-
-		receivers = request.POST.getlist('to')
-		for receiver in receivers:
-			CommentReceiver.objects.create(comment=comment, receiver=UserAccount(id=receiver), sent_on=comment.sent_on)
-		
-		# TODO: Send Email
-		
-		return HttpResponse(simplejson.dumps({'id': comment.id,}))
-		
-	else:
-		raise Http404
-
-@login_required
-def ajax_reply_comment(request, comment_id):
-	if request.method == "POST":
-		try:
-			comment = Comment.objects.get(pk=comment_id)
-		except Comment.DoesNotExist:
-			return HttpResponse(simplejson.dumps({'error': '404',}))
-
-		if comment:
-			message = request.POST['message'].strip()
-			comment_reply = CommentReply.objects.create(comment=comment, content=message, sent_by=request.user.get_profile())
-
-			for receiver in comment.commentreceiver_set.all():
-				if receiver.is_read:
-					receiver.is_read = False
-					receiver.save()
-
-			# TODO: Send Email
-
-			return HttpResponse(simplejson.dumps({'id': comment_reply.id,}))
 		else:
-			return HttpResponse(simplejson.dumps({'error': '404',}))
-	else:
-		raise Http404
+			object_dict[hash_str]['comments'].append(comment)
 
-def ajax_query_comment_receivers(request):
-	query_string = request.GET['tag']
-	
-	users = UserAccount.objects.filter(Q(first_name__istartswith=query_string) | Q(last_name__istartswith=query_string))
-	
-	receivers = list()
-	for user in users:
-		receivers.append({'value':user.id, 'caption':user.first_name+" "+user.last_name})
-	
-	return HttpResponse(simplejson.dumps(receivers))
-	
-	
-	
+	objects = list()
+	for object_hash in object_list:
+		objects.append(object_dict[object_hash])
 
-"""
-def view_comment_save(request, comment_type, comment_type_id, comment_id):
-	text = request.POST.get('comment')
-	text = text.strip()
-	comment = prepare_comment(comment_type, comment_type_id, comment_id)
-	if not comment or not text: return
-	comment.comment = text
-	comment.commented_by = UserAccount.objects.get(user=request.user)
-	comment.save()
-	
-	fullname = request.user.get_profile().first_name + ' ' + request.user.get_profile().last_name
-	
-	# TODO : Send notification email
-	
-	return HttpResponse(simplejson.dumps({
-		'id': comment.id, 
-		'fullname': fullname, 
-		'date_timestamp': format_abbr_date(comment.commented_on),
-		'time_timestamp': comment.commented_on.strftime('%H:%M'),
-	}))
+	return render_response(request, "page_dashboard/dashboard_comments.html", {'objects':objects})
 
-def view_comment_delete(request, comment_type, comment_id):
-	comment = prepare_comment(comment_type, 0, comment_id)
-	comment.delete()
-	return HttpResponse(simplejson.dumps({
-		'message': 'Success', 
-	}))
-"""
+def _comments_sorting(x, y):
+	return cmp(x.sent_on, y.sent_on)
+
+@login_required
+def view_project_comments(request, project_id):
+	project = get_object_or_404(Project, pk=project_id)
+
+	comments = retrieve_visible_comments(request, 'project', project.id)
+
+	# Mark comments as read
+	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='project',\
+		comment__object_id=project.id).update(is_read=True)
+
+	CommentReplyReceiver.objects.filter(receiver=request.user.get_profile(),\
+		reply__comment__object_name='project',\
+		reply__comment__object_id=project.id).update(is_read=True)
+
+	return render_response(request, "page_project/project_comments.html", {'project':project, 'comments':comments})
+
+@login_required
+def view_activity_comments(request, activity_id):
+	activity = get_object_or_404(Activity, pk=activity_id)
+
+	comments = retrieve_visible_comments(request, 'activity', activity.id)
+
+	# Mark comments as read
+	CommentReceiver.objects.filter(receiver=request.user.get_profile(), comment__object_name='activity', \
+		comment__object_id=activity_id).update(is_read=True)
+
+	CommentReplyReceiver.objects.filter(receiver=request.user.get_profile(),\
+		reply__comment__object_name='activity',\
+		reply__comment__object_id=activity_id).update(is_read=True)
+
+	return render_response(request, "page_activity/activity_comments.html", {'activity':activity, 'comments':comments,})
+
+@login_required
+def view_report_comments(request, report_id):
+	report = get_object_or_404(ReportSchedule, pk=report_id)
+
+	comments = retrieve_visible_comments(request, 'report', report.id)
+
+	# Mark comments as read
+	CommentReceiver.objects.filter(receiver=request.user.get_profile(),\
+		comment__object_name='report',\
+		comment__object_id=report.id).update(is_read=True)
+
+	CommentReplyReceiver.objects.filter(receiver=request.user.get_profile(),\
+		reply__comment__object_name='report',\
+		reply__comment__object_id=report.id).update(is_read=True)
+
+	return render_response(request, "page_report/report_comments.html", {'report_schedule':report, 'comments':comments, })

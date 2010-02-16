@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load interface_tags i18n helper_tags %}
+
+{% block html_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+	bindCommentBox($(".post-report-comment"));
+	initReplyCommentBox();
+});
+
+function onPostCommentCallback(data, sender, target) {
+	window.location.reload();
+}
+</script>
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_report_header user report_schedule %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	{% display_report_comment_button user report_schedule %}
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_report_overview report_schedule.id %}">รายงาน</a></li>
+			<li class="selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />ความคิดเห็น</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="comments_page">
+	{% if comments %}
+	<ul class="ss_comments">
+		{% for comment in comments %}
+			{% generate_comment_html comment %}
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่พบความคิดเห็นที่เกี่ยวข้อง</div>
+	{% endif %}
+</div>
+{% endblock %}

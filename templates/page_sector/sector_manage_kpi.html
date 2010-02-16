@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load helper_tags interface_tags %}
+
+{% block html_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$(".delete-kpi").click(function(e) {
+		if(!window.confirm("ยืนยันการลบตัวชี้วัด?")) {
+			e.preventDefault();
+		}
+	});
+});
+</script>
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_sector_header sector %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_sector_overview sector.id %}">ภาพรวม</a></li>
+			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
+			<li class="selected right_item">จัดการสำนัก</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+<div class="ss_sub_tab_navi">
+	<ul>
+		<li><a href="{% url view_sector_manage_organization sector.id %}">โครงสร้างแผนงาน</a></li>
+		<li><a href="{% url view_sector_manage_reports sector.id %}">รูปแบบรายงาน</a></li>
+		<li class="selected">ตัวชี้วัด</li>
+	</ul>
+	<div class="clear"></div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_control_panel">
+	<ul>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_sector_add_kpi sector.id %}">สร้างตัวชี้วัด</a></li>
+	</ul>
+</div>
+
+<div class="org_table sector_manage_kpi_page">
+	{% if not org_kpis and not has_master_plan_kpis %}
+		<div class="ss_no_information">ไม่มีตัวชี้วัด</div>
+	{% else %}
+		{% if org_kpis %}
+			<h2>ตัวชี้วัดระดับองค์กร</h2>
+			<table>
+				<tr>
+					<th class="ref_no">รหัส</th>
+					<th class="name">ชื่อ</th>
+					<th class="unit">หน่วยที่ใช้วัด</th>
+					<th class="visible">การมองเห็น</th>
+				</tr>
+				{% for kpi_category in org_kpis %}
+					<tr class="category">
+						<td colspan="4">{{kpi_category.name}}</td>
+					</tr>
+					{% for kpi in kpi_category.kpis %}
+						<tr>
+							<td class="ref_no">{{kpi.ref_no}}</td>
+							<td class="name">{{kpi.name}}</td>
+							<td class="unit">{{kpi.unit_name}}</td>
+							<td class="visible">{% if kpi.is_visible_to_project %}ปกติ{% else %}แผนงานไม่สามารถมองเห็น{% endif %}</td>
+						</tr>
+					{% endfor %}
+				{% endfor %}
+			</table>
+		{% endif %}
+		
+		{% for master_plan in master_plans %}
+			<h2>ตัวชี้วัดแผน {{master_plan.ref_no}} {{master_plan.name}}</h2>
+			{% if master_plan.kpi_categories %}
+			<table>
+				<tr>
+					<th class="controls"></th>
+					<th class="ref_no">รหัส</th>
+					<th class="name">ชื่อ</th>
+					<th class="unit">หน่วยที่ใช้วัด</th>
+					<th class="visible">การมองเห็น</th>
+				</tr>
+				{% for kpi_category in master_plan.kpi_categories %}
+					<tr class="category">
+						<td colspan="5">{{kpi_category.name}}</td>
+					</tr>
+					{% for kpi in kpi_category.kpis %}
+						<tr>
+							<td class="controls">
+								<a href="{% url view_sector_edit_kpi kpi.id %}" title="แก้ไขตัวชี้วัด"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+								{% if kpi.has_child %}
+								<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบตัวชี้วัดได้ เนื่องจากมีแผนงานที่ผูกกับตัวชี้วัดนี้อยู่"/>
+								{% else %}
+								<a href="{% url view_sector_delete_kpi kpi.id %}" title="ลบตัวชี้วัด" class="delete-kpi"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+								{% endif %}
+							</td>
+							<td class="ref_no">{{kpi.ref_no}}</td>
+							<td class="name">{{kpi.name}}</td>
+							<td class="unit">{{kpi.unit_name}}</td>
+							<td class="visible">{% if kpi.is_visible_to_project %}ปกติ{% else %}แผนงานไม่สามารถมองเห็น{% endif %}</td>
+						</tr>
+					{% endfor %}
+				{% endfor %}
+			</table>
+			{% else %}
+			<div class="ss_no_information">ไม่มีตัวชี้วัด</div>
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+</div>
+{% endblock %}

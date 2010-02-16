@@ -1,14 +1,14 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('comments.views',
-	
-	url(r'^post-comment/user/(?P<user_id>\d+)/$', 'ajax_post_user_comment', name="ajax_post_user_comment"),
-	url(r'^post-comment/object/(?P<object_name>\w+)/(?P<object_id>\d+)/$', 'ajax_post_object_comment', name="ajax_post_object_comment"),
-	url(r'^reply-comment/(?P<comment_id>\d+)/$', 'ajax_reply_comment', name="ajax_reply_comment"),
-	
-	url(r'^query-comment-receivers/$', 'ajax_query_comment_receivers', name="ajax_query_comment_receivers"),
-	
-	#url(r'^comment/(?P<comment_type>\w+)/(?P<comment_type_id>\d+)/create/$', 'view_comment_save', name="view_comment_save", kwargs={'comment_id': 0}),
-	#url(r'^comment/(?P<comment_type>\w+)/(?P<comment_type_id>\d+)/(?P<comment_id>\d+)/edit/$', 'view_comment_save', name="view_comment_save"),
-	#url(r'^comment/(?P<comment_type>\w+)/(?P<comment_id>\d+)/delete/$', 'view_comment_delete', name="view_comment_delete"),
+	url(r'^dashboard/comments/$', 'view_dashboard_comments', name='view_dashboard_comments'),
+					
+	url(r'^project/(?P<project_id>\d+)/comments/$', 'view_project_comments', name='view_project_comments'),
+	url(r'^activity/(?P<activity_id>\d+)/comments/$', 'view_activity_comments', name="view_activity_comments"),
+	url(r'^report/(?P<report_id>\d+)/comments/$', 'view_report_comments', name='view_report_comments'),
+)
+
+urlpatterns += patterns('comments.ajax',
+	url(r'^ajax/comment/post/(?P<object_name>\w+)/(?P<object_id>\d+)/$', 'ajax_post_object_comment', name="ajax_post_object_comment"),
+	url(r'^ajax/comment/reply/(?P<comment_id>\d+)/$', 'ajax_reply_comment', name="ajax_reply_comment"),
 )

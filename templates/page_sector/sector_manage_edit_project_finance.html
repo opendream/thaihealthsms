@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load interface_tags %}
+{% load helper_tags %}
+
+{% block html_head %}
+<link href="{{MEDIA_URL}}/yui/container/assets/skins/sam/container.css" type="text/css" media="all" rel="stylesheet" />
+<link href="{{MEDIA_URL}}/yui/calendar/assets/skins/sam/calendar.css" type="text/css" media="all" rel="stylesheet" />
+
+<link href="{{MEDIA_URL}}/css/yui.calendar.widget.css" type="text/css" media="all" rel="stylesheet" />
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/element/element-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/container/container-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/calendar/calendar-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/scripts/yui.calendar.widget.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$(".remove-schedule").click(function(e) {
+		e.preventDefault();
+		$(this).closest("tr").remove();
+	});
+	
+	$(".new-schedule").click(function(e) {
+		e.preventDefault();
+		new_schedule($(this));
+	});
+	
+	$("form button[type='submit']").click(function() {
+		$(".schedule-record").each(function() {
+			var schedule_id = $(this).attr("id");
+			if(schedule_id != "") {
+				schedule_id = $(this).attr("id").split("-")[1];
+			} else {
+				schedule_id = 'None';
+			}
+			
+			var target = $(this).find("input[name='schedule_target']").val();
+			var target_on = $(this).find("input[name='target_on']").val();
+			var schedule_value = schedule_id + "," + target + "," + target_on;
+			
+			$("form").append('<input type="hidden" name="schedule" value="' + schedule_value + '" />');
+		});
+		
+		return true;
+	});
+});
+
+function new_schedule(click_element) {
+	var li_id = click_element.closest("li").attr("id");
+	var unit_name = $("#" + li_id + "-unit_name").attr("class");
+	
+	var new_row = $(create_schedule_template(unit_name));
+	
+	new_row.find(".yui_date_picker").click(function(e) {
+		activeCalendarInputID = e.target.id;
+		triggerYUICalendar();
+	});
+	
+	// Open Date Picker calendar when click at textbox
+	new_row.find(".yui_date_picker_textbox").click(function(e) {
+		activeCalendarInputID = $(this).parent().find(".yui_date_picker").attr('id');
+		triggerYUICalendar();
+	});
+	
+	new_row.find(".remove-schedule").click(function(e) {
+		e.preventDefault();
+		$(this).closest("tr").remove();
+	});
+	
+	new_row.insertBefore(click_element.closest('tr'));
+}
+
+function create_schedule_template() {
+	var uid = new Date().getTime();
+	return '<tr class="schedule-record"><td class="target"><input type="text" value="" name="schedule_target"/> บาท</td><td class="target_on"><span class="yui_date_picker_panel"><input type="hidden" name="target_on" value="" id="id_target_on_' + uid + '_value"/><input type="text" value="" id="id_target_on_' + uid + '_display" readonly="readonly" class="yui_date_picker_textbox"/><img src="/m/images/icon_date_picker.png" id="id_target_on_' + uid + '" class="yui_date_picker"/></span></td><td class="delete"><a href="#" class="remove-schedule">ลบ</a></td></tr>';
+}
+</script>
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_sector_header sector %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_sector_overview sector.id %}">ภาพรวม</a></li>
+			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
+			<li class="selected right_item">จัดการสำนัก</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_child_page_header">แก้ไขแผนงาน<a href="{% url view_sector_manage_organization sector.id %}">กลับไปหน้าโครงสร้างแผนงาน &#187;</a></div>
+<div class="sector_edit_project_page">
+	<div class="header_links">
+		<ul>
+			<li><a href="{% url view_sector_edit_project project.id %}">1. แก้ไขข้อมูลเบื้องต้น</a></li>
+			<li><a href="{% url view_sector_edit_project_reports project.id %}">2. เลือกรายงาน</a></li>
+			<li><a href="{% url view_sector_edit_project_kpi project.id %}">3. ตัวชี้วัด</a></li>
+			<li class="selected">4. แผนการเงิน</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+	
+	<div class="edit_finance">
+		<table>
+			<tr>
+				<th>คาดการณ์</th>
+				<th>กำหนดเบิก</th>
+				<th></th>
+			</tr>
+			{% if schedules %}
+			{% for schedule in schedules %}
+			<tr class="schedule-record" id="schedule-{{schedule.id}}">
+				<td class="target"><input type="text" value="{{schedule.target}}" name="schedule_target"/> บาท</td>
+				<td class="target_on">
+					<span class="yui_date_picker_panel">
+						<input type="hidden" name="target_on" value="{{schedule.target_on|date:"Y-n-j"}}" id="id_target_on_{{schedule.id}}_value"/>
+						<input type="text" value="{{schedule.target_on|date:"j F"}} {{schedule.target_on.year|add:543}}" id="id_target_on_{{schedule.id}}_display" readonly="readonly" class="yui_date_picker_textbox"/>
+						<img src="/m/images/icon_date_picker.png" id="id_target_on_{{schedule.id}}" class="yui_date_picker"/>
+					</span>
+				</td>
+				<td class="delete"><!--<a href="#" class="remove-schedule">ลบ</a>--></td>
+			</tr>
+			{% endfor %}
+			{% else %}
+			<tr class="schedule-record" id="schedule-None">
+				<td class="target"><input type="text" value="" name="schedule_target"/> บาท</td>
+				<td class="target_on">
+					<span class="yui_date_picker_panel">
+						<input type="hidden" name="target_on" value="" id="id_target_on_starter_value"/>
+						<input type="text" value="" id="id_target_on_starter_display" readonly="readonly" class="yui_date_picker_textbox"/>
+						<img src="/m/images/icon_date_picker.png" id="id_target_on_starter" class="yui_date_picker"/>
+					</span>
+				</td>
+				<td class="delete"><a href="#" class="remove-schedule">ลบ</a></td>
+			</tr>
+			{% endif %}
+			
+			<tr>
+				<td colspan="3">
+					<img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/> <a href="#" class="new-schedule">เพิ่มรายการ</a>
+				</td>
+			</tr>
+		</table>
+		<form action="." method="POST">
+			<div class="button_panel">
+				<button type="submit">แก้ไขตัวชี้วัด</button>
+			</div>
+		</form>	
+	</div>
+	
+</div>
+{% endblock %}

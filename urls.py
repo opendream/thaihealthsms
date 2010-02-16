@@ -7,13 +7,17 @@ from django.views.static import serve
 from django.contrib import admin
 admin.autodiscover()
 
-from interface.views import view_frontpage
+from dashboard.views import view_frontpage
 
 urlpatterns = patterns('',
-	(r'^', include('thaihealthsms.interface.urls')),
-	(r'^', include('thaihealthsms.domain.urls')),
-	(r'^', include('thaihealthsms.report.urls')),
+	(r'^', include('thaihealthsms.accounts.urls')),
+	(r'^', include('thaihealthsms.administer.urls')),
 	(r'^', include('thaihealthsms.comments.urls')),
+	(r'^', include('thaihealthsms.dashboard.urls')),
+	(r'^', include('thaihealthsms.domain.urls')),
+	(r'^', include('thaihealthsms.finance.urls')),
+	(r'^', include('thaihealthsms.kpi.urls')),
+	(r'^', include('thaihealthsms.report.urls')),
 	
 	(r'^accounts/', include('registration.backends.default.urls')),
 	

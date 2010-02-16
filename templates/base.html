@@ -1,5 +1,4 @@
-{% load interface_tags i18n helper %}
-
+{% load interface_tags i18n helper_tags %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -8,13 +7,10 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
 	
 	<script type="text/javascript" src="{{MEDIA_URL}}/scripts/jquery.min.js"></script>
-	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/yui/reset-fonts.css">
+	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/yui/reset-fonts/reset-fonts.css">
 	
 	<link type="text/css" media="screen" rel="stylesheet" href="{{MEDIA_URL}}/colorbox/colorbox.css" /> 
 	<script type="text/javascript" src="{{MEDIA_URL}}/colorbox/jquery.colorbox-min.js"></script>
-	
-	<link type="text/css" media="screen" rel="stylesheet" href="{{MEDIA_URL}}/fcbkcomplete/style.css" /> 
-	<script type="text/javascript" src="{{MEDIA_URL}}/fcbkcomplete/jquery.fcbkcomplete.min.js"></script>
 	
 	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/css/styles.css">
 	<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/css/styles.page.css">
@@ -24,12 +20,12 @@
 	
 <script type="text/javascript">
 $(document).ready(function() {
-	$("#post-comment-dialog textarea").keypress(function(e) {
+	/*$("#post-comment-dialog textarea").keypress(function(e) {
 		if(e.which == 13) {
 			$(this).blur();
 			$("#post-comment-dialog button").focus().click();
 		}
-	});
+	});*/
 	
 	$("#post-comment-dialog button").click(function(e) {
 		e.preventDefault();
@@ -37,16 +33,24 @@ $(document).ready(function() {
 	});
 });
 
+var activeCommentSender = null;
+var activeCommentTarget = null;
+
 function postComment() {
 	var message = $("#post-comment-dialog textarea").val();
 	
 	if(message != "") {
-		var comment_url = $("#post-comment-dialog input[name='comment_target']").val();
 		$("#post-comment-dialog .loading").show();
-		$.post("/post-comment/" + comment_url + "/", {'message': message}, function(data) {
+		$.post("/ajax/comment/post/" + activeCommentTarget + "/", {'message': message}, function(data) {
 			$("#post-comment-dialog .loading").hide();
 			$.fn.colorbox.close();
-			{% block post_comment_ajax_callback %}{% endblock %}
+			if(data.id == 0) {
+				alert("ไม่สามารถส่งความคิดเห็นได้ เนื่องจากไม่มีข้อมูลผู้รับผิดชอบ");
+			} else {
+				if(typeof onPostCommentCallback == 'function') {
+					onPostCommentCallback(data, activeCommentSender, activeCommentTarget);
+				}
+			}
 		}, "json");
 	}
 }
@@ -58,7 +62,8 @@ function bindCommentBox(jqueryObject) {
 			$("#post-comment-dialog textarea").val("");
 			$("#post-comment-dialog .loading").hide();
 			
-			$("#post-comment-dialog input[name='comment_target']").val($.fn.colorbox.element().attr("rel"));
+			activeCommentSender = $.fn.colorbox.element();
+			activeCommentTarget = $.fn.colorbox.element().attr("rel");
 			
 			$("#post-comment-receivers_feed").css("width", "auto");
 		},
@@ -67,18 +72,45 @@ function bindCommentBox(jqueryObject) {
 			$("#post-comment-dialog").css("display", "none");
 		}
 	});
+}
 
-	$("#post-comment-receivers").fcbkcomplete({json_url:"{% url ajax_query_comment_receivers %}", cache:true, filter_case:false, filter_hide:true, newel:true});
-	
-});
+function initReplyCommentBox(jqueryObject) {
+	$("#reply-comment-dialog button").click(function(e) {
+		e.preventDefault();
+		var message = $("#reply-comment-dialog textarea").val();
+		var comment_id = $("#reply-comment-dialog #comment-id").val();
+		
+		if(message != "") {
+			$("#reply-comment-dialog .loading").show();
+			$.post("/ajax/comment/reply/" + comment_id + "/", {'message': message}, function(data) {
+				$("#reply-comment-dialog .loading").hide();
+				$.fn.colorbox.close();
+				$("#comment-" + comment_id + " .replies").append('<li class="unread"><p>' + message + '</p><div class="metadata"><span class="sender">' + data.first_name + ' ' + data.last_name + '</span>ส่งเมื่อวันที่ ' + data.date_timestamp + ' เวลา ' + data.time_timestamp + ' น.</div></li>');
+			}, "json");
+		}
+	});
 
+	$(".reply-comment").colorbox({width:"50%", scrolling:false, opacity:0.4, inline:true, href:"#reply-comment-dialog", 
+		onOpen:function() {
+			$("#reply-comment-dialog").css("display", "block");
+			$("#reply-comment-dialog textarea").val("");
+			$("#reply-comment-dialog #comment-id").val($(this).attr("id").substring(8));
+			$("#reply-comment-dialog .loading").hide();
+			
+			$("#reply-comment-receivers_feed").css("width", "auto");
+		},
+		onComplete:function() { $("#reply-comment-dialog textarea").focus(); },
+		onCleanup:function() {
+			$("#reply-comment-dialog").css("display", "none");
+		}
+	});
+}
 </script>
 
-{% block js %}{% endblock %}
 {% block html_head %}{% endblock %}
 
 </head>
-<body>
+<body class="yui-skin-sam">
 	<div class="body_header">
 		<div class="account_panel">
 			<span class="username">{{user_account.first_name}} {{user_account.last_name}}</span>
@@ -100,19 +132,25 @@ function bindCommentBox(jqueryObject) {
 	</div>
 	<div class="body_body">
 		<div class="body_title">{% block body_title %}{% endblock %}</div>
-		<div class="body_content">{{messages|safe}}{% block body_content %}{% endblock %}</div>
+		<div class="body_content">{% if messages %}<div class="body_content_message">{{messages|safe}}</div>{% endif %}{% block body_content %}{% endblock %}</div>
 	</div>
 	<div class="body_footer">
 		<div>สำนักงานกองทุนสนับสนุนการสร้างเสริมสุขภาพ (สสส.)</div>
 		<div>979 อาคารเอส เอ็ม ทาวเวอร์ ชั้น 34 ถนนพหลโยธิน แขวงสามเสนใน เขตพญาไท กรุงเทพฯ 10400</div>
 	</div>
 
-<div id="post-comment-dialog">
-<label>ผู้รับเพิ่มเติม (นอกเหนือจากผู้รับผิดชอบ):</label>
-<input type="text" id="post-comment-receivers"/> <label>{% trans 'Comment' %}</label>
+<div id="post-comment-dialog" class="comment_dialog">
+<label>{% trans 'Comment' %}</label>
 <textarea id="post-comment-textarea"></textarea>
+<div class="button-panel"><button>{% trans 'Send a Comment' %}</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" /> {% trans 'Sending...' %}</span></div>
+</div>
+
+<div id="reply-comment-dialog" class="comment_dialog">
+<label>{% trans 'Comment' %}</label>
+<textarea id="reply-comment-textarea"></textarea>
+<input type="hidden" id="comment-id"/>
 <input type="hidden" name="comment_target"/>
-<div class="button-panel"><button>{% trans 'Send a Comment' %}</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" />{% trans 'Sending...' %}</span></div>
+<div class="button-panel"><button>{% trans 'Send a Comment' %}</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" /> {% trans 'Sending...' %}</span></div>
 </div>
 </body>
 </html>

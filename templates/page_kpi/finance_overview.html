@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load helper_tags i18n interface_tags %}
+
+{% block html_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$(".modify-remark").click(function(e) {
+		e.preventDefault();
+		$(this).closest(".remark").hide();
+		$("#remarkForm").show();
+	});
+	
+	$(".cancel-remark-button").click(function(e) {
+		var remarkPanel = $(this).closest(".remark_panel");
+		remarkPanel.find(".remark").show();
+		$("#remarkForm").hide();
+	});
+	
+	bindCommentBox($(".post-finance-comment"));
+	initReplyCommentBox();
+});
+
+function onPostCommentCallback(data, sender, target) {
+	window.location.reload();
+}
+</script>
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_finance_header user finance_schedule %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	{% display_finance_comment_button user finance_schedule %}
+	<div class="tabs">
+		<ul>
+			<li class="selected">ภาพรวม</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="kpi_page">
+	{% if finance_schedule.claimed_on %}
+	<div class="claimed">เบิกจ่ายไปเมื่อวันที่ {{finance_schedule.claimed_on|abbr_date}} เป็นจำนวนเงิน {{finance_schedule.result}} บาท</div>
+	{% endif %}
+	
+	<div class="details">
+		<div><span>คาดการณ์:</span> {{finance_schedule.target}} บาท</div>
+		<div><span>เบิกจ่ายจริง:</span> {% if finance_schedule.claimed_on %}{{finance_schedule.result}} บาท{% else %}ยังไม่มีการเบิกจ่าย{% endif %}</div>
+	</div>
+	
+	<h2>หมายเหตุ</h2>
+	<div class="remark_panel">
+		{% if finance_schedule.remark %}
+		<div class="remark">
+			<p>{{finance_schedule.remark}}</p>
+			<div class="actions"><a href="#" class="modify-remark">แก้ไขหมายเหตุ</a></div>
+		</div>
+		{% else %}
+		<div class="remark">
+			<a href="#" class="modify-remark">เพิ่มหมายเหตุ</a>
+		</div>
+		{% endif %}
+		<form action="." method="post" id="remarkForm">
+			{{form.remark}}
+			<div class="button_panel"><button class="save-remark-button" type="submit">บันทึก</button><button class="cancel-remark-button">ยกเลิก</button></div>
+		</form>
+	</div>
+	
+	{% if comments %}
+	<h2>ความคิดเห็น</h2>
+	<ul class="ss_comments">
+		{% for comment in comments %}
+			{% generate_comment_html comment %}
+		{% endfor %}
+	</ul>
+	{% endif %}
+	
+	{% if revisions %}
+	<h2>ประวัติการแก้ไข</h2>
+	<ul class="revisions">
+		{% for revision in revisions %}
+		<li>
+			<div class="date">{{revision.revised_on|abbr_datetime}}</div>
+			<ul>
+				{% for revision_html in revision.list %}
+				<li>{{revision_html}}</li>
+				{% endfor %}
+			</ul>
+		</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+</div>
+{% endblock %}

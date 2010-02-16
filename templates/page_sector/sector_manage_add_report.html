@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load helper_tags interface_tags %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_sector_header sector %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_sector_overview sector.id %}">ภาพรวม</a></li>
+			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
+			<li class="selected right_item">จัดการสำนัก</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_child_page_header">เพิ่มรายงาน <a href="{% url view_sector_manage_reports sector.id %}">กลับไปหน้ารูปแบบรายงาน &#187;</a></div>
+
+<form method="post" action="." class="ss_form">
+	<ul>
+		<li>
+			<label for="id_name">{{form.name.label}}:</label>
+			<div class="input LONG">{{form.name}}</div>
+			{{form.name.errors}}
+		</li>
+		<li>
+			<label for="id_need_approval">{{form.need_approval}} {{form.need_approval.label}}</label>
+		</li>
+		<li class="single_line">
+			<label for="id_schedule_cycle_length">ส่งรายงานทุกๆ:</label>
+			<span class="SHORT">{{form.schedule_cycle_length}}</span>
+			<label>เดือน</label>
+		</li>
+		<li class="single_line">
+			<label for="id_schedule_monthly_date">ในวันที่:</label>
+			<span class="SHORT">{{form.schedule_monthly_date}}</span>
+		</li>
+		<li class="single_line">
+			<label for="id_notify_days">{{form.notify_days.label}}</label>
+			<span class="SHORT">{{form.notify_days}}</span>
+			<label>วัน</label>
+			{% if form.notify_days.errors %}<div>{{form.notify_days.errors}}</div>{% endif %}
+		</li>
+	</ul>
+	<div class="button_panel"><button>เพิ่มรายงาน</button></div>
+</form>
+{% endblock %}

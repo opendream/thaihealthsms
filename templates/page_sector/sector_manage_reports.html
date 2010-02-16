@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load helper_tags interface_tags %}
+
+{% block html_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$(".delete-report").click(function(e) {
+		if(!window.confirm("ยืนยันการลบรูปแบบรายงาน?")) {
+			e.preventDefault();
+		}
+	});
+});
+</script>
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_sector_header sector %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_sector_overview sector.id %}">ภาพรวม</a></li>
+			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
+			<li class="selected right_item">จัดการสำนัก</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+<div class="ss_sub_tab_navi">
+	<ul>
+		<li><a href="{% url view_sector_manage_organization sector.id %}">โครงสร้างแผนงาน</a></li>
+		<li class="selected">รูปแบบรายงาน</li>
+		<li><a href="{% url view_sector_manage_kpi sector.id %}">ตัวชี้วัด</a></li>
+	</ul>
+	<div class="clear"></div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_control_panel">
+	<ul>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_sector_add_report sector.id %}">เพิ่มรูปแบบรายงาน</a></li>
+	</ul>
+</div>
+
+<div class="org_table sector_reports_page">
+	{% if reports %}
+	<table>
+		<tr>
+			<th class="controls"></th>
+			<th class="report_name">ชื่อรายงาน</th>
+			<th class="projects">จำนวนแผนงานที่รายงาน</th>
+			<th class="approval">การรับรองรายงาน</th>
+			<th class="repeating">กำหนดส่งรายงาน</th>
+		</tr>
+		{% for report in reports %}
+		<tr>
+			<td class="controls">
+				<a href="{% url view_sector_edit_report report.id %}" title="แก้ไขรายงาน"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+				{% if report.project_count %}
+				<img src="{{MEDIA_URL}}/images/icon_delete_disabled.gif" class="icon" title="ไม่สามารถลบรายงานที่มีแผนงาน/โครงการได้"/>
+				{% else %}
+				<a href="{% url view_sector_delete_report report.id  %}" title="ลบรายงาน" class="delete-report"><img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon" /></a>
+				{% endif %}
+			</td>
+			<td class="report_name">{{report.name}}</td>
+			<td class="projects">{{report.project_count}}</td>
+			<td class="approval">{% if report.need_approval %}ต้องมีการรับรองรายงาน{% else %}ไม่ต้องรับรองรายงาน{% endif %}</td>
+			<td class="repeating">
+				{% if report.schedule_cycle_length %}ส่งรายงาน{% if report.schedule_monthly_date %}วันที่ {{report.schedule_monthly_date}}{% else %}วันสิ้นเดือน{% endif %} ในทุกๆ {{report.schedule_cycle_length}} เดือน
+				{% else %}ไม่มีข้อมูลกำหนดส่งรายงาน{% endif %}
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+	{% else %}
+	<div class="ss_no_information">ไม่มีรูปแบบรายงาน</div>
+	{% endif %}
+</div>
+{% endblock %}

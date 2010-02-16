@@ -13,11 +13,18 @@ class Report(models.Model):
 	need_checkup = models.BooleanField(default=False) # Need to be sent to sector manager assistant to review
 	need_approval = models.BooleanField(default=False) # Need approval from sector manager assistant
 	created = models.DateTimeField(auto_now_add=True)
-	created_by = models.ForeignKey('domain.UserAccount')
+	created_by = models.ForeignKey('accounts.UserAccount')
+
+	schedule_cycle = models.IntegerField(default=3) # 1:Daily, 2:Weekly, 3:Monthly, 4:Yearly
+	schedule_cycle_length = models.IntegerField(default=1)
+	schedule_monthly_date = models.IntegerField(default=1) # 0 is end of month
+	
+	notify_days = models.IntegerField(default=3)
 
 class ReportProject(models.Model):
 	report = models.ForeignKey('Report')
 	project = models.ForeignKey('domain.Project')
+	is_active = models.BooleanField(default=True)
 
 class ReportSchedule(models.Model):
 	report_project = models.ForeignKey('ReportProject')
@@ -30,10 +37,10 @@ class ReportScheduleTextResponse(models.Model):
 	schedule = models.ForeignKey('ReportSchedule', primary_key=True)
 	text = models.CharField(max_length=512)
 	submitted = models.DateTimeField(auto_now_add=True)
-	submitted_by = models.ForeignKey('domain.UserAccount')
+	submitted_by = models.ForeignKey('accounts.UserAccount')
 
 class ReportScheduleFileResponse(models.Model):
 	schedule = models.ForeignKey('ReportSchedule')
 	filename = models.CharField(max_length=512)
 	uploaded = models.DateTimeField(auto_now_add=True)
-	uploaded_by = models.ForeignKey('domain.UserAccount')
+	uploaded_by = models.ForeignKey('accounts.UserAccount')
