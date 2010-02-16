@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load helper_tags %}
+{% load interface_tags %}
+
+{% block html_head %}
+<link type="text/css" rel="stylesheet" href="{{MEDIA_URL}}/scripts/yui/calendar/assets/skins/sam/calendar.css">
+
+<script type="text/javascript" src="{{MEDIA_URL}}/scripts/jquery.qtip.min.js"></script>
+
+<script type="text/javascript" src="{{MEDIA_URL}}/scripts/yui/yahoo/yahoo-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/scripts/yui/event/event-min.js" ></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/scripts/yui/dom/dom-min.js" ></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/scripts/yui/calendar/calendar-min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {		
+	bindCommentBox($(".post-project-comment"));
+
+	// Change to calculate by javascript, not the one provided by django.
+  var prev_month = "{{prev_month}}";
+  var next_month = "{{next_month}}";
+
+  var start = "{{start}}";
+  var end = "{{end}}";
+  var acts = [
+    {% for activity in recent_activities %}
+	{name:"{{activity.name}}",
+	 start:new Date(Date.parse("{{activity.start_date|date:"Y/m/d"}}")),
+	 end:new Date(Date.parse("{{activity.end_date|date:"Y/m/d"}}")),
+	 link:'/activity/{{activity.id}}'
+	},
+	{% endfor %}
+    null // prevent IE's bug
+  ];
+  var cache = {};
+
+  // Render stack
+  var myCustomRenderer = function(workingDate, cell) {
+    YAHOO.util.Dom.addClass(cell, "has-event");
+    // Fix bug, workingDate is the time at 12:00 of the day.
+    // Change to 00:00 to correctly compare with others.
+    date = workingDate.getDate();
+    month = workingDate.getMonth();
+    year = workingDate.getFullYear();
+    new_wd = new Date(year, month, date);
+    YAHOO.util.Dom.setAttribute(cell, 'time', new_wd.getTime());
+    return YAHOO.widget.Calendar.STYLE;
+  }
+
+  YAHOO.namespace("activity.calendar");
+  YAHOO.activity.calendar.init = function () {
+    YAHOO.activity.calendar.cal1 = new YAHOO.widget.CalendarGroup("cal1", "activity-calendar", {pages:3, year_offset:543});
+
+    // Center current month
+    YAHOO.activity.calendar.cal1.previousMonth();
+
+    // Locale
+    YAHOO.activity.calendar.cal1.cfg.setProperty("MONTHS_SHORT", ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."]);
+    YAHOO.activity.calendar.cal1.cfg.setProperty("MONTHS_LONG", ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]);
+    YAHOO.activity.calendar.cal1.cfg.setProperty("WEEKDAYS_1CHAR", ["อ", "จ", "อ", "พ", "พ", "ศ", "ส"]);
+    YAHOO.activity.calendar.cal1.cfg.setProperty("WEEKDAYS_SHORT", ["อา.", "จ.", "อัง.", "พ.", "พฤ.", "ศ.", "ส."]);
+    YAHOO.activity.calendar.cal1.cfg.setProperty("WEEKDAYS_MEDIUM", ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัส", "ศุกร์", "เสาร์"]);
+    YAHOO.activity.calendar.cal1.cfg.setProperty("WEEKDAYS_LONG", ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]);
+
+	add_renderers();
+
+    YAHOO.activity.calendar.cal1.renderEvent.subscribe(init_qtip);
+    YAHOO.activity.calendar.cal1.renderEvent.subscribe(init_loader);
+    //YAHOO.activity.calendar.cal1.beforeRenderEvent.subscribe(remove_renderers);
+    YAHOO.activity.calendar.cal1.render();
+  }
+
+  function remove_renderers() {
+  	YAHOO.activity.calendar.cal1.removeRenderers();
+  }
+
+  function add_renderers() {
+  	remove_renderers();
+  	for (i in acts) {
+      act = acts[i];
+      if (act == null) {
+        continue;
+      }
+
+      s_date = act.start.getDate();
+      s_month = act.start.getMonth() + 1;
+      s_year = act.start.getFullYear() + 543;
+      s_str = [s_month, s_date, s_year].join('/');
+      e_date = act.end.getDate();
+      e_month = act.end.getMonth() + 1;
+      e_year = act.end.getFullYear() + 543;
+      e_str = [e_month, e_date, e_year].join('/');
+      YAHOO.activity.calendar.cal1.addRenderer(s_str + '-' + e_str, myCustomRenderer);
+    }
+  }
+
+  function render_act_list(workingDate) {
+    var output = '<ul>';
+    for (i in acts) {
+      act = acts[i];
+      if (act == null) {
+        continue;
+      }
+      if ((act.start <= workingDate) && (workingDate <= act.end)) {
+        output += '<li><a href="' + act.link + '">' + act.name + '</a></li>';
+      }
+    }
+    output += '</ul>';
+
+    return output;
+  }
+
+  function init_loader() {
+  	$('.calnavright:not([processed])').attr('processed', 'processed').click(function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$(this).attr('processed', 'processed');
+		prev_month_temp = prev_month;
+		next_month_temp = next_month;
+		if (typeof(cache[next_month]) != 'undefined') {
+			acts = cache[next_month][2];
+			prev_month = cache[next_month][0];
+			next_month = cache[next_month][1];
+			add_renderers();
+		}
+		else {
+			$.getJSON(next_month, function (data) {
+				cache[next_month] = data;
+				prev_month = data[0];
+				next_month = data[1];
+				acts = data[2];
+				add_renderers();
+			});
+		}
+	});
+
+	$('.calnavleft:not([processed])').attr('processed', 'processed').click(function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+		if (typeof(cache[prev_month]) != 'undefined') {
+			acts = cache[prev_month][2];
+			next_month = cache[prev_month][1];
+			prev_month = cache[prev_month][0];
+			add_renderers();
+		}
+		else {
+			$.getJSON(prev_month, function (data) {
+				cache[prev_month] = data;
+				prev_month = data[0];
+				next_month = data[1];
+				acts = data[2];
+				add_renderers();
+			});
+		}
+	});
+  }
+
+  function init_qtip() {
+  	$('.has-event:not([processed])').each(function (e) {
+		$(this).qtip({
+		    content: {
+		    	prerender: false,
+		    	text: render_act_list(new Date(parseInt($(this).attr('time'))))
+		    },
+		    show: {
+		    	solo: true,
+		    	when: 'click'
+		    },
+		    hide: {
+		    	delay: 250,
+		    	fixed: true
+		    },
+		    style: 'dark'
+    	});
+
+    	$(this).attr('processed', 'processed');
+	});
+  }
+
+  YAHOO.util.Event.onDOMReady(YAHOO.activity.calendar.init);
+	
+	
+});
+</script>
+{% endblock %}
+
+{% block post_comment_ajax_url %}/post-comment/object/project/{{project.id}}/{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header user project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	{% display_project_comment_button user project %}
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
+			<li class="selected">กิจกรรม</li>
+			{% responsible user 'project_manager,project_manager_assistant' project.parent_project %}
+			<li><img src="{{MEDIA_URL}}/images/pencil.png" /><a href="{% url view_project_edit project.id %}">แก้ไขโครงการ</a></li>
+			{% endresponsible %}
+			<li><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_project_comments project.id %}">ความคิดเห็น</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+{% responsible user 'project_manager,project_manager_assistant' project.parent_project %}
+<div class="ss_control_panel">
+	<ul>
+		<li><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/><a href="{% url view_activity_add project.id %}">เพิ่มกิจกรรม</a></li>
+	</ul>
+</div>
+{% endresponsible %}
+
+<div class="org_table project_activities_page">
+	{% if activities %}
+	<div class="activity_calendar yui-skin-sam">
+		<div id="activity-calendar" class="html-calendar activity three-month"></div>
+	</div>
+	<div class="clear"></div>
+	
+	<table>
+		<tr>
+			<th class="name">ชื่อกิจกรรม</th>
+			<th class="start_date">วันที่เริ่ม</th>
+			<th class="end_date">วันที่สิ้นสุด</th>
+		</tr>
+		{% for activity in activities %}
+		<tr>
+			<td class="name"><a href="{% url view_activity_overview activity.id %}">{{activity.name}}</a></td>
+			<td class="start_date">{% if activity.start_date %}{{activity.start_date|abbr_date}}{% else %}ไม่กำหนด{% endif %}</td>
+			<td class="end_date">{% if activity.end_date %}{{activity.end_date|abbr_date}}{% else %}ไม่กำหนด{% endif %}</td>
+		</tr>
+		{% endfor %}
+	</table>
+	{% else %}
+	<div class="ss_no_information">ไม่มีกิจกรรม</div>
+	{% endif %}
+</div>
+
+
+{% endblock %}

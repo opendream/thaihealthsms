@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load interface_tags %}
+{% load helper_tags %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_master_plan_header master_plan %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_master_plan_overview master_plan.id %}">ภาพรวม</a></li>
+			<li class="selected">แผนงาน/โครงการ</li>
+			<li><a href="{% url view_master_plan_kpi master_plan.id %}">ตัวชี้วัด</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="masterplan_plans_page">
+	{% if plans %}
+	{% for plan in plans %}
+		<h2>{{plan.ref_no}} {{plan.name}}</h2>
+		{% if not plan.projects %}
+			<div class="ss_no_information">ไม่มีแผนงาน/โครงการ</div>
+		{% else %}
+			<ul>
+				{% for project in plan.projects %}
+				<li>
+					<a href="{% url view_project_overview project.id %}">{{project.ref_no}} {{project.name}}</a>
+					<div class="item_overview"><span>ระยะเวลา {% if project.start_date and project.end_date %}<em>{{project.start_date|abbr_date}} - {{project.end_date|abbr_date}}</em>{% else %}<em>ยังไม่กำหนดระยะเวลา</em>{% endif %}</span> <span>ผู้รับผิดชอบ <em>{% who_responsible project %}</em></span></div>
+				</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+	{% endfor %}
+	{% else %}
+	<div class="ss_no_information">ไม่มีข้อมูล</div>
+	{% endif %}
+</div>
+{% endblock %}

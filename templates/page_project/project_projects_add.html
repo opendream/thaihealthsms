@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load interface_tags i18n helper_tags %}
+
+{% block post_comment_ajax_url %}/post-comment/object/program/{{project.id}}/{% endblock %}
+
+{% block html_head %}
+{{form.media}}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header user project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
+			<li class="selected">โครงการ</li>
+			<li><a href="{% url view_project_reports project.id %}">รายงาน</a></li>
+			<li><a href="{% url view_project_kpi project.id %}">ตัวชี้วัด</a></li>
+			<li><a href="{% url view_project_finance project.id %}">แผนการเงิน</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_child_page_header">สร้างโครงการ <a href="{% url view_project_projects project.id %}">กลับไปยังหน้ารายชื่อโครงการ &#187;</a></div>
+
+<div class="projects_form">
+	<form method="post" action="." class="ss_form">
+		<ul>
+			<li>
+				<label for="id_ref_no">{{form.ref_no.label}}:</label>
+				<div class="input MEDIUM">{{form.ref_no}}</div>
+				{{form.ref_no.errors}}
+			</li>
+			<li>
+				<label for="id_name">{{form.name.label}}:</label>
+				<div class="input LONG">{{form.name}}</div>
+				{{form.name.errors}}
+			</li>
+			<li class="date_period">
+				<label>{{form.start_date.label}}:</label>
+				<div class="input">{{form.start_date}} <span class="to">{{form.end_date.label}}</span> {{form.end_date}}</div>
+				{{form.start_date.errors}}
+				{{form.end_date.errors}}
+			</li>
+		</ul>
+		<div class="button_panel"><button>เพิ่มโครงการ</button></div>
+	</form>
+</div>
+{% endblock %}

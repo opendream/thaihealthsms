@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load helper_tags %}
+
+{% block html_head %}
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	<div class="title"><span>จัดการระบบ</span> ตัวชี้วัด</div>
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_administer_organization %}">โครงสร้างองค์กร</a></li>
+			<li><a href="{% url view_administer_users %}">ผู้ใช้ระบบ</a></li>
+			<li class="selected">ตัวชี้วัด</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+<div class="ss_sub_tab_navi">
+	<ul>
+		<li class="selected">ตัวชี้วัดระดับองค์กร</li>
+		<li><a href="{% url view_administer_kpi_category %}">ประเภทตัวชี้วัด</a></li>
+	</ul>
+	<div class="clear"></div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="ss_child_page_header">{% if kpi %}แก้ไขตัวชี้วัด{% else %}สร้างตัวชี้วัด{% endif %} <a href="{% url view_administer_kpi %}">กลับไปหน้าตัวชี้วัดระดับองค์กร &#187;</a></div>
+
+<form action="" method="POST" class="ss_form">
+	<ul>
+		<li>
+			<label for="id_ref_no">{{form.ref_no.label}}:</label>
+			<div class="input SHORT">{{form.ref_no}}</div>
+			{{form.ref_no.errors}}
+		</li>
+		<li>
+			<label for="id_name">{{form.name.label}}:</label>
+			<div class="input LONG">{{form.name}}</div>
+			{{form.name.errors}}
+		</li>
+		<li>
+			<label for="id_category">{{form.category.label}}:</label>
+			<div class="input LONG">{{form.category}}</div>
+			{{form.category.errors}}
+		</li>
+		<li>
+			<label for="id_unit_name">{{form.unit_name.label}}:</label>
+			<div class="input MEDIUM">{{form.unit_name}}</div>
+			{{form.unit_name.errors}}
+		</li>
+		<li class="single_line checkbox">
+			{{form.visible_to_project}}
+			<label for="id_visible_to_project">{{form.visible_to_project.label}}</label>
+			{{form.visible_to_project.errors}}
+		</li>
+	</ul>
+	
+	<div class="button_panel"><button type="submit">ตกลง</button></div>
+</form>
+{% endblock %}

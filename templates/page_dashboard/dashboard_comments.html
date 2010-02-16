@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load helper_tags i18n interface_tags %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	<div class="title"><span>หน้าผู้ใช้</span> {{user.get_profile.first_name}} {{user.get_profile.last_name}}</div>
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			{% role user 'sector_manager_assistant' %}<li><a href="{% url view_frontpage %}">หน้าแรก</a></li>{% endrole %}
+			<li class="selected">กล่องความคิดเห็น</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="dashboard_inbox_page">
+	{% if objects %}
+	<ul class="objects">
+		{% for object in objects %}
+		<li>
+			<h3>{% display_comment_object_title object.comment.object_name object.object %}</h3>
+			
+			{% ifequal object.comment.object_name 'activity' %}<div class="links"><a href="/activity/{{object.object.id}}/comments/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'project' %}<div class="links"><a href="/project/{{object.object.id}}/comments/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'report' %}<div class="links"><a href="/report/{{object.object.id}}/comments/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'kpi' %}<div class="links"><a href="/kpi/{{object.object.id}}/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			{% ifequal object.comment.object_name 'finance' %}<div class="links"><a href="/finance/{{object.object.id}}/">อ่านความคิดเห็นทั้งหมด</a></div>{% endifequal %}
+			
+			<ul class="ss_comments">
+				{% for comment in object.comments %}
+					<li {% if not comment.is_read %}class="unread"{% endif %}>
+						<div class="comment">
+							<p>{{comment.message}}</p>
+							<div class="metadata">
+								<span class="sender">{{comment.sent_by.first_name}} {{comment.sent_by.last_name}}</span> ส่งเมื่อวันที่ {{comment.sent_on|abbr_datetime}}
+							</div>
+						</div>
+						<ul class="replies">
+							{% for reply in comment.replies %}
+							<li class="unread">
+								<p>{{reply.content}}</p>
+								<div class="metadata">
+									<span class="sender">{{reply.sent_by.first_name}} {{reply.sent_by.last_name}}</span>ส่งเมื่อวันที่ {{reply.sent_on|abbr_datetime}}
+								</div>
+							</li>
+							{% endfor %}
+						</ul>
+					</li>
+				{% endfor %}
+			</ul>
+		</li>
+		{% endfor %}
+	</ul>
+	{% else %}
+	<div class="ss_no_information">ไม่มีความคิดเห็นใหม่</div>
+	{% endif %}
+</div>
+{% endblock %}

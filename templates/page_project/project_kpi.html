@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load interface_tags i18n helper_tags %}
+
+{% block html_head %}
+<link href="{{MEDIA_URL}}/yui/container/assets/skins/sam/container.css" type="text/css" media="all" rel="stylesheet" />
+<link href="{{MEDIA_URL}}/yui/calendar/assets/skins/sam/calendar.css" type="text/css" media="all" rel="stylesheet" />
+
+<link href="{{MEDIA_URL}}/css/yui.calendar.widget.css" type="text/css" media="all" rel="stylesheet" />
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/yahoo-dom-event/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/element/element-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/container/container-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/yui/calendar/calendar-min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}/scripts/yui.calendar.widget.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	$(".update-kpi").click(function(e) {
+		e.preventDefault();
+		var buttonObject = $(this);
+		var schedule_id = $(this).attr("rel");
+		
+		var trObject = $(this).parent().parent();
+		var target_on;
+		var target;
+		var result;
+		
+		if(trObject.find("input[name='target_on']").size() == 0) {
+			target_on = "";
+		} else {
+			target_on = trObject.find("input[name='target_on']").val();
+		}
+		
+		if(trObject.find("input[name='target']").size() == 0) {
+			target = "";
+		} else {
+			target = trObject.find("input[name='target']").val();
+		}
+		
+		if(trObject.find("input[name='result']").size() == 0) {
+			result = "";
+		} else {
+			result = trObject.find("input[name='result']").val();
+		}
+		
+		$(this).attr("disabled", "disabled").html("กำลังดำเนินการ");
+		$.post("{% url ajax_update_kpi_value %}", {schedule_id:schedule_id, target_on:target_on, target:target, result:result}, function(data) {
+			buttonObject.html("บันทึกข้อมูล");
+			buttonObject.parent().parent().find("input").removeClass("changed");
+			
+			if(data.error == "invalid") {
+				alert("ข้อมูลไม่อยู่ในรูปแบบที่ถูกต้อง");
+			} else {
+				if(data.revision_html != "") {
+					$(".schedule-revisions-" + schedule_id).prepend(data.revision_html);
+					$(".schedule-revisions-" + schedule_id).parent().find("div.empty").remove(); // Remove no revisions text
+				}
+			}
+		}, "json");
+	});
+	
+	$("table input").change(function(e) {
+		$(this).addClass("changed");
+		$(this).parent().parent().find(".update-kpi").attr("disabled", "");
+	});
+	
+	bindCommentBox($(".post-schedule-comment"));
+});
+
+function onPostCommentCallback(data, sender, target) {
+	if(sender.hasClass('post-schedule-comment')) {
+		$("#schedule-" + data.object_id + " .comment_count").text(data.count + " ความคิดเห็น");
+	}
+}
+
+function onCalendarChangeCallback(input_id, selDate, new_value, new_display_value) {
+	$("#" + input_id).parent().parent().parent().find(".update-kpi").attr("disabled", "");
+}
+</script>
+{% endblock %}
+
+{% block body_title %}
+<div class="ss_header">
+<div class="container">
+	{% print_project_header user project %}
+</div>
+</div>
+<div class="ss_tab_navi">
+	<div class="tabs">
+		<ul>
+			<li><a href="{% url view_project_overview project.id %}">ภาพรวม</a></li>
+			<li><a href="{% url view_project_projects project.id %}">โครงการ</a></li>
+			<li><a href="{% url view_project_reports project.id %}">รายงาน</a></li>
+			<li class="selected">ตัวชี้วัด</li>
+			<li><a href="{% url view_project_finance project.id %}">แผนการเงิน</a></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+</div>
+{% endblock %}
+
+{% block body_content %}
+<div class="project_kpi_page">
+<ul>
+{% for kpi_category in kpi_categories %}
+<li>
+	<h2>{{kpi_category.name}}</h2>
+	<ul>
+	{% for kpi in kpi_category.kpi %}
+	<li>
+		<h3>{{kpi.ref_no}} {{kpi.name}}</h3>
+		<table>
+			<tr>
+				<th></th>
+				<th class="date">วันที่ตั้งเป้า</th>
+				<th class="target">คาดการณ์</th>
+				<th class="result">ผลที่เกิดขึ้น</th>
+				<th class="controls"></th>
+			</tr>
+			{% for schedule in kpi.schedules %}
+				<tr id="schedule-{{schedule.id}}">
+					<td class="link"><img src="{{MEDIA_URL}}/images/page_go.png" class="icon" /> <a href="{% url view_kpi_overview schedule.id %}">หน้าตัวชี้วัด</a></td>
+					<td class="date">
+						{% responsible user 'sector_manager_assistant' project %}
+						<span class="yui_date_picker_panel">
+							<input type="hidden" name="target_on" value="{{schedule.target_on|date:"Y-n-j"}}" id="id_target_on_{{schedule.id}}_value"/>
+							<input type="text" value="{{schedule.target_on|date:"j F"}} {{schedule.target_on.year|add:543}}" id="id_target_on_{{schedule.id}}_display" readonly="readonly" class="yui_date_picker_textbox"/>
+							<img src="/m/images/icon_date_picker.png" id="id_target_on_{{schedule.id}}" class="yui_date_picker"/>
+						</span>
+						{% else %}
+						{{schedule.target_on|abbr_date}}
+						{% endresponsible %}
+					</td>
+					<td class="target">
+						{% responsible user 'sector_manager_assistant' project %}
+						<input type="text" name="target" value="{{schedule.target}}" />
+						{% else %}
+						{{schedule.target}}
+						{% endresponsible %}
+						{{kpi.unit_name}}
+					</td>
+					<td class="result">
+						{% responsible user 'sector_manager_assistant,project_manager,project_manager_assistant' project %}
+						<input type="text" name="result" value="{{schedule.result}}" />
+						{% else %}
+						{{schedule.result}}
+						{% endresponsible %}
+						{{kpi.unit_name}}
+					</td>
+					<td class="controls">
+						{% responsible user 'sector_manager_assistant,project_manager,project_manager_assistant' project %}
+						<button class="update-kpi" disabled="disabled" rel="{{schedule.id}}">บันทึกข้อมูล</button>
+						{% endresponsible %}
+						<span class="comment_count">{{schedule.comments}} ความคิดเห็น</span> <a href="#" class="post-schedule-comment" rel="kpi/{{schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon" /></a>
+					</td>
+				</tr>
+				<tr class="revision">
+					<td></td>
+					<td colspan="4">
+						{% if not schedule.revisions %}
+						<div class="empty">ไม่มีประวัติการแก้ไข</div>
+						{% endif %}
+						<ul class="schedule-revisions-{{schedule.id}}">
+							{% for revision in schedule.revisions %}
+							<li>{% display_kpi_revision_html revision %}</li>
+							{% endfor %}
+						</ul>
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</li>
+	{% endfor %}
+	</ul>
+</li>
+{% endfor %}
+</ul>
+</div>
+{% endblock %}
