@@ -81,17 +81,17 @@ def after_syncdb(sender, **kwargs):
 		sector7, created = Sector.objects.get_or_create(ref_no=7, name='สำนักสนับสนุนการพัฒนาระบบสุขภาพและบริการสุขภาพ')
 
 		# Users ##################
-		
+
 		# Sector Admin
 		sector_admin1 = User.objects.create_user("sector_admin1", "sector_admin1@example.com", "password")
 		sector_admin1.groups.add(sector_admin_role)
-		
+
 		sector_admin_account1 = sector_admin1.get_profile()
 		sector_admin_account1.sector = sector7
 		sector_admin_account1.first_name = "Sector"
 		sector_admin_account1.last_name = "Admin"
 		sector_admin_account1.save()
-		
+
 		# Sector Managers
 		sector_manager1 = User.objects.create_user("sector7", "sector1@example.com", "password")
 		sector_manager1.groups.add(sector_manager_role)
@@ -251,13 +251,148 @@ def after_syncdb(sender, **kwargs):
 		project1201_1_004 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=program1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-004", name="โครงการทดลองที่สี่", start_date=date(2009,12,1), end_date=date(2010,4,1))
 		project1201_1_005 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=program1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-005", name="โครงการทดลองที่ห้า", start_date=date(2010,4,1), end_date=date(2010,8,1))
 		project1201_1_006 = Project.objects.create(sector=sector7, master_plan=master_plan12, parent_project=program1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-006", name="โครงการทดลองที่หก", start_date=date(2010,8,1), end_date=date(2010,12,1))
-		
+
+		# Project without parent
+		project1201_1_007 = Project.objects.create(sector=sector7, master_plan=master_plan12, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-007", name="โครงการทดลองที่เจ็ด", start_date=date(2010,8,1), end_date=date(2010,12,1))
+		project1201_1_008 = Project.objects.create(sector=sector7, master_plan=master_plan12, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-008", name="โครงการทดลองที่แปด", start_date=date(2010,9,1), end_date=date(2010,11,1))
+
+		user_responsibility = UserRoleResponsibility.objects.create(user=project_manager_account1, role=project_manager_role)
+		user_responsibility.projects.add(project1201_1_001)
+		user_responsibility.projects.add(project1201_1_002)
+		user_responsibility.projects.add(project1201_1_003)
+
+		user_responsibility = UserRoleResponsibility.objects.create(user=project_manager_account1, role=project_manager_role)
+		user_responsibility.projects.add(project1201_1_004)
+		user_responsibility.projects.add(project1201_1_005)
+		user_responsibility.projects.add(project1201_1_006)
+
+		# Assistant Responsibility
+		user_responsibility = UserRoleResponsibility.objects.create(user=sector_manager_assistant_account1, role=sector_manager_assistant_role)
+		user_responsibility.projects.add(program1201_1)
+		user_responsibility.projects.add(program1201_2)
+		user_responsibility.projects.add(program1201_3)
+
 		# Activity ##################
 		activity1 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่หนึ่ง", start_date=date(2008,12,16), end_date=date(2009,3,15))
 		activity2 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สอง", start_date=date(2009,3,1), end_date=date(2009,3,16))
 		activity3 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สาม", start_date=date(2009,11,16), end_date=date(2009,12,1))
 		activity4 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สี่", start_date=date(2010,6,15), end_date=date(2010, 6,16))
 		activity5 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่ห้า", start_date=date(2011,6,14), end_date=date(2011,8,16))
+
+		user_responsibility.activities.add(activity1)
+		user_responsibility.activities.add(activity2)
+		user_responsibility.activities.add(activity3)
+		user_responsibility.activities.add(activity4)
+		user_responsibility.activities.add(activity5)
+
+		# Finance Schedule ##############
+
+		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=1000000, used_budget=1000000, year=2009, scheduled_on=date(2008, 10, 1), claimed_on=date(2008, 10, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=1000000, used_budget=1000000, year=2009, scheduled_on=date(2009, 4, 1), claimed_on=date(2009, 4, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=1000000, used_budget=1000000, year=2010, scheduled_on=date(2009, 10, 1), claimed_on=date(2009, 10, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=1000000, used_budget=0, year=2010, scheduled_on=date(2010, 4, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=1000000, used_budget=0, year=2011, scheduled_on=date(2010, 10, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_1, expected_budget=1000000, used_budget=0, year=2011, scheduled_on=date(2011, 4, 1))
+
+		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=1000000, year=2009, scheduled_on=date(2008, 10, 1), claimed_on=date(2008, 10, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=1000000, year=2009, scheduled_on=date(2009, 4, 1), claimed_on=date(2009, 4, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=1000000, year=2010, scheduled_on=date(2009, 10, 1), claimed_on=date(2009, 10, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=0, year=2010, scheduled_on=date(2010, 4, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=0, year=2011, scheduled_on=date(2010, 10, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_2, expected_budget=1000000, used_budget=0, year=2011, scheduled_on=date(2011, 4, 1))
+
+		ProjectBudgetSchedule.objects.create(project=program1201_3, expected_budget=1000000, used_budget=1000000, year=2009, scheduled_on=date(2008, 10, 1), claimed_on=date(2008, 10, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_3, expected_budget=1000000, used_budget=1000000, year=2009, scheduled_on=date(2009, 4, 1), claimed_on=date(2009, 4, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_3, expected_budget=1000000, used_budget=1000000, year=2010, scheduled_on=date(2009, 10, 1), claimed_on=date(2009, 10, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_3, expected_budget=1000000, used_budget=0, year=2010, scheduled_on=date(2010, 4, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_3, expected_budget=1000000, used_budget=0, year=2011, scheduled_on=date(2010, 10, 1))
+		ProjectBudgetSchedule.objects.create(project=program1201_3, expected_budget=1000000, used_budget=0, year=2011, scheduled_on=date(2011, 4, 1))
+
+		# KPI ##################
+		kpi1 = MasterPlanKPI.objects.create(ref_no="R1", name="เกิดตำบลต้นแบบดำเนินงานระบบการดูแลสุขภาพชุมชนในระดับตำบล จำนวน 100 แห่ง", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		kpi2 = MasterPlanKPI.objects.create(ref_no="R2", name="ภาคีกลุ่มผลักดันนโยบายร่วมพัฒนาและได้ข้อเสนอเชิงนโยบายสาธารณะระดับชาติ หรือ ระดับองค์กร/พื้นที่เรื่องระบบบริการสุขภาพ และการดูแลสุขภาพชุมชน อย่างน้อย 3 เรื่อง", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		kpi3 = MasterPlanKPI.objects.create(ref_no="R3", name="ภาคี \"เจ้าของเรื่อง\" ได้ชุดความรู้ที่เกียวกับการสร้างเสริมสุขภาพผ่านระบบบริการสุขภาพผ่านระบบบริการสุขภาพ อย่างน้อย 20 เรื่อง", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		# kpi4 = MasterPlanKPI.objects.create(ref_no="R4", name="เกิดรูปแบบในการพัฒนาบริการสร้างเสริมสุขภาพ อย่างน้อย 2 รูปแบบ", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		# kpi5 = MasterPlanKPI.objects.create(ref_no="R5", name="เกิดการร่วมขับเคลื่อนและผลักดันนโยบายสาธรารณะร่วมกับองค์กรหลักในระบบบริการสุขภาพอย่างน้อย 2 ประเด็น", category=MasterPlanKPI.OPERATION_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+
+		kpi6 = MasterPlanKPI.objects.create(ref_no="R6", name="ศักยภาพพนักงาน", category=MasterPlanKPI.TEAMWORK_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		kpi7 = MasterPlanKPI.objects.create(ref_no="R7", name="การทำงานเป็นทีม", category=MasterPlanKPI.TEAMWORK_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+
+		kpi8 = MasterPlanKPI.objects.create(ref_no="R8", name="ประสิทธิภาพ", category=MasterPlanKPI.PARTNER_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+		kpi9 = MasterPlanKPI.objects.create(ref_no="R9", name="ความร่วมมือ", category=MasterPlanKPI.PARTNER_CATEGORY, master_plan=master_plan12, created_by=sector_manager_assistant_account1)
+
+		# Program 1201_1
+		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
+		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
+		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
+		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2010, target_score=10, result_score=0, start_date=date(2010,1,1), end_date=date(2010,3,1))
+		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
+		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
+
+		KPISchedule.objects.create(kpi=kpi2, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
+		KPISchedule.objects.create(kpi=kpi2, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
+		KPISchedule.objects.create(kpi=kpi2, project=program1201_1, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
+		KPISchedule.objects.create(kpi=kpi2, project=program1201_1, year=2010, target_score=10, result_score=0, start_date=date(2010,1,1), end_date=date(2010,3,1))
+		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
+		KPISchedule.objects.create(kpi=kpi1, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
+
+		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
+		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
+		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
+		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2010, target_score=10, result_score=0, start_date=date(2010,1,1), end_date=date(2010,3,1))
+		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
+		KPISchedule.objects.create(kpi=kpi6, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
+
+		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
+		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
+		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
+		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2010, target_score=10, result_score=0, start_date=date(2010,1,1), end_date=date(2010,3,1))
+		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
+		KPISchedule.objects.create(kpi=kpi8, project=program1201_1, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
+
+		# Program 1201_2
+		KPISchedule.objects.create(kpi=kpi2, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
+		KPISchedule.objects.create(kpi=kpi2, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
+		KPISchedule.objects.create(kpi=kpi2, project=program1201_2, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
+		KPISchedule.objects.create(kpi=kpi2, project=program1201_2, year=2010, target_score=10, result_score=5, start_date=date(2010,1,1), end_date=date(2010,3,1))
+		KPISchedule.objects.create(kpi=kpi2, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
+		KPISchedule.objects.create(kpi=kpi2, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
+
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2010, target_score=10, result_score=4, start_date=date(2010,1,1), end_date=date(2010,3,1))
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
+
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2010, target_score=10, result_score=7, start_date=date(2010,1,1), end_date=date(2010,3,1))
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_2, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
+
+		# Program 1201_3
+		KPISchedule.objects.create(kpi=kpi3, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
+		KPISchedule.objects.create(kpi=kpi3, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
+		KPISchedule.objects.create(kpi=kpi3, project=program1201_3, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
+		KPISchedule.objects.create(kpi=kpi3, project=program1201_3, year=2010, target_score=10, result_score=0, start_date=date(2010,1,1), end_date=date(2010,3,1))
+		KPISchedule.objects.create(kpi=kpi3, project=program1201_3, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
+		KPISchedule.objects.create(kpi=kpi3, project=program1201_3, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
+
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2010, target_score=10, result_score=2, start_date=date(2010,1,1), end_date=date(2010,3,1))
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
+		KPISchedule.objects.create(kpi=kpi7, project=program1201_3, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
+
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2008,10,1), end_date=date(2008,12,1))
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_3, year=2009, target_score=10, result_score=10, start_date=date(2009,1,1), end_date=date(2009,3,1))
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_3, year=2010, target_score=10, result_score=10, start_date=date(2009,10,1), end_date=date(2009,12,1))
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_3, year=2010, target_score=10, result_score=4, start_date=date(2010,1,1), end_date=date(2010,3,1))
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_3, year=2011, target_score=10, result_score=0, start_date=date(2010,10,1), end_date=date(2010,12,1))
+		KPISchedule.objects.create(kpi=kpi9, project=program1201_3, year=2011, target_score=10, result_score=0, start_date=date(2011,1,1), end_date=date(2011,3,1))
 
 		# Report ##################
 		report1 = Report.objects.create(name="รายงานความก้าวหน้าประจำเดือน",
@@ -396,8 +531,11 @@ def after_syncdb(sender, **kwargs):
 		
 		
 		# Comment Receiver by Role
-		CommentReceiverRole.objects.create(comment_type='program', role=project_manager_role)
-		CommentReceiverRole.objects.create(comment_type='program', role=project_manager_assistant_role)
+		CommentReceiverRole.objects.create(object_name='project', role=project_manager_role)
+		CommentReceiverRole.objects.create(object_name='project', role=project_manager_assistant_role)
+		CommentReceiverRole.objects.create(object_name='program', role=program_manager_role)
+		CommentReceiverRole.objects.create(object_name='program', role=program_manager_assistant_role)
+
 
 from django.db.models.signals import post_syncdb
 post_syncdb.connect(after_syncdb, dispatch_uid="domain.management")
