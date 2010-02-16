@@ -4,7 +4,7 @@ def user_account(request):
 	Return UserAccount object if user is authenticated
 	"""
 	if request.user.is_authenticated():
-		from domain.models import UserAccount
+		from accounts.models import UserAccount
 		user_account = UserAccount.objects.get(user=request.user)
 	else:
 		user_account = None

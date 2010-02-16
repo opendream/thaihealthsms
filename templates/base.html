@@ -1,5 +1,4 @@
-{% load interface_tags i18n helper %}
-
+{% load interface_tags i18n helper_tags %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -34,19 +33,23 @@ $(document).ready(function() {
 	});
 });
 
+var activeCommentSender = null;
+var activeCommentTarget = null;
+
 function postComment() {
 	var message = $("#post-comment-dialog textarea").val();
 	
 	if(message != "") {
-		var comment_url = $("#post-comment-dialog input[name='comment_target']").val();
 		$("#post-comment-dialog .loading").show();
-		$.post("/post-comment/" + comment_url + "/", {'message': message}, function(data) {
+		$.post("/ajax/comment/post/" + activeCommentTarget + "/", {'message': message}, function(data) {
 			$("#post-comment-dialog .loading").hide();
 			$.fn.colorbox.close();
 			if(data.id == 0) {
 				alert("ไม่สามารถส่งความคิดเห็นได้ เนื่องจากไม่มีข้อมูลผู้รับผิดชอบ");
 			} else {
-				{% block post_comment_ajax_callback %}{% endblock %}
+				if(typeof onPostCommentCallback == 'function') {
+					onPostCommentCallback(data, activeCommentSender, activeCommentTarget);
+				}
 			}
 		}, "json");
 	}
@@ -59,7 +62,8 @@ function bindCommentBox(jqueryObject) {
 			$("#post-comment-dialog textarea").val("");
 			$("#post-comment-dialog .loading").hide();
 			
-			$("#post-comment-dialog input[name='comment_target']").val($.fn.colorbox.element().attr("rel"));
+			activeCommentSender = $.fn.colorbox.element();
+			activeCommentTarget = $.fn.colorbox.element().attr("rel");
 			
 			$("#post-comment-receivers_feed").css("width", "auto");
 		},
@@ -70,6 +74,37 @@ function bindCommentBox(jqueryObject) {
 	});
 }
 
+function initReplyCommentBox(jqueryObject) {
+	$("#reply-comment-dialog button").click(function(e) {
+		e.preventDefault();
+		var message = $("#reply-comment-dialog textarea").val();
+		var comment_id = $("#reply-comment-dialog #comment-id").val();
+		
+		if(message != "") {
+			$("#reply-comment-dialog .loading").show();
+			$.post("/ajax/comment/reply/" + comment_id + "/", {'message': message}, function(data) {
+				$("#reply-comment-dialog .loading").hide();
+				$.fn.colorbox.close();
+				$("#comment-" + comment_id + " .replies").append('<li class="unread"><p>' + message + '</p><div class="metadata"><span class="sender">' + data.first_name + ' ' + data.last_name + '</span>ส่งเมื่อวันที่ ' + data.date_timestamp + ' เวลา ' + data.time_timestamp + ' น.</div></li>');
+			}, "json");
+		}
+	});
+	
+	$(".reply-comment").colorbox({width:"50%", scrolling:false, opacity:0.4, inline:true, href:"#reply-comment-dialog", 
+		onOpen:function() {
+			$("#reply-comment-dialog").css("display", "block");
+			$("#reply-comment-dialog textarea").val("");
+			$("#reply-comment-dialog #comment-id").val($(this).attr("id").substring(8));
+			$("#reply-comment-dialog .loading").hide();
+			
+			$("#reply-comment-receivers_feed").css("width", "auto");
+		},
+		onComplete:function() { $("#reply-comment-dialog textarea").focus(); },
+		onCleanup:function() {
+			$("#reply-comment-dialog").css("display", "none");
+		}
+	});
+}
 </script>
 
 {% block html_head %}{% endblock %}
@@ -107,6 +142,13 @@ function bindCommentBox(jqueryObject) {
 <div id="post-comment-dialog" class="comment_dialog">
 <label>{% trans 'Comment' %}</label>
 <textarea id="post-comment-textarea"></textarea>
+<div class="button-panel"><button>{% trans 'Send a Comment' %}</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" /> {% trans 'Sending...' %}</span></div>
+</div>
+
+<div id="reply-comment-dialog" class="comment_dialog">
+<label>{% trans 'Comment' %}</label>
+<textarea id="reply-comment-textarea"></textarea>
+<input type="hidden" id="comment-id"/>
 <input type="hidden" name="comment_target"/>
 <div class="button-panel"><button>{% trans 'Send a Comment' %}</button><span class="loading"><img src="{{MEDIA_URL}}/images/loading.gif" /> {% trans 'Sending...' %}</span></div>
 </div>

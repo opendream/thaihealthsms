@@ -1,4 +1,4 @@
-{% load helper %}
+{% load helper_tags %}
 {% if due_report_schedules %}
 คุณมีรายงานที่กำหนดส่งในวันนี้ดังต่อไปนี้
 {% for report_schedule in due_report_schedules %}
@@ -7,5 +7,5 @@
 {% if nextdue_report_schedules %}
 คุณมีรายงานที่ต้องส่งดังต่อไปนี้
 {% for report_schedule in nextdue_report_schedules %}
-{{report_schedule.report_project.report.name}} - ส่งภายในวันที่ {{report_schedule.due_date|thai_date}} [http://{{site.name}}/report/{{report_schedule.id}}/]{% endfor %}
+{{report_schedule.report_project.report.name}} - ส่งภายในวันที่ {{report_schedule.due_date|abbr_date}} [http://{{site.name}}/report/{{report_schedule.id}}/]{% endfor %}
 {% endif %}

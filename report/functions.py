@@ -1,5 +1,5 @@
 # -*- encoding:utf-8 -*-
-
+import calendar
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -10,10 +10,24 @@ from django.template.loader import render_to_string
 from django.contrib.sites.models import Site
 from django.conf import settings
 
+from accounts.models import *
 from domain.models import *
 from report.models import *
 from comments.models import *
 from helper import utilities
+
+def get_report_due_date(report, year, month):
+	'''
+	Provide report object, month and year
+	Return supposedly due date for that month and year
+	'''
+
+	day = report.schedule_monthly_date
+	first_day, last_day = calendar.monthrange(year, month)
+	if day == 0 or day > last_day:
+		day = last_day
+
+	return date(year, month, day)
 
 def get_submitted_and_overdue_reports(project):
 	"""
@@ -26,6 +40,8 @@ def get_submitted_and_overdue_reports(project):
 	report_projects = ReportProject.objects.filter(project=project, report__need_checkup=True)
 	current_date = date.today()
 	
+	has_schedules = False
+	
 	for report_project in report_projects:
 		
 		schedules = ReportSchedule.objects \
@@ -33,12 +49,17 @@ def get_submitted_and_overdue_reports(project):
 			.filter((Q(report_project__report__need_approval=True) & Q(state=SUBMIT_ACTIVITY)) | (Q(state=NO_ACTIVITY) & Q(due_date__lt=current_date)) | Q(state=REJECT_ACTIVITY) | (Q(due_date__gte=current_date) & Q(state=SUBMIT_ACTIVITY))) \
 			.exclude(state=CANCEL_ACTIVITY).order_by('-due_date')
 		
+		if schedules: has_schedules = True
+		
 		for schedule in schedules:
 			schedule.need_approval = schedule.report_project.report.need_approval and schedule.state == SUBMIT_ACTIVITY
 			schedule.overdue = schedule.state == NO_ACTIVITY and schedule.due_date < current_date
 				
 		report_project.schedules = schedules
-
+	
+	if not has_schedules:
+		return list()
+	
 	return report_projects
 
 def get_nextdue_and_overdue_reports(project):
@@ -150,7 +171,6 @@ def notify_overdue_schedule():
 	datatuple = list()
 	for user_id, user_mail in users_mail.items():
 		email_recipient_list = [user_mail.user_account.user.email]
-		#email_recipient_list = ['panuta@gmail.com']
 		
 		email_subject = render_to_string('email/notify_report_subject.txt', user_mail).strip(' \n\t')
 		email_message = render_to_string('email/notify_report_message.txt', user_mail).strip(' \n\t')

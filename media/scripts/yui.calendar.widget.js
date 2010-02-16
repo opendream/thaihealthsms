@@ -107,8 +107,18 @@ function initializeYUICalendar() {
 				var mStr = calendarWidget.cfg.getProperty("MONTHS_LONG")[selDate.getMonth()];
 				var yStr = selDate.getFullYear() + 543;
 				
-				Dom.get(activeCalendarInputID + '_value').value = selDate.getFullYear() + '-' + (selDate.getMonth()+1) + '-' + selDate.getDate();
-				Dom.get(activeCalendarInputID + '_display').value = dStr + " " + mStr + " " + yStr;
+				var old_value = Dom.get(activeCalendarInputID + '_value').value;
+				var new_value = selDate.getFullYear() + '-' + (selDate.getMonth()+1) + '-' + selDate.getDate();
+				var new_display_value = dStr + " " + mStr + " " + yStr;
+				
+				Dom.get(activeCalendarInputID + '_value').value = new_value;
+				Dom.get(activeCalendarInputID + '_display').value = new_display_value;
+				
+				if(typeof onCalendarChangeCallback == 'function') {
+					onCalendarChangeCallback(activeCalendarInputID, selDate, new_value, new_display_value);
+				}
+				
+				if(old_value != new_value) YAHOO.util.Dom.addClass(activeCalendarInputID + '_display', 'changed');
 				
 				calendarDialog.hide();
 				

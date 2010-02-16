@@ -71,9 +71,10 @@ TEMPLATE_DIRS = (
 	os.path.join(_base, "templates"),
 )
 
-WEBSITE_ADDRESS = 'sms.thaihealth.or.th'
+#WEBSITE_ADDRESS = 'sms.thaihealth.or.th'
+WEBSITE_ADDRESS = 'sms.opendream.in.th'
 
-AUTH_PROFILE_MODULE = 'domain.UserAccount'
+AUTH_PROFILE_MODULE = 'accounts.UserAccount'
 ACCOUNT_ACTIVATION_DAYS = 3
 LOGIN_REDIRECT_URL = "/dashboard/"
 
@@ -92,10 +93,15 @@ INSTALLED_APPS = (
 	'django.contrib.sessions',
 	'django.contrib.sites',
 	'registration',
+	'thaihealthsms.accounts',
+	'thaihealthsms.administer',
 	'thaihealthsms.comments',
+	'thaihealthsms.dashboard',
 	'thaihealthsms.domain',
-	'thaihealthsms.helper',
+	'thaihealthsms.finance',
 	'thaihealthsms.interface',
+	'thaihealthsms.helper',
+	'thaihealthsms.kpi',
 	'thaihealthsms.report',
 )
 
