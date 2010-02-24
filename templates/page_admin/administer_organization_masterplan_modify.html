@@ -27,11 +27,30 @@
 <div class="ss_child_page_header">{% if master_plan %}แก้ไขแผนหลัก{% else %}เพิ่มแผนหลัก{% endif %} <a href="{% url view_administer_organization %}">กลับไปหน้าโครงสร้างองค์กร &#187;</a></div>
 
 <form action="." method="post" class="ss_form">
+	{% if has_sectors %}
 	<ul>
-		<li><label for="id_ref_no">{{form.ref_no.label}}</label><div class="input SHORT">{{form.ref_no}}</div></li>
-		<li><label for="id_name">{{form.name.label}}</label><div class="input LONG">{{form.name}}</div></li>
-		<li><label for="id_sector">{{form.sector.label}}</label><div class="input">{{form.sector}}</div></li>
+		<li>
+			<label for="id_ref_no">{{form.ref_no.label}}{% display_required %}</label>
+			<div class="input SHORT">{{form.ref_no}}</div>
+			<div class="comment">{{form.ref_no.label}}ต้องประกอบด้วยตัวเลขเท่านั้น</div>
+			{{form.ref_no.errors}}
+			
+		</li>
+		<li>
+			<label for="id_name">{{form.name.label}}{% display_required %}</label>
+			<div class="input LONG">{{form.name}}</div>
+			{{form.name.errors}}
+		</li>
+		<li>
+			<label for="id_sector">{{form.sector.label}}{% display_required %}</label>
+			<div class="input">{{form.sector}}</div>
+			{{form.sector.errors}}
+		</li>
 	</ul>
+	{{form.master_plan_id}}
 	<div class="button_panel"><button>{% if master_plan %}แก้ไขแผนหลัก{% else %}เพิ่มแผนหลัก{% endif %}</button></div>
+	{% else %}
+	<div class="prerequisute">ยังไม่มีข้อมูลสำนัก กรุณาสร้างสำนักก่อนที่หน้า <a href="{% url view_administer_organization_add_sector %}">สร้างสำนัก</a></div>
+	{% endif %}
 </form>
 {% endblock %}

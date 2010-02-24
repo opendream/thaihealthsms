@@ -78,7 +78,7 @@ def view_sector_manage_organization(request, sector_id):
 		plans = Plan.objects.filter(master_plan=master_plan)
 		
 		for plan in plans:
-			plan.projects = Project.objects.filter(plan=plan).order_by('-start_date')
+			plan.projects = Project.objects.filter(plan=plan).order_by('ref_no')
 			for project in plan.projects:
 				if Project.objects.filter(parent_project=project).count() or ReportSchedule.objects.filter(report_project__project=project).exclude(state=NO_ACTIVITY).count():
 					project.has_child = True
@@ -127,7 +127,7 @@ def view_sector_edit_plan(request, plan_id):
 			set_message(request, u'แก้ไขกลุ่มแผนงานเรียบร้อย')
 			return redirect('view_sector_manage_organization', (sector.id))
 	else:
-		form = ModifyPlanForm(sector=sector, initial={'ref_no':plan.ref_no, 'name':plan.name})
+		form = ModifyPlanForm(sector=sector, initial={'plan_id':plan.id, 'ref_no':plan.ref_no, 'name':plan.name})
 	
 	return render_response(request, 'page_sector/sector_manage_modify_plan.html', {'sector':sector, 'plan':plan, 'form':form})
 
@@ -143,7 +143,7 @@ def view_sector_delete_plan(request, plan_id):
 		plan.delete()
 		set_message(request, u'ลบกลุ่มแผนงานเรียบร้อย')
 	else:
-		set_message(request, u'ไม่สามารถลบกลุ่มแผนงาน%s ได้ เนื่องจากมีแผนงานที่อยู่ภายใต้' % plan.name)
+		set_message(request, u'ไม่สามารถลบกลุ่มแผนงานได้ เนื่องจากมีแผนงานที่อยู่ภายใต้')
 	
 	return redirect('view_sector_manage_organization', (sector.id))
 
@@ -159,14 +159,14 @@ def view_sector_add_project(request, sector_id):
 	if request.method == 'POST':
 		form = AddMasterPlanProjectForm(request.POST, sector=sector)
 		if form.is_valid():
-			project = Project.objects.create(sector=sector,\
+			project = Project.objects.create(
 				master_plan=form.cleaned_data['plan'].master_plan,
-				plan=form.cleaned_data['plan'],\
-				prefix_name=Project.PROJECT_IS_PROGRAM,\
-				ref_no=form.cleaned_data['ref_no'],\
-				name=form.cleaned_data['name'],\
-				start_date=form.cleaned_data['start_date'],\
-				end_date=form.cleaned_data['end_date'],\
+				plan=form.cleaned_data['plan'],
+				prefix_name=Project.PROJECT_IS_PROGRAM,
+				ref_no=form.cleaned_data['ref_no'],
+				name=form.cleaned_data['name'],
+				start_date=form.cleaned_data['start_date'],
+				end_date=form.cleaned_data['end_date'],
 				)
 			
 			set_message(request, u'สร้างแผนงานเรียบร้อย คุณสามารถเพิ่มรายงาน ตัวชี้วัด และแผนการเงิน ได้จากหน้าแก้ไขแผนงานนี้')
@@ -175,7 +175,8 @@ def view_sector_add_project(request, sector_id):
 	else:
 		form = AddMasterPlanProjectForm(sector=sector)
 	
-	return render_response(request, 'page_sector/sector_manage_add_project.html', {'sector':sector, 'form':form})
+	has_plans = Plan.objects.filter(master_plan__sector=sector).count() > 0
+	return render_response(request, 'page_sector/sector_manage_add_project.html', {'sector':sector, 'form':form, 'has_plans':has_plans})
 
 @login_required
 def view_sector_edit_project(request, project_id):
@@ -212,7 +213,7 @@ def view_sector_delete_project(request, project_id):
 		return access_denied(request)
 	
 	if Project.objects.filter(parent_project=project).count() or ReportSchedule.objects.filter(report_project__project=project).exclude(state=NO_ACTIVITY).count():
-		set_message(request, u'ไม่สามารถลบแผนงาน%s ได้ เนื่องจากแผนงานยังมีโครงการหรือรายงานอยู่' % project.name)
+		set_message(request, u'ไม่สามารถลบแผนงานได้ เนื่องจากแผนงานยังมีโครงการหรือรายงานอยู่')
 
 	else:
 		ReportSchedule.objects.filter(report_project__project=project, state=NO_ACTIVITY).delete()
@@ -314,11 +315,10 @@ def view_project_add(request, project_id):
 				)
 
 				set_message(request, u'สร้างโครงการเรียบร้อย')
-
 				return redirect('view_project_overview', (created_project.id))
 
 		else:
-			form = ModifyProjectForm()
+			form = ModifyProjectForm(initial={'parent_project_id':project.id})
 
 		return render_response(request, 'page_project/project_projects_add.html', {'project':project, 'form':form})
 
@@ -328,9 +328,8 @@ def view_project_add(request, project_id):
 @login_required
 def view_project_edit(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-	head_project = project.parent_project if project.parent_project else project
 
-	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', head_project):
+	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project.parent_project):
 		if request.method == 'POST':
 			form = ModifyProjectForm(request.POST)
 			if form.is_valid():
@@ -341,11 +340,10 @@ def view_project_edit(request, project_id):
 				project.save()
 
 				set_message(request, u'แก้ไขโครงการเรียบร้อย')
-
 				return redirect('view_project_overview', (project.id))
 
 		else:
-			form = ModifyProjectForm(project.__dict__)
+			form = ModifyProjectForm(initial={'parent_project_id':project.parent_project.id, 'project_id':project.id, 'ref_no':project.ref_no, 'name':project.name, 'start_date':project.start_date, 'end_date':project.end_date})
 
 		return render_response(request, 'page_project/project_projects_edit.html', {'project':project, 'form':form})
 
@@ -355,7 +353,7 @@ def view_project_edit(request, project_id):
 @login_required
 def view_project_delete(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
-	head_project = project.parent_project if project.parent_project else project
+	head_project = project.parent_project
 
 	if utilities.responsible(request.user, 'project_manager,project_manager_assistant', head_project):
 		if Activity.objects.filter(project=project).count():
@@ -485,7 +483,7 @@ def view_activity_edit(request, activity_id):
 				return redirect('view_activity_overview', (activity.id))
 
 		else:
-			form = ActivityForm(activity.__dict__)
+			form = ActivityForm(initial=activity.__dict__)
 
 		return render_response(request, 'page_activity/activity_edit.html', {'activity':activity, 'form':form})
 

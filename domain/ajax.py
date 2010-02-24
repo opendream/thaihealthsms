@@ -6,7 +6,7 @@ from domain.models import Sector, MasterPlan, Project
 
 @login_required
 def ajax_list_master_plans(request):
-	master_plans = MasterPlan.objects.all()
+	master_plans = MasterPlan.objects.all().order_by('ref_no')
 	
 	object_list = list()
 	for master_plan in master_plans:
@@ -19,7 +19,7 @@ def ajax_list_projects(request):
 	master_plan_id = request.GET['master_plan_id']
 	
 	if master_plan_id:
-		projects = Project.objects.filter(master_plan=MasterPlan(id=master_plan_id), parent_project=None)
+		projects = Project.objects.filter(master_plan=MasterPlan(id=master_plan_id), parent_project=None).order_by('ref_no')
 		
 		object_list = list()
 		for project in projects:

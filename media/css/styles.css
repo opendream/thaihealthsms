@@ -89,6 +89,7 @@ ENTRANCE PAGE
 .ss_sub_tab_navi ul li.selected {font-weight:bold;color:#FFF;background-color:#C60;border:1px solid #C60;padding:3px 15px 3px;cursor:default;}
 .ss_sub_tab_navi li a:link, .ss_sub_tab_navi li a:visited, .ss_sub_tab_navi li a:active {text-decoration:none;display:block;padding:3px 15px 3px;border:1px solid #CCC;}
 .ss_sub_tab_navi li a:hover {border:1px solid #369;}
+h1.ss_sub_tab_header  {font-size:138.5%;margin-bottom:15px;}
 
 /* Control Panel */
 .ss_control_panel {margin:5px 0px 15px;}
@@ -101,14 +102,16 @@ ENTRANCE PAGE
 .ss_child_page_header a:link, .ss_child_page_header a:visited, .ss_child_page_header a:active {font-size:0.7em;margin-left:15px;}
 
 /* Form Styles */
+.ss_form .prerequisute {font-size:116%;color:#966;}
 .ss_form ul {margin-left:30px;}
 .ss_form li {margin-bottom:15px;}
 .ss_form li label {display:block;margin-bottom:5px;font-size:116%;color:#333;}
+.ss_form li .required {font-size:13px;color:#886;margin-left:7px;}
 .ss_form li .input {}
-.ss_form li .comment {margin-top:3px;color:#555;}
-.ss_form li .errorlist {margin:3px 0px 0px 0px;color:#C30;}
+.ss_form li .comment {margin-top:4px;color:#555;}
+.ss_form li .errorlist {margin:5px 0px 0px 0px;color:#C30;}
 .ss_form .button_panel {margin:20px 0px 20px 30px;}
-.ss_form .button_panel button {padding:3px 25px;font-size:116%;border:1px solid #999;background-color:#666;color:#FFF;}
+.ss_form .button_panel button {padding:3px 25px;font-size:116%;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;color:#FFF;}
 
 .ss_form .single_line {margin:25px 0px;}
 .ss_form .single_line label {display:inline;}
@@ -121,6 +124,8 @@ ENTRANCE PAGE
 
 .ss_form .instruction {border:1px solid #CCC;background-color:#FFC;padding:10px;margin:15px 0px;}
 
+.ss_form .SHORT input {width:100px;}
+.ss_form .MEDIUM input {width:250px;}
 .ss_form .LONG input {width:500px;}
 .ss_form .MAX input {width:95%;}
 

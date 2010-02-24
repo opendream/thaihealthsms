@@ -93,16 +93,16 @@ $(document).ready(function() {
 		<ul class="recent">
 			{% for finance in finances %}
 			<li>
-				<span>{{event.date|abbr_date}}</span>
+				<span>{{finance.date|abbr_date}}</span>
 				
-				{% ifequal event.type 'late' %}
-				<a href="{% url view_project_overview event.data.project.id %}">แผนงาน {{event.data.project.ref_no}}</a>
-				เลยงวดการเบิกจ่ายมาแล้ว {{event.data.target_on|elapse}} วัน
+				{% ifequal finance.type 'late' %}
+				<a href="{% url view_project_overview finance.data.project.id %}">แผนงาน {{finance.data.project.ref_no}}</a>
+				เลยงวดการเบิกจ่ายมาแล้ว {{finance.data.target_on|elapse}} วัน
 				{% endifequal %}
 				
-				{% ifequal event.type 'postpone' %}
-				<a href="{% url view_project_overview event.data.schedule.project.id %}">แผนงาน {{event.data.schedule.project.ref_no}}</a>
-				เลื่อนงวดการเบิกเงินจากวันที่ {{event.data.org_target_on|abbr_date}} เป็นวันที่ {{event.data.new_target_on|abbr_date}}
+				{% ifequal finance.type 'postpone' %}
+				<a href="{% url view_project_overview finance.data.schedule.project.id %}">แผนงาน {{finance.data.schedule.project.ref_no}}</a>
+				เลื่อนงวดการเบิกเงินจากวันที่ {{finance.data.org_target_on|abbr_date}} เป็นวันที่ {{finance.data.new_target_on|abbr_date}}
 				{% endifequal %}
 			</li>
 			{% endfor %}

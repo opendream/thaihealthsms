@@ -15,10 +15,10 @@
 	<div class="tabs">
 		<ul>
 			<li class="selected">ภาพรวม</li>
-			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
 			{% responsible user 'admin,sector_manager_assistant,sector_admin' sector %}
-			<li class="right_item"><a href="{% url view_sector_manage_organization sector.id %}">จัดการสำนัก</a></li>
+			<li><img src="{{MEDIA_URL}}/images/pencil.png" /><a href="{% url view_sector_manage_organization sector.id %}">จัดการสำนัก</a></li>
 			{% endresponsible %}
+			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
 		</ul>
 		<div class="clear"></div>
 	</div>

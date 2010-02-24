@@ -28,7 +28,7 @@ $(document).ready(function() {
 		
 		new_kpi.find(".remove-kpi").click(function(e) {
 			e.preventDefault();
-			$(this).closest("li").remove();
+			remove_kpi($(this));
 		});
 		
 		new_kpi.find(".remove-schedule").click(function(e) {
@@ -58,14 +58,11 @@ $(document).ready(function() {
 		
 		if($(this).find("option").size() == 1) {
 			$(this).parent().hide();
-		} else {
-			$(this).val('');
 		}
 	});
 	
 	$(".remove-kpi").click(function(e) {
 		e.preventDefault();
-		//$(this).closest("li").remove();
 		remove_kpi($(this));
 	});
 	
@@ -136,6 +133,9 @@ function remove_kpi(click_element) {
 	li_element.remove();
 	
 	$("#kpi_selector").append('<option value="' + kpi_id + '" rel="' + kpi_unit_name + '">' + kpi_name + '</option>');
+	
+	console.log("here");
+	$("li.add_kpi").show();
 }
 
 function create_schedule_template(unit_name) {
@@ -155,8 +155,8 @@ function create_schedule_template(unit_name) {
 	<div class="tabs">
 		<ul>
 			<li><a href="{% url view_sector_overview sector.id %}">ภาพรวม</a></li>
+			<li class="selected"><img src="{{MEDIA_URL}}/images/pencil.png" />จัดการสำนัก</li>
 			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
-			<li class="selected right_item">จัดการสำนัก</li>
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -184,7 +184,7 @@ function create_schedule_template(unit_name) {
 				<div class="kpi_name"><h2>{{kpi.category.name}} - {{kpi.ref_no}} {{kpi.name}}</h2><span>[ <a href="#" class="remove-kpi">ยกเลิกการวัดด้วยตัวนี้วัดนี้</a> ]</span></div>
 				<table>
 					<tr>
-						<th>คาดการณ์</th>
+						<th>ตัวเลขคาดการณ์</th>
 						<th>วันที่ประเมินผล</th>
 						<th></th>
 					</tr>
@@ -198,7 +198,7 @@ function create_schedule_template(unit_name) {
 								<img src="/m/images/icon_date_picker.png" id="id_target_on_{{schedule.id}}" class="yui_date_picker"/>
 							</span>
 						</td>
-						<td class="delete"><!--<a href="#" class="remove-schedule">ลบ</a>--></td>
+						<td class="delete"><a href="#" class="remove-schedule">ลบ</a></td>
 					</tr>
 					{% endfor %}
 					<tr>
@@ -209,7 +209,7 @@ function create_schedule_template(unit_name) {
 				</table>
 			</li>
 			{% endfor %}
-			<li class="add_kpi">
+			<li class="add_kpi" {% if not kpi_choices %}style="display:none;"{%endif %}>
 				<label for="kpi_selector">เลือกตัวชี้วัด</label>
 				<select class="kpi" id="kpi_selector">
 					<option></option>
@@ -221,7 +221,7 @@ function create_schedule_template(unit_name) {
 		</ul>
 		<form action="." method="POST">
 			<div class="button_panel">
-				<button type="submit">แก้ไขตัวชี้วัด</button>
+				<button type="submit">บันทึกการแก้ไข</button>
 			</div>
 		</form>	
 	</div>

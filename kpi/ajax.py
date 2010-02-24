@@ -15,8 +15,8 @@ def ajax_update_kpi_value(request):
 	if request.method == 'POST':
 		schedule_id = request.POST.get('schedule_id')
 		target_on = request.POST.get('target_on', '')
-		target = request.POST.get('target', '0')
-		result = request.POST.get('result', '0')
+		target = request.POST.get('target', '')
+		result = request.POST.get('result', '')
 		
 		if target_on:
 			try:
@@ -25,23 +25,28 @@ def ajax_update_kpi_value(request):
 			except:
 				return HttpResponse(simplejson.dumps({'error':'invalid'}))
 		
-		try:
-			target = int(target)
-		except:
-			target = None
+		if target:
+			try:
+				target = int(target)
+			except:
+				return HttpResponse(simplejson.dumps({'error':'invalid'}))
+			
+			if target < 0: return HttpResponse(simplejson.dumps({'error':'invalid'}))
 		
-		try:
-			result = int(result)
-		except:
-			return HttpResponse(simplejson.dumps({'error':'invalid'}))
+		if result:
+			try:
+				result = int(result)
+			except:
+				return HttpResponse(simplejson.dumps({'error':'invalid'}))
+			
+			if result < 0: return HttpResponse(simplejson.dumps({'error':'invalid'}))
 		
 		kpi_schedule = KPISchedule.objects.get(pk=schedule_id)
 		
 		if responsible(request.user, 'sector_manager_assistant', kpi_schedule.project):
-			
-			if not target_on: target_on = kpi_schedule.target_on
-			if not target: target = kpi_schedule.target
-			if not result: result = kpi_schedule.result
+			if target_on == '': target_on = kpi_schedule.target_on
+			if target == '': target = kpi_schedule.target
+			if result == '': result = kpi_schedule.result
 			
 			revision = KPIScheduleRevision.objects.create(
 				schedule=kpi_schedule,

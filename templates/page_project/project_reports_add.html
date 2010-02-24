@@ -37,29 +37,36 @@
 		<div class="instruction">รายงานที่สร้างจากภายในหน้านี้ ใช้สำหรับภายในแผนงานเดียวเท่านั้น หากต้องการสร้างรายงานสำหรับหลายแผนงาน ติดต่อผู้ช่วยผู้อำนวยการสำนัก เพื่อสร้างรายงานจากภายในหน้าของสำนัก</div>
 		<ul>
 			<li>
-				<label for="id_name">{{form.name.label}}:</label>
+				<label for="id_name">{{form.name.label}}{% display_required %}</label>
 				<div class="input LONG">{{form.name}}</div>
+				{{form.name.errors}}
 			</li>
 			<li class="inline">
 				{{form.need_checkup}}
 				<label for="id_need_checkup">{{form.need_checkup.label}}</label>
+				<div>{{form.need_checkup.errors}}</div>
 			</li>
 			<li class="inline">
 				{{form.need_approval}}
 				<label for="id_need_approval">{{form.need_approval.label}}</label>
+				<div>{{form.need_approval.errors}}</div>
 			</li>
 			<li class="single_line">
 				<label for="id_schedule_cycle_length">ส่งรายงานทุกๆ:</label>
 				<span class="SHORT">{{form.schedule_cycle_length}}</span>
-				<label>เดือน</label>
+				<label>เดือน</label>{% display_required %}
+				<div>{{form.schedule_cycle_length.errors}}</div>
 			</li>
 			<li class="single_line">
 				<label for="id_schedule_monthly_date">ในวันที่:</label>
-				<span class="SHORT">{{form.schedule_monthly_date}}</span>
+				<span class="SHORT">{{form.schedule_monthly_date}}</span>{% display_required %}
+				<div>{{form.schedule_monthly_date.errors}}</div>
 			</li>
 			<li class="date_period">
 				<label>{{form.start_date.label}}:</label>
 				<div class="input">{{form.start_date}}<span class="to">{{form.end_date.label}}</span> {{form.end_date}}</div>
+				{{form.start_date.errors}}
+				{{form.end_date.errors}}
 			</li>
 		</ul>
 		<div class="button_panel"><button>เพิ่มรายงาน</button></div>

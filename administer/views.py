@@ -77,7 +77,7 @@ def view_administer_organization_edit_sector(request, sector_id):
 			return redirect('view_administer_organization')
 
 	else:
-		form = ModifySectorForm(initial={'ref_no':sector.ref_no, 'name':sector.name})
+		form = ModifySectorForm(initial={'sector_id':sector.id, 'ref_no':sector.ref_no, 'name':sector.name})
 
 	return render_response(request, "page_admin/administer_organization_sector_modify.html", {'sector':sector, 'form':form})
 
@@ -114,8 +114,9 @@ def view_administer_organization_add_masterplan(request):
 
 	else:
 		form = ModifyMasterPlanForm()
-
-	return render_response(request, "page_admin/administer_organization_masterplan_modify.html", {'form':form})
+	
+	has_sectors = Sector.objects.all().count() > 0
+	return render_response(request, "page_admin/administer_organization_masterplan_modify.html", {'form':form, 'has_sectors':has_sectors})
 
 @login_required
 def view_administer_organization_edit_masterplan(request, master_plan_id):
@@ -140,9 +141,9 @@ def view_administer_organization_edit_masterplan(request, master_plan_id):
 
 	else:
 		
-		form = ModifyMasterPlanForm(initial={'sector':master_plan.sector.id, 'ref_no':master_plan.ref_no, 'name':master_plan.name})
+		form = ModifyMasterPlanForm(initial={'master_plan_id':master_plan.id, 'sector':master_plan.sector.id, 'ref_no':master_plan.ref_no, 'name':master_plan.name})
 
-	return render_response(request, 'page_admin/administer_organization_masterplan_modify.html', {'master_plan':master_plan, 'form':form})
+	return render_response(request, 'page_admin/administer_organization_masterplan_modify.html', {'master_plan':master_plan, 'form':form, 'has_sectors':has_sectors})
 
 @login_required
 def view_administer_organization_delete_masterplan(request, master_plan_id):
@@ -323,9 +324,9 @@ def view_administer_users_password(request, user_id):
 	if not request.user.is_superuser: return access_denied(request)
 
 	user = User.objects.get(pk=user_id)
-	user_account = UserAccount.objects.get(user=user)
+	new_user_account = UserAccount.objects.get(user=user)
 
-	return render_response(request, "page_admin/administer_users_password.html", {'user_account': user_account})
+	return render_response(request, "page_admin/administer_users_password.html", {'new_user_account': new_user_account})
 
 #
 # KPI
@@ -375,7 +376,8 @@ def view_administer_kpi_add(request):
 	else:
 		form = ModifyKPIForm()
 	
-	return render_response(request, "page_admin/administer_kpi_modify.html", {'form':form})
+	has_categories = KPICategory.objects.all().count() > 0
+	return render_response(request, "page_admin/administer_kpi_modify.html", {'form':form, 'has_categories':has_categories})
 
 @login_required
 def view_administer_kpi_edit(request, kpi_id):
@@ -403,9 +405,9 @@ def view_administer_kpi_edit(request, kpi_id):
 			return redirect('view_administer_kpi')
 		
 	else:
-		form = ModifyKPIForm(initial={'ref_no':kpi.ref_no, 'name':kpi.name, 'category':kpi.category, 'unit_name':kpi.unit_name, 'visible_to_project':kpi.is_visible_to_project})
+		form = ModifyKPIForm(initial={'kpi_id':kpi.id, 'ref_no':kpi.ref_no, 'name':kpi.name, 'category':kpi.category, 'unit_name':kpi.unit_name, 'visible_to_project':kpi.is_visible_to_project})
 	
-	return render_response(request, "page_admin/administer_kpi_modify.html", {'kpi':kpi, 'form':form})
+	return render_response(request, "page_admin/administer_kpi_modify.html", {'kpi':kpi, 'form':form, 'has_categories':True})
 
 @login_required
 def view_administer_kpi_delete(request, kpi_id):

@@ -17,7 +17,9 @@
 $(document).ready(function() {
 	$(".remove-schedule").click(function(e) {
 		e.preventDefault();
-		$(this).closest("tr").remove();
+		if(window.confirm("ยืนยันการลบ?")) {
+			$(this).closest("tr").remove();
+		}
 	});
 	
 	$(".new-schedule").click(function(e) {
@@ -26,6 +28,8 @@ $(document).ready(function() {
 	});
 	
 	$("form button[type='submit']").click(function() {
+		var validated = true;
+		
 		$(".schedule-record").each(function() {
 			var schedule_id = $(this).attr("id");
 			if(schedule_id != "") {
@@ -35,13 +39,24 @@ $(document).ready(function() {
 			}
 			
 			var target = $(this).find("input[name='schedule_target']").val();
-			var target_on = $(this).find("input[name='target_on']").val();
-			var schedule_value = schedule_id + "," + target + "," + target_on;
+			if(target == "") {
+				validated = false;
+				$(this).find("input[name='schedule_target']").addClass("invalid");
+			}
 			
-			$("form").append('<input type="hidden" name="schedule" value="' + schedule_value + '" />');
+			var target_on = $(this).find("input[name='target_on']").val();
+			if(target_on == "") {
+				validated = false;
+				$(this).find("input[name='target_on']").addClass("invalid");
+			}
+			
+			if(validated) {
+				var schedule_value = schedule_id + "," + target + "," + target_on;
+				$("form").append('<input type="hidden" name="schedule" value="' + schedule_value + '" />');
+			}
 		});
 		
-		return true;
+		return validated;
 	});
 });
 
@@ -64,7 +79,9 @@ function new_schedule(click_element) {
 	
 	new_row.find(".remove-schedule").click(function(e) {
 		e.preventDefault();
-		$(this).closest("tr").remove();
+		if(window.confirm("ยืนยันการลบ?")) {
+			$(this).closest("tr").remove();
+		}
 	});
 	
 	new_row.insertBefore(click_element.closest('tr'));
@@ -72,7 +89,7 @@ function new_schedule(click_element) {
 
 function create_schedule_template() {
 	var uid = new Date().getTime();
-	return '<tr class="schedule-record"><td class="target"><input type="text" value="" name="schedule_target"/> บาท</td><td class="target_on"><span class="yui_date_picker_panel"><input type="hidden" name="target_on" value="" id="id_target_on_' + uid + '_value"/><input type="text" value="" id="id_target_on_' + uid + '_display" readonly="readonly" class="yui_date_picker_textbox"/><img src="/m/images/icon_date_picker.png" id="id_target_on_' + uid + '" class="yui_date_picker"/></span></td><td class="delete"><a href="#" class="remove-schedule">ลบ</a></td></tr>';
+	return '<tr class="schedule-record"><td class="target"><input type="text" value="" name="schedule_target"/> บาท</td><td class="target_on"><span class="yui_date_picker_panel"><input type="hidden" name="target_on" value="" id="id_target_on_' + uid + '_value"/><input type="text" value="" id="id_target_on_' + uid + '_display" readonly="readonly" class="yui_date_picker_textbox"/> <img src="/m/images/icon_date_picker.png" id="id_target_on_' + uid + '" class="yui_date_picker"/></span></td><td class="delete"><a href="#" class="remove-schedule">ลบ</a></td></tr>';
 }
 </script>
 {% endblock %}
@@ -87,8 +104,8 @@ function create_schedule_template() {
 	<div class="tabs">
 		<ul>
 			<li><a href="{% url view_sector_overview sector.id %}">ภาพรวม</a></li>
+			<li class="selected"><img src="{{MEDIA_URL}}/images/pencil.png" />จัดการสำนัก</li>
 			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
-			<li class="selected right_item">จัดการสำนัก</li>
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -111,7 +128,7 @@ function create_schedule_template() {
 	<div class="edit_finance">
 		<table>
 			<tr>
-				<th>คาดการณ์</th>
+				<th>ตัวเลขคาดการณ์</th>
 				<th>กำหนดเบิก</th>
 				<th></th>
 			</tr>
@@ -126,7 +143,7 @@ function create_schedule_template() {
 						<img src="/m/images/icon_date_picker.png" id="id_target_on_{{schedule.id}}" class="yui_date_picker"/>
 					</span>
 				</td>
-				<td class="delete"><!--<a href="#" class="remove-schedule">ลบ</a>--></td>
+				<td class="delete"><a href="#" class="remove-schedule">ลบ</a>{% if schedule.revisions %} <img src="{{MEDIA_URL}}/images/error.png" title="มีข้อมูลการแก้ไข"/> มีข้อมูลการแก้ไข{% endif %}</td>
 			</tr>
 			{% endfor %}
 			{% else %}
@@ -151,7 +168,7 @@ function create_schedule_template() {
 		</table>
 		<form action="." method="POST">
 			<div class="button_panel">
-				<button type="submit">แก้ไขตัวชี้วัด</button>
+				<button type="submit">บันทึกการแก้ไข</button>
 			</div>
 		</form>	
 	</div>

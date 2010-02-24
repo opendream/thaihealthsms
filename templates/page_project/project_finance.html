@@ -17,17 +17,20 @@
 <script type="text/javascript">
 var activeClaimScheduleID;
 $(document).ready(function() {
-	$("#adding-claim-template .add-claim-button").click(function(e) {
+	{% responsible user 'sector_manager_assistant' project %}
+	$(".adding-claim-template .add-claim-button").click(function(e) {
 		e.preventDefault();
+		
 		var buttonObject = $(this);
 		buttonObject.attr("disabled", "disabled");
 		
-		var claim_on = $("#adding-claim-template input[name='claim_on']").val();
-		var claim_amount = $("#adding-claim-template input[name='claim_amount']").val();
+		var tr = $(this).closest("tr");
+		
+		var claim_on = tr.find("input[name='claim_on']").val();
+		var claim_amount = tr.find("input[name='claim_amount']").val();
 		
 		$.post("{% url ajax_claim_finance_schedule %}", {schedule_id:activeClaimScheduleID, claim_on:claim_on, claim_amount:claim_amount}, function(data) {
 			buttonObject.attr("disabled", "");
-			$("#adding-claim-template").closest("tr").hide();
 			
 			if(data.error == "invalid") {
 				alert("ข้อมูลไม่อยู่ในรูปแบบที่ถูกต้อง");
@@ -41,33 +44,40 @@ $(document).ready(function() {
 					$(this).addClass("changed");
 					$(this).parent().parent().find(".update-finance").attr("disabled", "");
 				});
+				
+				tr.remove();
 			}
 		}, "json");
 	});
 	
-	$("#adding-claim-template .cancel-button").click(function(e) {
+	$(".adding-claim-template .cancel-button").click(function(e) {
 		e.preventDefault();
-		$("#adding-claim-template").closest("tr").hide();
-		$(".claim-button").show();
+		var tr = $(this).closest("tr");
+		tr.prev().find(".claim-button").show();
+		tr.remove();
 	});
 	
 	$(".claim-button").click(function(e) {
 		e.preventDefault();
 		activeClaimScheduleID = $(this).attr("rel");
 		
-		$('<tr class="claim"><td></td><td colspan="4"></td></tr>').insertAfter($(this).closest("tr"));
-		$(this).closest("tr").next().find("td:last").append($("#adding-claim-template"));
+		var parentTR = $(this).closest("tr");
+		var template = $(".adding-claim-template div").clone(true);
 		
-		$("#adding-claim-template input").val("");
-		$("#adding-claim-template").show();
+		var claimRow = $('<tr class="claim"><td></td><td colspan="4"></td></tr>');
+		claimRow.find("td:last").append(template);
+		claimRow.insertAfter(parentTR);
 		
-		$("#adding-claim-template input[name='claim_amount']").focus();
+		claimRow.find("input").val("");
+		claimRow.find("input[name='claim_amount']").focus();
 		
 		$(this).hide();
 	});
+	{% endresponsible %}
 	
 	$(".update-finance").click(function(e) {
 		e.preventDefault();
+		
 		var buttonObject = $(this);
 		var schedule_id = $(this).attr("rel");
 		
@@ -80,49 +90,39 @@ $(document).ready(function() {
 			target_on = "";
 		} else {
 			target_on = trObject.find("input[name='target_on']").val();
-			if(target_on == "") {
-				alert("กรุณากรอกวันที่คาดการณ์");
-				return;
-			}
+			if(target_on == undefined || target_on == "") { alert("กรุณากรอกวันที่คาดการณ์"); return; }
 		}
 		
 		if(trObject.find("input[name='target']").size() == 0) {
 			target = "";
 		} else {
 			target = trObject.find("input[name='target']").val();
-			if(target == "") {
-				alert("กรุณากรอกตัวเลขการคาดการณ์");
-				return;
-			}
+			if(target == undefined || target == "") { alert("กรุณากรอกตัวเลขการคาดการณ์"); return; }
+			if(!is_number(target)) { alert("ตัวเลขการคาดการณ์ต้องเป็นเลขจำนวนเต็มและไม่ติดลบ"); return; }
 		}
 		
 		if(trObject.find("input[name='result']").size() == 0) {
 			result = "";
 		} else {
 			result = trObject.find("input[name='result']").val();
-			if(result == "") {
-				alert("กรุณากรอกตัวเลขการเบิกจ่าย");
-				return;
-			}
+			if(result == undefined || result == "") { alert("กรุณากรอกตัวเลขการเบิกจ่าย"); return; }
+			if(!is_number(result)) { alert("ตัวเลขการเบิกจ่ายต้องเป็นเลขจำนวนเต็มและไม่ติดลบ"); return; }
 		}
 		
 		$(this).attr("disabled", "disabled").html("กำลังดำเนินการ");
 		$.post("{% url ajax_update_finance_value %}", {schedule_id:schedule_id, target_on:target_on, target:target, result:result}, function(data) {
-			buttonObject.html("บันทึกข้อมูล");
+			buttonObject.attr("disabled", "").html("บันทึกข้อมูล");
 			buttonObject.parent().parent().find("input").removeClass("changed");
 			
-			if(data.claim_html != "") {
-				$(".schedule-revisions-" + schedule_id).parent().prepend(data.claim_html);
-			} else if(data.revision_html != "") {
-				$(".schedule-revisions-" + schedule_id).prepend(data.revision_html);
-				$(".schedule-revisions-" + schedule_id).parent().find("div.empty").remove(); // Remove no revisions text
+			if(data.error == "invalid") {
+				alert("ข้อมูลไม่อยู่ในรูปแบบที่ถูกต้อง");
+			} else {
+				if(data.revision_html != "") {
+					$(".schedule-revisions-" + schedule_id).prepend(data.revision_html);
+					$(".schedule-revisions-" + schedule_id).parent().find("div.empty").remove(); // Remove no revisions text
+				}
 			}
 		}, "json");
-	});
-	
-	$("table input").change(function(e) {
-		$(this).addClass("changed");
-		$(this).parent().parent().find(".update-finance").attr("disabled", "");
 	});
 	
 	bindCommentBox($(".post-schedule-comment"));
@@ -132,10 +132,6 @@ function onPostCommentCallback(data, sender, target) {
 	if(sender.hasClass('post-schedule-comment')) {
 		$("#schedule-" + data.object_id + " .comment_count").text(data.count + " ความคิดเห็น");
 	}
-}
-
-function onCalendarChangeCallback(input_id, selDate, new_value, new_display_value) {
-	$("#" + input_id).parent().parent().parent().find(".update-finance").attr("disabled", "");
 }
 </script>
 {% endblock %}
@@ -196,7 +192,7 @@ function onCalendarChangeCallback(input_id, selDate, new_value, new_display_valu
 				บาท
 			</td>
 			<td class="result">
-				{% responsible user 'sector_manager_assistant,project_manager,project_manager_assistant' project %}
+				{% responsible user 'sector_manager_assistant' project %}
 					{% if schedule.claimed_on %}
 					<input type="text" name="result" value="{{schedule.result}}" /> บาท
 					{% else %}
@@ -212,9 +208,9 @@ function onCalendarChangeCallback(input_id, selDate, new_value, new_display_valu
 			</td>
 			<td class="controls">
 				{% responsible user 'sector_manager_assistant,project_manager,project_manager_assistant' project %}
-				<button class="update-finance" disabled="disabled" rel="{{schedule.id}}">บันทึกข้อมูล</button>
+				<button class="update-finance" rel="{{schedule.id}}">บันทึกข้อมูล</button>
 				{% endresponsible %}
-				<span class="comment_count">{{schedule.comments}} ความคิดเห็น</span> <a href="#" class="post-schedule-comment" rel="finance/{{schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon" /></a>
+				<span class="comment_count">{{schedule.comments}} ความคิดเห็น</span> {% ifadmin user %}{% else %}<a href="#" class="post-schedule-comment" rel="finance/{{schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon" /></a>{% endifadmin %}
 			</td>
 		</tr>
 		<tr class="revision">
@@ -240,16 +236,18 @@ function onCalendarChangeCallback(input_id, selDate, new_value, new_display_valu
 	{% endif %}
 </div>
 
-<div id="adding-claim-template">
-	<label for="id_adding_claim_amount">จำนวนเงินที่เบิกจ่าย:</label>
-	<input type="text" name="claim_amount" id="id_adding_claim_amount"/> บาท
-	<label for="id_adding_claim_date">เบิกจ่าย ณ วันที่:</label>
-	<span class="yui_date_picker_panel">
-		<input type="hidden" name="claim_on" value="" id="id_claimed_on_value"/>
-		<input type="text" value="" id="id_claimed_on_display" readonly="readonly" class="yui_date_picker_textbox"/>
-		<img src="/m/images/icon_date_picker.png" id="id_claimed_on" class="yui_date_picker"/>
-	</span>
-	<button class="add-claim-button">ตกลง</button>
-	<button class="cancel-button">ยกเลิก</button>
+<div class="adding-claim-template">
+	<div class="adding_claim">
+		<label for="id_adding_claim_amount">จำนวนเงินที่เบิกจ่าย:</label>
+		<input type="text" name="claim_amount" id="id_adding_claim_amount"/> บาท
+		<label for="id_adding_claim_date">เบิกจ่าย ณ วันที่:</label>
+		<span class="yui_date_picker_panel">
+			<input type="hidden" name="claim_on" value="" id="id_claimed_on_value"/>
+			<input type="text" value="" id="id_claimed_on_display" readonly="readonly" class="yui_date_picker_textbox"/>
+			<img src="/m/images/icon_date_picker.png" id="id_claimed_on" class="yui_date_picker"/>
+		</span>
+		<button class="add-claim-button">ตกลง</button>
+		<button class="cancel-button">ยกเลิก</button>
+	</div>
 </div>
 {% endblock %}

@@ -15,8 +15,8 @@ def ajax_update_finance_value(request):
 	if request.method == 'POST':
 		schedule_id = request.POST.get('schedule_id')
 		target_on = request.POST.get('target_on', '')
-		target = request.POST.get('target', '0')
-		result = request.POST.get('result', '0')
+		target = request.POST.get('target', '')
+		result = request.POST.get('result', '')
 		
 		if target_on:
 			try:
@@ -25,22 +25,28 @@ def ajax_update_finance_value(request):
 			except:
 				return HttpResponse(simplejson.dumps({'error':'invalid'}))
 		
-		try:
-			target = int(target)
-		except:
-			target = None
+		if target:
+			try:
+				target = int(target)
+			except:
+				return HttpResponse(simplejson.dumps({'error':'invalid'}))
+			
+			if target < 0: return HttpResponse(simplejson.dumps({'error':'invalid'}))
 		
-		try:
-			result = int(result)
-		except:
-			return HttpResponse(simplejson.dumps({'error':'invalid'}))
+		if result:
+			try:
+				result = int(result)
+			except:
+				return HttpResponse(simplejson.dumps({'error':'invalid'}))
+			
+			if result < 0: return HttpResponse(simplejson.dumps({'error':'invalid'}))
 		
 		finance_schedule = ProjectBudgetSchedule.objects.get(pk=schedule_id)
 		
 		if responsible(request.user, 'sector_manager_assistant', finance_schedule.project):
-			if not target_on: target_on = finance_schedule.target_on
-			if not target: target = finance_schedule.target
-			if not result: result = finance_schedule.result
+			if target_on == '': target_on = finance_schedule.target_on
+			if target == '': target = finance_schedule.target
+			if result == '': result = finance_schedule.result
 			
 			revision = ProjectBudgetScheduleRevision.objects.create(
 				schedule=finance_schedule,

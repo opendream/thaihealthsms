@@ -22,8 +22,8 @@
 </div>
 <div class="ss_sub_tab_navi">
 	<ul>
-		<li class="selected">ตัวชี้วัดระดับองค์กร</li>
-		<li><a href="{% url view_administer_kpi_category %}">ประเภทตัวชี้วัด</a></li>
+		<li><a href="{% url view_administer_kpi %}">ตัวชี้วัดระดับองค์กร</a></li>
+		<li class="selected">ประเภทตัวชี้วัด</li>
 	</ul>
 	<div class="clear"></div>
 </div>
@@ -35,7 +35,7 @@
 <form action="" method="POST" class="ss_form">
 	<ul>
 		<li>
-			<label for="id_name">{{form.name.label}}:</label>
+			<label for="id_name">{{form.name.label}}{% display_required %}</label>
 			<div class="input LONG">{{form.name}}</div>
 			{{form.name.errors}}
 		</li>

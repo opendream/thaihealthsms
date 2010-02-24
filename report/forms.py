@@ -28,7 +28,7 @@ class SectorReportForm(forms.Form):
 	need_approval = forms.BooleanField(required=False, label='รายงานที่ส่งมา ต้องมีการรับรองรายงาน')
 	schedule_cycle_length = forms.ChoiceField(choices=month_cycle)
 	schedule_monthly_date = forms.ChoiceField(choices=date_cycle)
-	notify_days = forms.IntegerField(label='แจ้งเตือนก่อนถึงวันส่งรายงานล่วงหน้า')
+	notify_days = forms.IntegerField(label='แจ้งเตือนก่อนถึงวันส่งรายงานล่วงหน้า', required=False)
 
 class AddProjectReportForm(forms.Form):
 	name = forms.CharField(max_length=512, label='ชื่อรายงาน')
@@ -38,6 +38,17 @@ class AddProjectReportForm(forms.Form):
 	schedule_monthly_date = forms.ChoiceField(choices=date_cycle)
 	start_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_start_date'}), label='เริ่มตั้งแต่วันที่')
 	end_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_end_date'}), label='ถึง')
+	
+	def clean(self):
+		cleaned_data = self.cleaned_data
+		start_date = cleaned_data.get('start_date')
+		end_date = cleaned_data.get('end_date')
+		
+		if start_date > end_date:
+			self._errors['start_date'] = ErrorList(['วันที่เริ่มต้นเกิดขึ้นหลังจากวันที่สิ้นสุด'])
+			del cleaned_data['start_date']
+		
+		return cleaned_data
 
 class EditProjectReportForm(forms.Form):
 	name = forms.CharField(max_length=512, label='ชื่อรายงาน')

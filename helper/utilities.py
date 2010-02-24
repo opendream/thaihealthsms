@@ -10,10 +10,10 @@ THAI_MONTH_ABBR_NAME = ('', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.'
 WEEKDAY_THAI_NAME = ('', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์', 'วันอาทิตย์')
 
 def format_full_datetime(datetime):
-	return unicode('%d %s %d เวลา %d:%d น.', 'utf-8') % (datetime.day, unicode(THAI_MONTH_NAME[datetime.month], 'utf-8'), datetime.year + 543, datetime.hour, datetime.minute)
+	return unicode('%d %s %d เวลา %02d:%02d น.', 'utf-8') % (datetime.day, unicode(THAI_MONTH_NAME[datetime.month], 'utf-8'), datetime.year + 543, datetime.hour, datetime.minute)
 
 def format_abbr_datetime(datetime):
-	return unicode('%d %s %d เวลา %d:%d น.', 'utf-8') % (datetime.day, unicode(THAI_MONTH_ABBR_NAME[datetime.month], 'utf-8'), datetime.year + 543, datetime.hour, datetime.minute)
+	return unicode('%d %s %d เวลา %02d:%02d น.', 'utf-8') % (datetime.day, unicode(THAI_MONTH_ABBR_NAME[datetime.month], 'utf-8'), datetime.year + 543, datetime.hour, datetime.minute)
 
 def format_full_date(datetime):
 	return unicode('%d %s %d', 'utf-8') % (datetime.day, unicode(THAI_MONTH_NAME[datetime.month], 'utf-8'), datetime.year + 543)
@@ -88,7 +88,7 @@ def get_finance_revised_list(revision):
 	return revised_list
 
 def get_kpi_revision_html(revision):
-	html = unicode('<span class="timestamp">แก้ไขเมื่อ %s น.</span>', 'utf-8') % format_abbr_datetime(revision.revised_on)
+	html = unicode('<span class="timestamp">แก้ไขเมื่อ %s</span>', 'utf-8') % format_abbr_datetime(revision.revised_on)
 	
 	if revision.org_target_on != revision.new_target_on:
 		html += unicode('<span>วันที่คาดการณ์จากวันที่ %s เป็นวันที่ %s</span>', 'utf-8') % (format_abbr_date(revision.org_target_on), format_abbr_date(revision.new_target_on))
@@ -102,7 +102,7 @@ def get_kpi_revision_html(revision):
 	return html
 
 def get_finance_revision_html(revision):
-	html = unicode('<span class="timestamp">แก้ไขเมื่อ %s น.</span>', 'utf-8') % format_abbr_datetime(revision.revised_on)
+	html = unicode('<span class="timestamp">แก้ไขเมื่อ %s</span>', 'utf-8') % format_abbr_datetime(revision.revised_on)
 	
 	if revision.org_target_on != revision.new_target_on:
 		html += unicode('<span>วันที่คาดการณ์จากวันที่ %s เป็นวันที่ %s</span>', 'utf-8') % (format_abbr_date(revision.org_target_on), format_abbr_date(revision.new_target_on))

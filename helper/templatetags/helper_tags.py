@@ -10,6 +10,10 @@ from accounts.models import UserRoleResponsibility
 
 register = template.Library()
 
+@register.simple_tag
+def display_required():
+	return '<span class="required">* ต้องกรอก</span>'
+
 @register.filter(name='full_datetime')
 def full_datetime(datetime):
 	return utilities.format_full_datetime(datetime)

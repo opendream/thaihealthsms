@@ -55,10 +55,10 @@ def view_sector_add_report(request, sector_id):
 			schedule_cycle_length = form.cleaned_data['schedule_cycle_length']
 			schedule_monthly_date = form.cleaned_data['schedule_monthly_date']
 			notify_days = form.cleaned_data['notify_days']
-
+			
 			Report.objects.create(name=report_name, need_approval=need_approval, need_checkup=True, schedule_cycle_length=schedule_cycle_length, schedule_monthly_date=schedule_monthly_date, sector=sector, created_by=request.user.get_profile(), notify_days=notify_days)
 
-			set_message(request, u"สร้างรายงาน%s เรียบร้อย" % report_name)
+			set_message(request, u'สร้างรายงานเรียบร้อย')
 
 			return redirect('view_sector_manage_reports', (sector.id))
 
@@ -83,7 +83,7 @@ def view_sector_edit_report(request, report_id):
 			report.need_approval = form.cleaned_data['need_approval']
 			report.notify_days = form.cleaned_data['notify_days']
 			report.save()
-			set_message(request, u"แก้ไขรายงาน%s เรียบร้อย" % report.name)
+			set_message(request, u'แก้ไขรายงานเรียบร้อย')
 
 			return redirect('view_sector_manage_reports', (sector.id))
 
@@ -104,9 +104,9 @@ def view_sector_delete_report(request, report_id):
 	project_count = ReportProject.objects.filter(report=report).count()
 	if not project_count:
 		report.delete()
-		set_message(request, u"ลบรายงาน%s เรียบร้อย" % report.name)
+		set_message(request, u'ลบรายงานเรียบร้อย')
 	else:
-		set_message(request, u"ไม่สามารถลบรายงานได้เนื่องจากมีแผนงานที่ส่งรายงานนี้อยู่" % report_name)
+		set_message(request, u'ไม่สามารถลบรายงานได้เนื่องจากมีแผนงานที่ส่งรายงานนี้อยู่')
 
 	return redirect('view_sector_manage_reports', (sector.id))
 
@@ -186,8 +186,11 @@ def view_project_reports(request, project_id):
 	report_projects = ReportProject.objects.filter(project=project)
 
 	for report_project in report_projects:
-		report_project.schedules = ReportSchedule.objects.filter(report_project=report_project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_checkup=False))).order_by('-due_date')
-
+		if utilities.responsible(request.user, 'project_manager,project_manager_assistant', project):
+			report_project.schedules = ReportSchedule.objects.filter(report_project=report_project).filter(Q(state=SUBMIT_ACTIVITY) | Q(state=APPROVE_ACTIVITY) | Q(state=REJECT_ACTIVITY)).order_by('-due_date')
+		else:
+			report_project.schedules = ReportSchedule.objects.filter(report_project=report_project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_checkup=False))).order_by('-due_date')
+		
 		year_list = set()
 		for schedule in report_project.schedules: year_list.add(schedule.due_date.year)
 		year_list = sorted(year_list, reverse=True)
@@ -253,7 +256,7 @@ def view_project_reports_add(request, project_id):
 
 				this_month_schedule_date = utilities.schedule_month_date(report, today.year, today.month)
 				if today > this_month_schedule_date:
-					year, month = next_month(today.year, today.month)
+					year, month = utilities.get_next_month(today.year, today.month)
 					this_month_schedule_date = utilities.schedule_month_date(report, year, month)
 
 				cycle_length = report.schedule_cycle_length
@@ -265,11 +268,11 @@ def view_project_reports_add(request, project_id):
 							due_date=this_month_schedule_date
 						)
 
-					year, month = next_month(this_month_schedule_date.year, this_month_schedule_date.month)
+					year, month = utilities.get_next_month(this_month_schedule_date.year, this_month_schedule_date.month)
 					this_month_schedule_date = utilities.schedule_month_date(report, year, month)
 					cycle_counter += 1
 
-			set_message(request, u"สร้างประเภทรายงาน %s แล้ว" % name)
+			set_message(request, u"สร้างรายงานเรียบร้อย")
 			return redirect('view_project_reports_manage', (project_id))
 
 	else:
@@ -297,7 +300,7 @@ def view_project_report_edit(request, project_id, report_id):
 			report.need_approval = need_approval
 			report.save()
 
-			set_message(request, u"บันทึกการแก้ไขรายงาน %s เรียบร้อยแล้ว" % name)
+			set_message(request, u"แก้ไขรายงานเรียบร้อย")
 			return redirect('view_project_reports_manage', (project_id))
 	else:
 		form = EditProjectReportForm(initial=dict(

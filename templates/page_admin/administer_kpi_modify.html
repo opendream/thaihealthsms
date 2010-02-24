@@ -33,25 +33,28 @@
 <div class="ss_child_page_header">{% if kpi %}แก้ไขตัวชี้วัด{% else %}สร้างตัวชี้วัด{% endif %} <a href="{% url view_administer_kpi %}">กลับไปหน้าตัวชี้วัดระดับองค์กร &#187;</a></div>
 
 <form action="" method="POST" class="ss_form">
+	{% if has_categories %}
 	<ul>
 		<li>
-			<label for="id_ref_no">{{form.ref_no.label}}:</label>
+			<label for="id_ref_no">{{form.ref_no.label}}{% display_required %}</label>
 			<div class="input SHORT">{{form.ref_no}}</div>
+			<div class="comment">ประกอบด้วยตัวเลขหรือตัวหนังสือ ความยาวไม่เกิน 64 ตัวอักษร</div>
 			{{form.ref_no.errors}}
 		</li>
 		<li>
-			<label for="id_name">{{form.name.label}}:</label>
+			<label for="id_name">{{form.name.label}}{% display_required %}</label>
 			<div class="input LONG">{{form.name}}</div>
 			{{form.name.errors}}
 		</li>
 		<li>
-			<label for="id_category">{{form.category.label}}:</label>
+			<label for="id_category">{{form.category.label}}{% display_required %}</label>
 			<div class="input LONG">{{form.category}}</div>
 			{{form.category.errors}}
 		</li>
 		<li>
-			<label for="id_unit_name">{{form.unit_name.label}}:</label>
+			<label for="id_unit_name">{{form.unit_name.label}}{% display_required %}</label>
 			<div class="input MEDIUM">{{form.unit_name}}</div>
+			<div class="comment">เช่น คน หมู่บ้าน เปอร์เซ็นต์ บทความ ฯลฯ</div>
 			{{form.unit_name.errors}}
 		</li>
 		<li class="single_line checkbox">
@@ -60,7 +63,10 @@
 			{{form.visible_to_project.errors}}
 		</li>
 	</ul>
-	
+	{{form.kpi_id}}
 	<div class="button_panel"><button type="submit">ตกลง</button></div>
+	{% else %}
+	<div class="prerequisute">ยังไม่มีข้อมูลประเภทตัวชี้วัด กรุณาสร้างประเภทตัวชี้วัดก่อนที่หน้า <a href="{% url view_administer_kpi_category_add %}">สร้างประเภทตัวชี้วัด</a></div>
+	{% endif %}
 </form>
 {% endblock %}

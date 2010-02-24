@@ -1,13 +1,13 @@
 from django.db import models
 
 class Sector(models.Model):
-	ref_no = models.IntegerField()
+	ref_no = models.IntegerField(unique=True)
 	name = models.CharField(max_length=512)
 	created = models.DateTimeField(auto_now_add=True)
 
 class MasterPlan(models.Model):
 	sector = models.ForeignKey('Sector')
-	ref_no = models.IntegerField()
+	ref_no = models.IntegerField(unique=True)
 	name = models.CharField(max_length=512)
 	month_span = models.ForeignKey('MonthSpan')
 	created = models.DateTimeField(auto_now_add=True)

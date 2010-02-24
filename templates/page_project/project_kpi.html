@@ -28,23 +28,28 @@ $(document).ready(function() {
 			target_on = "";
 		} else {
 			target_on = trObject.find("input[name='target_on']").val();
+			if(target_on == undefined || target_on == "") { alert("กรุณากรอกวันที่ตั้งเป้า"); return; }
 		}
 		
 		if(trObject.find("input[name='target']").size() == 0) {
 			target = "";
 		} else {
 			target = trObject.find("input[name='target']").val();
+			if(target == undefined || target == "") { alert("กรุณากรอกตัวเลขการคาดการณ์"); return; }
+			if(!is_number(target)) { alert("ตัวเลขการคาดการณ์ต้องเป็นเลขจำนวนเต็มและไม่ติดลบ"); return; }
 		}
 		
 		if(trObject.find("input[name='result']").size() == 0) {
 			result = "";
 		} else {
 			result = trObject.find("input[name='result']").val();
+			if(result == undefined || result == "") { alert("กรุณากรอกตัวเลขผลที่เกิดขึ้น"); return; }
+			if(!is_number(result)) { alert("ตัวเลขผลที่เกิดขึ้นต้องเป็นเลขจำนวนเต็มและไม่ติดลบ"); return; }
 		}
 		
 		$(this).attr("disabled", "disabled").html("กำลังดำเนินการ");
 		$.post("{% url ajax_update_kpi_value %}", {schedule_id:schedule_id, target_on:target_on, target:target, result:result}, function(data) {
-			buttonObject.html("บันทึกข้อมูล");
+			buttonObject.attr("disabled", "").html("บันทึกข้อมูล");
 			buttonObject.parent().parent().find("input").removeClass("changed");
 			
 			if(data.error == "invalid") {
@@ -58,11 +63,6 @@ $(document).ready(function() {
 		}, "json");
 	});
 	
-	$("table input").change(function(e) {
-		$(this).addClass("changed");
-		$(this).parent().parent().find(".update-kpi").attr("disabled", "");
-	});
-	
 	bindCommentBox($(".post-schedule-comment"));
 });
 
@@ -70,10 +70,6 @@ function onPostCommentCallback(data, sender, target) {
 	if(sender.hasClass('post-schedule-comment')) {
 		$("#schedule-" + data.object_id + " .comment_count").text(data.count + " ความคิดเห็น");
 	}
-}
-
-function onCalendarChangeCallback(input_id, selDate, new_value, new_display_value) {
-	$("#" + input_id).parent().parent().parent().find(".update-kpi").attr("disabled", "");
 }
 </script>
 {% endblock %}
@@ -148,9 +144,9 @@ function onCalendarChangeCallback(input_id, selDate, new_value, new_display_valu
 					</td>
 					<td class="controls">
 						{% responsible user 'sector_manager_assistant,project_manager,project_manager_assistant' project %}
-						<button class="update-kpi" disabled="disabled" rel="{{schedule.id}}">บันทึกข้อมูล</button>
+						<button class="update-kpi" rel="{{schedule.id}}">บันทึกข้อมูล</button>
 						{% endresponsible %}
-						<span class="comment_count">{{schedule.comments}} ความคิดเห็น</span> <a href="#" class="post-schedule-comment" rel="kpi/{{schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon" /></a>
+						<span class="comment_count">{{schedule.comments}} ความคิดเห็น</span> {% ifadmin user %}{% else %}<a href="#" class="post-schedule-comment" rel="kpi/{{schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon" /></a>{% endifadmin %}
 					</td>
 				</tr>
 				<tr class="revision">

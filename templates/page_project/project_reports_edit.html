@@ -34,20 +34,22 @@
 	<form method="post" action="." class="ss_form">
 		<ul>
 			<li>
-				<label for="id_name">{{form.name.label}}:</label>
+				<label for="id_name">{{form.name.label}}{% display_required %}</label>
 				<div class="input LONG">{{form.name}}</div>
+				{{form.name.errors}}
 			</li>
 			<li class="inline">
 				{{form.need_checkup}}
 				<label for="id_need_checkup">{{form.need_checkup.label}}</label>
+				<div>{{form.need_checkup.errors}}</div>
 			</li>
 			<li class="inline">
 				{{form.need_approval}}
 				<label for="id_need_approval">{{form.need_approval.label}}</label>
+				<div>{{form.need_approval.errors}}</div>
 			</li>
 		</ul>
 		<div class="button_panel"><button>บันทึกรายงาน</button></div>
 	</form>
-
 </div>
 {% endblock %}

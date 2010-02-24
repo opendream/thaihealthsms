@@ -17,7 +17,11 @@
 .dashboard_page .report_checkup ul.reports li {padding:10px 10px;margin-bottom:15px;border:1px solid #CCC;}
 .dashboard_page .report_checkup ul.reports li .schedule {font-size:123.1%;font-weight:bold;}
 .dashboard_page .report_checkup ul.reports li .report_approval {margin-top:10px;}
-.dashboard_page .report_checkup ul.reports li .report_approval button {margin-right:10px;width:120px;}
+
+.dashboard_page .report_checkup ul.reports li .report_approval button {margin-right:20px;padding:2px 25px;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;color:#FFF;cursor:pointer;}
+.dashboard_page .report_checkup ul.reports li .report_approval button.approve-report {background-color:#396;}
+.dashboard_page .report_checkup ul.reports li .report_approval button.reject-report {background-color:#933;}
+
 .dashboard_page .report_checkup ul.reports li.no_information {color:#666;}
 .dashboard_page .report_checkup ul.reports li .rejected_on {background-color:#FBB;}
 .dashboard_page .report_checkup ul.reports li .report_details {margin-top:10px;font-size:108%;}
@@ -169,7 +173,7 @@
 .sector_edit_project_page .header_links li {display:block;float:left;border-right:1px solid #CCC;padding:3px 10px 3px;margin-bottom:5px;font-size:116%;}
 .sector_edit_project_page .header_links li.selected {font-weight:bold;color:#333;}
 
-.sector_edit_project_page .link_to_create {margin-bottom:20px;}
+.sector_edit_project_page .prerequisite {margin:0px 0px 20px 15px;font-size:108%;color:#444;}
 
 .sector_edit_project_page .edit_kpi {margin-left:15px;}
 .sector_edit_project_page .edit_kpi .kpi_name {margin:10px 0px;}
@@ -184,19 +188,23 @@
 .sector_edit_project_page .edit_kpi table td.delete {font-size:100%;width:50px;text-align:center;border:1px solid #999;}
 
 .sector_edit_project_page .edit_kpi li {margin-bottom:25px;}
-.sector_edit_project_page .edit_kpi li.add_kpi {margin-top:10px;font-size:116%;}
+.sector_edit_project_page .edit_kpi li.add_kpi {margin-top:10px;}
+.sector_edit_project_page .edit_kpi li.add_kpi label {font-size:116%;margin-right:10px;}
 
 .sector_edit_project_page .edit_kpi .button_panel {margin-bottom:30px;}
-.sector_edit_project_page .edit_kpi .button_panel button {padding:3px 25px;font-size:116%;border:1px solid #999;background-color:#666;color:#FFF;}
+.sector_edit_project_page .edit_kpi .button_panel button {padding:3px 25px;font-size:116%;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 
 .sector_edit_project_page .edit_finance table th {border:1px solid #999;padding:5px 10px;background-color:#9CC;color:#333;font-size:116%;}
 .sector_edit_project_page .edit_finance table td {border:1px solid #999;padding:10px 10px;font-size:108%;}
 .sector_edit_project_page .edit_finance table td.target input {width:150px;margin-right:5px;text-align:right;}
 .sector_edit_project_page .edit_finance table td.target_on {}
-.sector_edit_project_page .edit_finance table td.delete {font-size:100%;width:50px;text-align:center;border:1px solid #999;}
+.sector_edit_project_page .edit_finance table td.delete {font-size:100%;border:1px solid #999;color:#555;}
+.sector_edit_project_page .edit_finance table td.delete img {vertical-align:text-bottom;margin-left:10px;}
+
+.sector_edit_project_page .edit_finance .invalid {background-color:#FCC;}
 
 .sector_edit_project_page .edit_finance form {margin:20px 0px;}
-.sector_edit_project_page .edit_finance .button_panel button {padding:3px 25px;font-size:116%;border:1px solid #999;background-color:#666;color:#FFF;}
+.sector_edit_project_page .edit_finance .button_panel button {padding:3px 25px;font-size:116%;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 
 /* Sector Manage KPI Page */
 .sector_manage_kpi_page h2 {font-size:138.5%;color:#C60;margin:10px 0px;}
@@ -256,6 +264,7 @@
 .project_reports_page h3 {font-size:123.1%;color:#2D8659;margin:10px 0px 10px 10px;}
 .project_reports_page ul {margin:0px 0px 20px 30px;}
 .project_reports_page ul li {margin-bottom:10px;list-style:disc;font-size:116%;}
+.project_reports_page ul li .status {margin-left:10px;color:#555;}
 .project_reports_page .ss_no_information {margin-left:15px;}
 
 /* Project Manage Report */
@@ -305,7 +314,7 @@
 .project_kpi_page table td.target {width:160px;text-align:center;}
 .project_kpi_page table td.result {width:160px;text-align:center;}
 
-.project_kpi_page table td.controls button {margin-right:10px;padding:2px 15px;border:1px solid #999;background-color:#666;color:#FFF;}
+.project_kpi_page table td.controls button {margin-right:10px;padding:2px 15px;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 .project_kpi_page table td.controls img {margin-left:6px;}
 .project_kpi_page table td.controls a:hover {background:none !important;}
 
@@ -330,8 +339,9 @@
 .project_finance_page table td.date input {width:110px;text-align:center;margin-right:0px;}
 .project_finance_page table td.target {width:130px;text-align:center;}
 .project_finance_page table td.result {width:130px;text-align:center;}
+.project_finance_page table td.result button {padding:2px 10px;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#666;cursor:pointer;color:#FFF;}
 
-.project_finance_page table td.controls button {margin-right:20px;padding:2px 15px;border:1px solid #999;background-color:#666;color:#FFF;}
+.project_finance_page table td.controls button {margin-right:20px;padding:2px 15px;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 .project_finance_page table td.controls img {margin-left:6px;}
 .project_finance_page table td.controls a:hover {background:none !important;}
 
@@ -347,10 +357,10 @@
 .project_finance_page table tr.claim {background-color:#FFC;}
 .project_finance_page table tr.claim input {width:150px;}
 
-#adding-claim-template {display:none;}
-#adding-claim-template label {margin-left:20px;}
-#adding-claim-template input.changed {background-color:#FFF;}
-#adding-claim-template button {margin-left:20px;}
+.adding-claim-template {display:none;}
+.project_finance_page .adding_claim label {margin-left:20px;}
+.project_finance_page .adding_claim input.changed {background-color:#FFF;}
+.project_finance_page .adding_claim button {padding:1px 15px;margin-left:20px;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 
 /* Project Activities */
 .project_activities_page table .name {}
@@ -371,7 +381,7 @@
 .report_page .report_status .rejected {color:#C30;}
 
 .report_page .report_status .buttons {margin-top:10px;font-size:0.75em;}
-.report_page .report_status .buttons button {padding:3px 25px;font-size:116%;border:1px solid #999;background-color:#666;color:#FFF;}
+.report_page .report_status .buttons button {padding:3px 25px;font-size:116%;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 .report_page .report_status .buttons span {margin-left:15px;color:#333;background-color:#FFC;padding:0px 5px;}
 
 .report_page .content {margin-top:15px;}
@@ -379,7 +389,7 @@
 
 .report_page .edit_content {display:none;}
 .report_page .edit_content .button_panel {margin:15px 0px;}
-.report_page .edit_content .button_panel button {margin-right:20px;padding:3px 15px;border:1px solid #999;background-color:#666;color:#FFF;}
+.report_page .edit_content .button_panel button {margin-right:20px;padding:3px 15px;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 
 .report_page .files {margin-left:15px;}
 .report_page .files li {background-color:#DBE7F0;padding:6px 10px;border:1px solid #C6D4E0;margin-bottom:10px;}
@@ -394,7 +404,7 @@
 #upload-file-dialog {display:none;}
 #upload-file-dialog form {margin:10px 20px;}
 #upload-file-dialog label {margin-bottom:10px;font-size:116%;display:block;}
-#upload-file-dialog button {margin-top:10px;padding:3px 10px;border:1px solid #999;background-color:#666;color:#FFF;}
+#upload-file-dialog button {margin-top:10px;padding:3px 10px;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 
 /*
  * ACTIVITY PAGE ###############################################################################
@@ -423,7 +433,7 @@
 .kpi_page .remark_panel p {margin:5px 0px 10px;padding:10px;background-color:#EEE;border:1px solid #999;font-size:116%;}
 .kpi_page .remark_panel form {display:none;}
 .kpi_page .remark_panel form textarea {width:95%;margin-bottom:10px;height:110px;}
-.kpi_page .remark_panel form button {margin-right:10px;padding:3px 10px;border:1px solid #999;background-color:#666;color:#FFF;}
+.kpi_page .remark_panel form button {margin-right:10px;padding:3px 10px;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 
 .kpi_page .ss_comments {margin-top:20px;}
 

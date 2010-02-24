@@ -16,9 +16,6 @@ def _schedules_percentage(schedules):
 			if schedule.target:
 				percentage_sum = percentage_sum + int(float(schedule.result) / float(schedule.target) * 100)
 				percentage_count = percentage_count + 1
-				
-				print percentage_sum
-				print percentage_count
 		
 		if percentage_count:
 			return int(percentage_sum / percentage_count)

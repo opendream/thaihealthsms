@@ -124,6 +124,19 @@ def display_report_repeating(report):
 	html = 'ส่งรายงานวันที่ %d ในทุกๆ %d เดือน' % (report.schedule_month_cycle, report.schedule_date_due)
 
 #
+# REPORT
+#
+@register.simple_tag
+def display_report_status(report_schedule):
+	from report.models import SUBMIT_ACTIVITY, APPROVE_ACTIVITY, REJECT_ACTIVITY
+	if report_schedule.state == SUBMIT_ACTIVITY and report_schedule.report_project.report.need_approval:
+		return '[รายงานกำลังรอการตรวจสอบ]'
+	elif report_schedule.state == REJECT_ACTIVITY:
+		return '[รายงานถูกตีกลับ]'
+	
+	return ''
+
+#
 # KPI
 #
 @register.simple_tag

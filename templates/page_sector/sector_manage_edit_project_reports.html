@@ -16,8 +16,8 @@
 	<div class="tabs">
 		<ul>
 			<li><a href="{% url view_sector_overview sector.id %}">ภาพรวม</a></li>
+			<li class="selected"><img src="{{MEDIA_URL}}/images/pencil.png" />จัดการสำนัก</li>
 			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
-			<li class="selected right_item">จัดการสำนัก</li>
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -45,8 +45,7 @@
 		<div class="button_panel"><button type="submit">แก้ไขตัวเลือกรายงาน</button></div>
 	</form>
 	{% else %}
-	<div class="ss_no_information">ยังไม่มีการสร้างรายงานของสำนัก</div>
-	<div class="link_to_create"><img src="{{MEDIA_URL}}/images/page_go.png" class="icon"/> <a href="{% url view_sector_add_report sector.id %}">ไปหน้าสร้างรายงาน</a></div>
+	<div class="prerequisite">ยังไม่มีการสร้างรายงานที่จะใช้ภายในสำนัก คุณสามารถสร้างรายงานได้ที่หน้า <a href="{% url view_sector_add_report sector.id %}">สร้างรายงาน</a></div>
 	{% endif %}
 </div>
 {% endblock %}

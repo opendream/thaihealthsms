@@ -13,12 +13,18 @@ def overview_master_plan_finance(master_plan):
 	projects = Project.objects.filter(master_plan=master_plan, parent_project=None)
 	budget_schedules = ProjectBudgetSchedule.objects.filter(project__in=projects, target_on__gte=start_date, target_on__lte=end_date)
 	
+	print budget_schedules
+	
 	all_target = sum_target = sum_result = 0.0
 	for budget_schedule in budget_schedules:
 		all_target += budget_schedule.target
 		if budget_schedule.target_on <= date.today():
 			sum_target += budget_schedule.target
 			sum_result += budget_schedule.result
+	
+	print sum_target
+	print sum_result
+	print all_target
 	
 	master_plan.sum_target = int(sum_target)
 	master_plan.sum_result = int(sum_result)

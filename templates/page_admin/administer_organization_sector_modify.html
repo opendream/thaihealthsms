@@ -28,9 +28,19 @@
 
 <form action="." method="post" class="ss_form">
 	<ul>
-		<li><label for="id_ref_no">{{form.ref_no.label}}</label><div class="input SHORT">{{form.ref_no}}</div></li>
-		<li><label for="id_name">{{form.name.label}}</label><div class="input LONG">{{form.name}}</div></li>
+		<li>
+			<label for="id_ref_no">{{form.ref_no.label}}{% display_required %}</label>
+			<div class="input SHORT">{{form.ref_no}}</div>
+			<div class="comment">{{form.ref_no.label}}ต้องประกอบด้วยตัวเลขเท่านั้น</div>
+			{{form.ref_no.errors}}
+		</li>
+		<li>
+			<label for="id_name">{{form.name.label}}{% display_required %}</label>
+			<div class="input LONG">{{form.name}}</div>
+			{{form.name.errors}}
+		</li>
 	</ul>
+	{{form.sector_id}}
 	<div class="button_panel"><button>{% if sector %}แก้ไขสำนัก{% else %}เพิ่มสำนัก{% endif %}</button></div>
 </form>
 {% endblock %}

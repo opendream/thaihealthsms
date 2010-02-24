@@ -16,8 +16,8 @@
 	<div class="tabs">
 		<ul>
 			<li><a href="{% url view_sector_overview sector.id %}">ภาพรวม</a></li>
+			<li class="selected"><img src="{{MEDIA_URL}}/images/pencil.png" />จัดการสำนัก</li>
 			<li class="right_item"><a href="{% url view_sectors %}">สำนักอื่นๆ</a></li>
-			<li class="selected right_item">จัดการสำนัก</li>
 		</ul>
 		<div class="clear"></div>
 	</div>
@@ -40,17 +40,18 @@
 	<form action="" method="POST" class="ss_form">
 		<ul>
 			<li>
-				<label for="id_plan">{{form.plan.label}}:</label>
+				<label for="id_plan">{{form.plan.label}}{% display_required %}</label>
 				<div class="input">{{form.plan}}</div>
 				{{form.plan.errors}}
 			</li>
 			<li>
-				<label for="id_ref_no">{{form.ref_no.label}}:</label>
+				<label for="id_ref_no">{{form.ref_no.label}}{% display_required %}</label>
 				<div class="input SHORT">{{form.ref_no}}</div>
+				<div class="comment">ประกอบด้วยตัวเลขหรือตัวหนังสือ ความยาวไม่เกิน 64 ตัวอักษร</div>
 				{{form.ref_no.errors}}
 			</li>
 			<li>
-				<label for="id_name">{{form.name.label}}:</label>
+				<label for="id_name">{{form.name.label}}{% display_required %}</label>
 				<div class="input LONG">{{form.name}}</div>
 				{{form.name.errors}}
 			</li>

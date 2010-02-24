@@ -24,26 +24,65 @@ def view_sector_edit_project_finance(request, project_id):
 	if not utilities.responsible(request.user, 'admin,sector_manager_assistant,sector_admin', sector):
 		return access_denied(request)
 	
+	project_schedules = ProjectBudgetSchedule.objects.filter(project=project).order_by('target_on')
+	for project_schedule in project_schedules:
+		project_schedule.revisions = ProjectBudgetScheduleRevision.objects.filter(schedule=project_schedule)
+	
 	if request.method == 'POST':
 		schedules = request.POST.getlist('schedule')
+		updating_schedules = list()
 		for schedule in schedules:
-			(schedule_id, target, target_on) = schedule.split(',')
-			(target_on_year, target_on_month, target_on_day) = target_on.split('-')
-			target_on = date(int(target_on_year), int(target_on_month), int(target_on_day))
+			try:
+				(schedule_id, target, target_on) = schedule.split(',')
+				(target_on_year, target_on_month, target_on_day) = target_on.split('-')
+				target_on = date(int(target_on_year), int(target_on_month), int(target_on_day))
+				
+				target = int(target)
+				
+			except:
+				return render_response(request, 'page_sector/sector_manage_edit_project_finance.html', {'sector':sector, 'project':project, 'schedules':project_schedules})
 			
-			if schedule_id and schedule_id != 'None':
-				schedule = ProjectBudgetSchedule.objects.get(pk=schedule_id)
-				schedule.target = target
-				schedule.target_on = target_on
-				schedule.save()
 			else:
-				ProjectBudgetSchedule.objects.create(project=project, target=target, result=0, target_on=target_on)
+				if schedule_id and schedule_id != 'None':
+					schedule = ProjectBudgetSchedule.objects.get(pk=schedule_id)
+					
+					revision = ProjectBudgetScheduleRevision.objects.create(
+						schedule=schedule,
+						org_target=schedule.target,
+						org_result=schedule.result,
+						org_target_on=schedule.target_on,
+						new_target=target,
+						new_result=schedule.result,
+						new_target_on=target_on,
+						revised_by=request.user.get_profile()
+					)
+					
+					schedule.target = target
+					schedule.target_on = target_on
+					schedule.save()
+					
+				else:
+					schedule = ProjectBudgetSchedule.objects.create(project=project, target=target, result=0, target_on=target_on)
+				
+				updating_schedules.append(schedule)
+		
+		# Remove schedule
+		for project_schedule in project_schedules:
+			found = False
+			for schedule in updating_schedules:
+				if schedule == project_schedule:
+					found = True
+			
+			if not found:
+				project_schedule.delete()
+				
+				comments = Comment.objects.filter(object_name='finance', object_id=project_schedule.id)
+				CommentReply.objects.filter(comment__in=comments).delete()
+				comments.delete()
 		
 		return redirect('view_sector_edit_project_finance', (project.id))
 	
-	schedules = ProjectBudgetSchedule.objects.filter(project=project)
-	
-	return render_response(request, 'page_sector/sector_manage_edit_project_finance.html', {'sector':sector, 'project':project, 'schedules':schedules})
+	return render_response(request, 'page_sector/sector_manage_edit_project_finance.html', {'sector':sector, 'project':project, 'schedules':project_schedules})
 
 @login_required
 def view_project_finance(request, project_id):

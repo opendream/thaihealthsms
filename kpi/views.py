@@ -149,11 +149,19 @@ def view_sector_edit_project_kpi(request, project_id):
 	if not utilities.responsible(request.user, 'admin,sector_manager_assistant,sector_admin', sector):
 		return access_denied(request)
 	
+	existing_kpis = KPISchedule.objects.filter(project=project).values('kpi').distinct()
+	project_kpis = list()
+	for existing_kpi in existing_kpis:
+		kpi = KPI.objects.get(pk=existing_kpi['kpi'])
+		kpi.schedules = KPISchedule.objects.filter(project=project, kpi=kpi).order_by('target_on')
+		project_kpis.append(kpi)
+	
 	if request.method == 'POST':
 		# 'schedule' - kpi_id , schedule_id , target , target_on - "123,None,100,2010-01-01"
 		
 		schedules = request.POST.getlist('schedule')
 		for schedule in schedules:
+			print schedule
 			(kpi_id, schedule_id, target, target_on) = schedule.split(',')
 			(target_on_year, target_on_month, target_on_day) = target_on.split('-')
 			target_on = date(int(target_on_year), int(target_on_month), int(target_on_day))
@@ -169,14 +177,6 @@ def view_sector_edit_project_kpi(request, project_id):
 				KPISchedule.objects.create(kpi=kpi, project=project, target=target, result=0, target_on=target_on)
 		
 		return redirect('view_sector_edit_project_kpi', (project.id))
-	
-	existing_kpis = KPISchedule.objects.filter(project=project).values('kpi').distinct()
-	
-	project_kpis = list()
-	for existing_kpi in existing_kpis:
-		kpi = KPI.objects.get(pk=existing_kpi['kpi'])
-		kpi.schedules = KPISchedule.objects.filter(project=project, kpi=kpi).order_by('target_on')
-		project_kpis.append(kpi)
 	
 	# Create kpi choice and remove existing kpi from the choices
 	kpi_choices = KPI.objects.filter(Q(master_plan=None) | Q(master_plan=project.master_plan)).order_by('category', 'ref_no')
