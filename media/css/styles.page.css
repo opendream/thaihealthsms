@@ -185,7 +185,10 @@
 .sector_edit_project_page .edit_kpi table td {border:1px solid #999;padding:10px 10px;font-size:108%;}
 .sector_edit_project_page .edit_kpi table td.target input {width:70px;margin-right:5px;text-align:right;}
 .sector_edit_project_page .edit_kpi table td.target_on {}
-.sector_edit_project_page .edit_kpi table td.delete {font-size:100%;width:50px;text-align:center;border:1px solid #999;}
+.sector_edit_project_page .edit_kpi table td.delete {font-size:100%;border:1px solid #999;color:#555;}
+.sector_edit_project_page .edit_kpi table td.delete img {vertical-align:text-bottom;margin-left:10px;}
+
+.sector_edit_project_page .edit_kpi .invalid {background-color:#FCC;}
 
 .sector_edit_project_page .edit_kpi li {margin-bottom:25px;}
 .sector_edit_project_page .edit_kpi li.add_kpi {margin-top:10px;}

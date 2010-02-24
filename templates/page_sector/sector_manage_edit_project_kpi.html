@@ -33,7 +33,9 @@ $(document).ready(function() {
 		
 		new_kpi.find(".remove-schedule").click(function(e) {
 			e.preventDefault();
-			$(this).closest("tr").remove();
+			if(window.confirm("ยืนยันการลบ?")) {
+				$(this).closest("tr").remove();
+			}
 		});
 		
 		new_kpi.find(".yui_date_picker").click(function(e) {
@@ -77,6 +79,8 @@ $(document).ready(function() {
 	});
 	
 	$("form button[type='submit']").click(function() {
+		var validated = true;
+		
 		$(".schedule-record").each(function() {
 			var kpi_id = $(this).closest("li").attr("id").split("-")[1];
 			
@@ -88,13 +92,28 @@ $(document).ready(function() {
 			}
 			
 			var target = $(this).find("input[name='schedule_target']").val();
-			var target_on = $(this).find("input[name='target_on']").val();
-			var schedule_value = kpi_id + "," + schedule_id + "," + target + "," + target_on;
+			if(target == "") {
+				validated = false;
+				$(this).find("input[name='schedule_target']").addClass("invalid");
+			}
 			
-			$("form").append('<input type="hidden" name="schedule" value="' + schedule_value + '" />');
+			var target_on = $(this).find("input[name='target_on']").val();
+			if(target_on == "") {
+				validated = false;
+				$(this).find("input[name='target_on']").addClass("invalid");
+			}
+			
+			if(validated) {
+				var schedule_value = kpi_id + "," + schedule_id + "," + target + "," + target_on;
+				$("form").append('<input type="hidden" name="schedule" value="' + schedule_value + '" />');
+			}
 		});
 		
-		return true;
+		if(!validated) {
+			alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+		}
+		
+		return validated;
 	});
 });
 
@@ -117,25 +136,29 @@ function new_schedule(click_element) {
 	
 	new_row.find(".remove-schedule").click(function(e) {
 		e.preventDefault();
-		$(this).closest("tr").remove();
+		if(window.confirm("ยืนยันการลบ?")) {
+			$(this).closest("tr").remove();
+		}
 	});
 	
 	new_row.insertBefore(click_element.closest('tr'));
 }
 
 function remove_kpi(click_element) {
-	var li_element = click_element.closest("li");
-	
-	var kpi_id = li_element.attr("id").split("-")[1];
-	var kpi_name = li_element.find("h2").text();
-	var kpi_unit_name = li_element.find("#" + li_element.attr("id") + "-unit_name").attr("class");
-	
-	li_element.remove();
-	
-	$("#kpi_selector").append('<option value="' + kpi_id + '" rel="' + kpi_unit_name + '">' + kpi_name + '</option>');
-	
-	console.log("here");
-	$("li.add_kpi").show();
+	if(window.confirm("ยืนยันการลบ?")) {
+		var li_element = click_element.closest("li");
+		
+		var kpi_id = li_element.attr("id").split("-")[1];
+		var kpi_name = li_element.find("h2").text();
+		var kpi_unit_name = li_element.find("#" + li_element.attr("id") + "-unit_name").attr("class");
+		
+		li_element.remove();
+		
+		$("#kpi_selector").append('<option value="' + kpi_id + '" rel="' + kpi_unit_name + '">' + kpi_name + '</option>');
+		
+		console.log("here");
+		$("li.add_kpi").show();
+	}
 }
 
 function create_schedule_template(unit_name) {
@@ -198,7 +221,7 @@ function create_schedule_template(unit_name) {
 								<img src="/m/images/icon_date_picker.png" id="id_target_on_{{schedule.id}}" class="yui_date_picker"/>
 							</span>
 						</td>
-						<td class="delete"><a href="#" class="remove-schedule">ลบ</a></td>
+						<td class="delete"><a href="#" class="remove-schedule">ลบ</a>{% if schedule.revisions %} <img src="{{MEDIA_URL}}/images/error.png" title="มีข้อมูลการแก้ไข"/> มีข้อมูลการแก้ไข{% endif %}</td>
 					</tr>
 					{% endfor %}
 					<tr>

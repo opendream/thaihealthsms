@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect
 from forms import *
 from models import *
 
-from comments.models import Comment
+from comments.models import Comment, CommentReply
 from domain.models import Sector, MasterPlan, Project
 
 from helper import utilities
@@ -149,32 +149,72 @@ def view_sector_edit_project_kpi(request, project_id):
 	if not utilities.responsible(request.user, 'admin,sector_manager_assistant,sector_admin', sector):
 		return access_denied(request)
 	
-	existing_kpis = KPISchedule.objects.filter(project=project).values('kpi').distinct()
+	existing_kpis = KPISchedule.objects.filter(project=project).order_by('kpi__ref_no').values('kpi').distinct()
 	project_kpis = list()
 	for existing_kpi in existing_kpis:
 		kpi = KPI.objects.get(pk=existing_kpi['kpi'])
-		kpi.schedules = KPISchedule.objects.filter(project=project, kpi=kpi).order_by('target_on')
+		schedules = KPISchedule.objects.filter(project=project, kpi=kpi).order_by('target_on')
+		for schedule in schedules: schedule.revisions = KPIScheduleRevision.objects.filter(schedule=schedule)
+		kpi.schedules = schedules
 		project_kpis.append(kpi)
 	
 	if request.method == 'POST':
 		# 'schedule' - kpi_id , schedule_id , target , target_on - "123,None,100,2010-01-01"
 		
 		schedules = request.POST.getlist('schedule')
+		updating_schedules = list()
 		for schedule in schedules:
-			print schedule
-			(kpi_id, schedule_id, target, target_on) = schedule.split(',')
-			(target_on_year, target_on_month, target_on_day) = target_on.split('-')
-			target_on = date(int(target_on_year), int(target_on_month), int(target_on_day))
+			try:
+				(kpi_id, schedule_id, target, target_on) = schedule.split(',')
+				(target_on_year, target_on_month, target_on_day) = target_on.split('-')
+				target_on = date(int(target_on_year), int(target_on_month), int(target_on_day))
+				
+				target = int(target)
+			except:
+				return render_response(request, 'page_sector/sector_manage_edit_project_kpi.html', {'sector':sector, 'project':project, 'kpi_choices':kpi_choices, 'project_kpis':project_kpis})
 			
-			kpi = KPI.objects.get(pk=kpi_id)
-			
-			if schedule_id and schedule_id != 'None':
-				schedule = KPISchedule.objects.get(pk=schedule_id)
-				schedule.target = target
-				schedule.target_on = target_on
-				schedule.save()
 			else:
-				KPISchedule.objects.create(kpi=kpi, project=project, target=target, result=0, target_on=target_on)
+				kpi = KPI.objects.get(pk=kpi_id)
+				
+				if schedule_id and schedule_id != 'None':
+					schedule = KPISchedule.objects.get(pk=schedule_id)
+					
+					revision = KPIScheduleRevision.objects.create(
+						schedule=schedule,
+						org_target=schedule.target,
+						org_result=schedule.result,
+						org_target_on=schedule.target_on,
+						new_target=target,
+						new_result=schedule.result,
+						new_target_on=target_on,
+						revised_by=request.user.get_profile()
+					)
+					
+					schedule.target = target
+					schedule.target_on = target_on
+					schedule.save()
+					
+				else:
+					schedule = KPISchedule.objects.create(kpi=kpi, project=project, target=target, result=0, target_on=target_on)
+				
+				updating_schedules.append(schedule)
+		
+		# Remove schedule
+		for project_kpi in project_kpis:
+			for project_schedule in project_kpi.schedules:
+				found = False
+				for schedule in updating_schedules:
+					if schedule == project_schedule:
+						found = True
+			
+				if not found:
+					KPIScheduleRevision.objects.filter(schedule=project_schedule).delete()
+					
+					comments = Comment.objects.filter(object_name='kpi', object_id=project_schedule.id)
+					CommentReply.objects.filter(comment__in=comments).delete()
+					comments.delete()
+					
+					project_schedule.delete()
 		
 		return redirect('view_sector_edit_project_kpi', (project.id))
 	

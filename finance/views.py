@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, redirect
 from forms import *
 from models import *
 
-from comments.models import Comment
+from comments.models import Comment, CommentReply
 from domain.models import Project
 
 from helper import utilities
@@ -74,11 +74,13 @@ def view_sector_edit_project_finance(request, project_id):
 					found = True
 			
 			if not found:
-				project_schedule.delete()
+				ProjectBudgetScheduleRevision.objects.filter(schedule=project_schedule).delete()
 				
 				comments = Comment.objects.filter(object_name='finance', object_id=project_schedule.id)
 				CommentReply.objects.filter(comment__in=comments).delete()
 				comments.delete()
+				
+				project_schedule.delete()
 		
 		return redirect('view_sector_edit_project_finance', (project.id))
 	
