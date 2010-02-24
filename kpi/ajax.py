@@ -14,24 +14,7 @@ from helper.utilities import responsible
 def ajax_update_kpi_value(request):
 	if request.method == 'POST':
 		schedule_id = request.POST.get('schedule_id')
-		target_on = request.POST.get('target_on', '')
-		target = request.POST.get('target', '')
 		result = request.POST.get('result', '')
-		
-		if target_on:
-			try:
-				date_split = target_on.split('-')
-				target_on = date(int(date_split[0]), int(date_split[1]), int(date_split[2]))
-			except:
-				return HttpResponse(simplejson.dumps({'error':'invalid'}))
-		
-		if target:
-			try:
-				target = int(target)
-			except:
-				return HttpResponse(simplejson.dumps({'error':'invalid'}))
-			
-			if target < 0: return HttpResponse(simplejson.dumps({'error':'invalid'}))
 		
 		if result:
 			try:
@@ -40,12 +23,12 @@ def ajax_update_kpi_value(request):
 				return HttpResponse(simplejson.dumps({'error':'invalid'}))
 			
 			if result < 0: return HttpResponse(simplejson.dumps({'error':'invalid'}))
+		else:
+			return HttpResponse(simplejson.dumps({'error':'empty'}))
 		
 		kpi_schedule = KPISchedule.objects.get(pk=schedule_id)
 		
-		if responsible(request.user, 'sector_manager_assistant', kpi_schedule.project):
-			if target_on == '': target_on = kpi_schedule.target_on
-			if target == '': target = kpi_schedule.target
+		if responsible(request.user, 'sector_manager_assistant,project_manager,project_manager_assistant', kpi_schedule.project):
 			if result == '': result = kpi_schedule.result
 			
 			revision = KPIScheduleRevision.objects.create(
@@ -53,47 +36,20 @@ def ajax_update_kpi_value(request):
 				org_target=kpi_schedule.target,
 				org_result=kpi_schedule.result,
 				org_target_on=kpi_schedule.target_on,
-				new_target=target,
+				new_target=kpi_schedule.target,
 				new_result=result,
-				new_target_on=target_on,
+				new_target_on=kpi_schedule.target_on,
 				revised_by=request.user.get_profile()
 			)
 			
-			kpi_schedule.target_on = target_on
-			kpi_schedule.target = target
 			kpi_schedule.result = result
 			kpi_schedule.save()
 			
 			from helper.utilities import get_kpi_revision_html
 			return HttpResponse(simplejson.dumps({'revision_html':'<li>' + get_kpi_revision_html(revision) + '</li>'}))
 		
-		elif responsible(request.user, 'project_manager,project_manager_assistant', kpi_schedule.project):
-			
-			target_on = kpi_schedule.target_on # PM cannot change target_on
-			target = kpi_schedule.target # PM cannot change target
-			if not result: result = kpi_schedule.result
-			
-			revision = KPIScheduleRevision.objects.create(
-				schedule=kpi_schedule,
-				org_target=kpi_schedule.target,
-				org_result=kpi_schedule.result,
-				org_target_on=kpi_schedule.target_on,
-				new_target=target,
-				new_result=result,
-				new_target_on=target_on,
-				revised_by=request.user.get_profile()
-			)
-			
-			kpi_schedule.target_on = target_on
-			kpi_schedule.target = target
-			kpi_schedule.result = result
-			kpi_schedule.save()
-			
-			from helper.utilities import get_kpi_revision_html
-			return HttpResponse(simplejson.dumps({'revision_html':'<li>' + get_kpi_revision_html(revision) + '</li>'}))
-		
-		raise Http404
-		
+		else:
+			raise Http404
 	else:
 		raise Http404
 

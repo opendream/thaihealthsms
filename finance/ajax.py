@@ -14,24 +14,7 @@ from helper.utilities import format_abbr_date, responsible
 def ajax_update_finance_value(request):
 	if request.method == 'POST':
 		schedule_id = request.POST.get('schedule_id')
-		target_on = request.POST.get('target_on', '')
-		target = request.POST.get('target', '')
 		result = request.POST.get('result', '')
-		
-		if target_on:
-			try:
-				date_split = target_on.split('-')
-				target_on = date(int(date_split[0]), int(date_split[1]), int(date_split[2]))
-			except:
-				return HttpResponse(simplejson.dumps({'error':'invalid'}))
-		
-		if target:
-			try:
-				target = int(target)
-			except:
-				return HttpResponse(simplejson.dumps({'error':'invalid'}))
-			
-			if target < 0: return HttpResponse(simplejson.dumps({'error':'invalid'}))
 		
 		if result:
 			try:
@@ -40,35 +23,31 @@ def ajax_update_finance_value(request):
 				return HttpResponse(simplejson.dumps({'error':'invalid'}))
 			
 			if result < 0: return HttpResponse(simplejson.dumps({'error':'invalid'}))
+		else:
+			return HttpResponse(simplejson.dumps({'error':'empty'}))
 		
 		finance_schedule = ProjectBudgetSchedule.objects.get(pk=schedule_id)
 		
 		if responsible(request.user, 'sector_manager_assistant', finance_schedule.project):
-			if target_on == '': target_on = finance_schedule.target_on
-			if target == '': target = finance_schedule.target
-			if result == '': result = finance_schedule.result
-			
 			revision = ProjectBudgetScheduleRevision.objects.create(
 				schedule=finance_schedule,
 				org_target=finance_schedule.target,
 				org_result=finance_schedule.result,
 				org_target_on=finance_schedule.target_on,
-				new_target=target,
+				new_target=finance_schedule.target,
 				new_result=result,
-				new_target_on=target_on,
+				new_target_on=finance_schedule.target_on,
 				revised_by=request.user.get_profile()
 			)
 			
-			finance_schedule.target_on = target_on
-			finance_schedule.target = target
 			finance_schedule.result = result
 			finance_schedule.save()
 			
 			from helper.utilities import get_finance_revision_html
 			return HttpResponse(simplejson.dumps({'revision_html':'<li>' + get_finance_revision_html(revision) + '</li>'}))
 		
-		raise Http404
-		
+		else:
+			raise Http404
 	else:
 		raise Http404
 

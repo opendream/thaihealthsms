@@ -20,24 +20,7 @@ $(document).ready(function() {
 		var schedule_id = $(this).attr("rel");
 		
 		var trObject = $(this).parent().parent();
-		var target_on;
-		var target;
 		var result;
-		
-		if(trObject.find("input[name='target_on']").size() == 0) {
-			target_on = "";
-		} else {
-			target_on = trObject.find("input[name='target_on']").val();
-			if(target_on == undefined || target_on == "") { alert("กรุณากรอกวันที่ตั้งเป้า"); return; }
-		}
-		
-		if(trObject.find("input[name='target']").size() == 0) {
-			target = "";
-		} else {
-			target = trObject.find("input[name='target']").val();
-			if(target == undefined || target == "") { alert("กรุณากรอกตัวเลขการคาดการณ์"); return; }
-			if(!is_number(target)) { alert("ตัวเลขการคาดการณ์ต้องเป็นเลขจำนวนเต็มและไม่ติดลบ"); return; }
-		}
 		
 		if(trObject.find("input[name='result']").size() == 0) {
 			result = "";
@@ -48,12 +31,14 @@ $(document).ready(function() {
 		}
 		
 		$(this).attr("disabled", "disabled").html("กำลังดำเนินการ");
-		$.post("{% url ajax_update_kpi_value %}", {schedule_id:schedule_id, target_on:target_on, target:target, result:result}, function(data) {
+		$.post("{% url ajax_update_kpi_value %}", {schedule_id:schedule_id, result:result}, function(data) {
 			buttonObject.attr("disabled", "").html("บันทึกข้อมูล");
 			buttonObject.parent().parent().find("input").removeClass("changed");
 			
 			if(data.error == "invalid") {
 				alert("ข้อมูลไม่อยู่ในรูปแบบที่ถูกต้อง");
+			} else if(data.error == "empty") {
+				alert("กรุณากรอกข้อมูลให้ครบถ้วน");
 			} else {
 				if(data.revision_html != "") {
 					$(".schedule-revisions-" + schedule_id).prepend(data.revision_html);
@@ -116,23 +101,10 @@ function onPostCommentCallback(data, sender, target) {
 				<tr id="schedule-{{schedule.id}}">
 					<td class="link"><img src="{{MEDIA_URL}}/images/page_go.png" class="icon" /> <a href="{% url view_kpi_overview schedule.id %}">หน้าตัวชี้วัด</a></td>
 					<td class="date">
-						{% responsible user 'sector_manager_assistant' project %}
-						<span class="yui_date_picker_panel">
-							<input type="hidden" name="target_on" value="{{schedule.target_on|date:"Y-n-j"}}" id="id_target_on_{{schedule.id}}_value"/>
-							<input type="text" value="{{schedule.target_on|date:"j F"}} {{schedule.target_on.year|add:543}}" id="id_target_on_{{schedule.id}}_display" readonly="readonly" class="yui_date_picker_textbox"/>
-							<img src="/m/images/icon_date_picker.png" id="id_target_on_{{schedule.id}}" class="yui_date_picker"/>
-						</span>
-						{% else %}
 						{{schedule.target_on|abbr_date}}
-						{% endresponsible %}
 					</td>
 					<td class="target">
-						{% responsible user 'sector_manager_assistant' project %}
-						<input type="text" name="target" value="{{schedule.target}}" />
-						{% else %}
-						{{schedule.target}}
-						{% endresponsible %}
-						{{kpi.unit_name}}
+						{{schedule.target}} {{kpi.unit_name}}
 					</td>
 					<td class="result">
 						{% responsible user 'sector_manager_assistant,project_manager,project_manager_assistant' project %}
