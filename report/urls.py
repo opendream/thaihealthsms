@@ -17,6 +17,8 @@ urlpatterns = patterns('report.views',
 	url(r'^project/(?P<project_id>\d+)/reports/add/$', 'view_project_reports_add', name='view_project_reports_add'),
 	url(r'^project/(?P<project_id>\d+)/report/(?P<report_id>\d+)/edit/$', 'view_project_report_edit', name='view_project_report_edit'),
 	url(r'^project/(?P<project_id>\d+)/reports/send/$', 'view_project_reports_send', name='view_project_reports_send'),
+	
+	url(r'^project/(?P<project_id>\d+)/report/(?P<report_id>\d+)/inactive/$', 'view_project_set_report_inactive', name='view_project_set_report_inactive'),
 
 	# Report
 	url(r'^report/(?P<report_id>\d+)/$', 'view_report_overview', name='view_report_overview'),

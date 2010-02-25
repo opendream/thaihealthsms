@@ -81,6 +81,7 @@ function onPostCommentCallback(data, sender, target) {
 
 {% block body_content %}
 <div class="project_kpi_page">
+{% if kpi_categories %}
 <ul>
 {% for kpi_category in kpi_categories %}
 <li>
@@ -142,5 +143,8 @@ function onPostCommentCallback(data, sender, target) {
 </li>
 {% endfor %}
 </ul>
+{% else %}
+<div class="ss_no_information">ไม่มีข้อมูลตัวชี้วัด</div>
+{% endif %}
 </div>
 {% endblock %}

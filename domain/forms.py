@@ -79,8 +79,8 @@ class AddMasterPlanProjectForm(forms.Form):
 	plan = PlanChoiceField(label="กลุ่มแผนงาน")
 	ref_no = forms.CharField(max_length=64, label='เลขที่แผนงาน')
 	name = forms.CharField(max_length=512, label='ชื่อแผนงาน')
-	start_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_start_date'}), label='เริ่ม')
-	end_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_end_date'}), label='ถึง')
+	start_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_start_date'}), label='ระยะเวลา', required=False)
+	end_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_end_date'}), label='ถึง', required=False)
 	
 	def clean(self):
 		cleaned_data = self.cleaned_data

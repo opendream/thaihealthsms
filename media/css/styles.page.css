@@ -261,6 +261,7 @@
 .project_projects_page table .name {}
 .project_projects_page table .start_date {width:120px;text-align:center;}
 .project_projects_page table .end_date {width:120px;text-align:center;}
+.project_projects_page .ss_no_information {margin-left:15px;}
 
 /* Project Reports */
 .project_reports_page h2 {font-size:138.5%;margin:5px 0px 10px;color:#FFF;padding:5px 10px;background-color:#588;border-bottom:2px solid #CCC;}
@@ -279,6 +280,9 @@
 
 .project_manage_reports_page table .controls {width:35px;text-align:center;}
 .project_manage_reports_page table .controls a:hover {background:none !important;}
+
+.project_manage_reports_page table .active {width:150px;text-align:center;}
+.project_manage_reports_page table .is_inactive {background-color:#FCC;}
 
 /* Project Report Modify */
 .project_report_modify .inline label {display:inline;}

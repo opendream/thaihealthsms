@@ -95,7 +95,7 @@ def print_report_header(user, report_schedule):
 	html = unicode('<div class="sector"><a href="/sector/%d/">สำนัก %d %s</a> - <a href="/master_plan/%d/">แผน %d %s</a></div>', 'utf-8') % (report_schedule.report_project.project.master_plan.sector.id, report_schedule.report_project.project.master_plan.sector.ref_no, report_schedule.report_project.project.master_plan.sector.name, report_schedule.report_project.project.master_plan.id, report_schedule.report_project.project.master_plan.ref_no, report_schedule.report_project.project.master_plan.name)
 	html += '<div class="parent"><a href="/project/%s/">%s %s</a></div>' % (report_schedule.report_project.project.id, report_schedule.report_project.project.ref_no, report_schedule.report_project.project.name)
 	html += unicode('<div class="title"><span>รายงาน</span> %s</div>', 'utf-8') % report_schedule.report_project.report.name
-	html += unicode('<div class="info"><span>งวดวันที่ %s</span></div>', 'utf-8') % (utilities.format_abbr_date(report_schedule.due_date))
+	html += unicode('<div class="info"><span>กำหนดส่งวันที่ %s</span></div>', 'utf-8') % (utilities.format_abbr_date(report_schedule.schedule_date))
 	return html
 
 @register.simple_tag
@@ -206,7 +206,7 @@ def display_finance_comment_button(user, finance_schedule):
 @register.simple_tag
 def display_comment_object_title(object_name, object):
 	if object_name == 'report':
-		return unicode('[แผนงาน %s] %s งวดวันที่ %s', 'utf-8') % (object.report_project.project.ref_no, object.report_project.report.name, utilities.format_abbr_date(object.due_date))
+		return unicode('[แผนงาน %s] %s กำหนดส่งวันที่ %s', 'utf-8') % (object.report_project.project.ref_no, object.report_project.report.name, utilities.format_abbr_date(object.schedule_date))
 	elif object_name == 'kpi':
 		return unicode('[แผนงาน %s] ตัวชี้วัด %s งวดวันที่ %s', 'utf-8') % (object.project.ref_no, object.kpi.ref_no, utilities.format_abbr_date(object.target_on))
 	elif object_name == 'finance':

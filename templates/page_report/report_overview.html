@@ -100,7 +100,7 @@ $(document).ready(function() {
 		<div>
 			สถานะรายงาน:
 			{% ifequal report_schedule.status_code 'overdue' %}
-				<span class="overdue">รายงานยังไม่ถูกส่ง และเลยกำหนดส่งมาแล้ว {{report_schedule.due_date|elapse}}</span>
+				<span class="overdue">รายงานยังไม่ถูกส่ง และเลยกำหนดส่งมาแล้ว {{report_schedule.schedule_date|elapse}}</span>
 				{% responsible user 'project_manager,project_manager_assistant' report_schedule.report_project.project %}
 				<form method="post" action=".">
 					<input type="hidden" name="schedule_id" value="{{report_schedule.id}}" />

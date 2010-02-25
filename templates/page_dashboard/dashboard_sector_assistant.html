@@ -81,13 +81,13 @@ function onPostCommentCallback(data, sender, target) {
 								<ul class="reports">
 									{% for report_schedule in report.schedules %}
 										<li id="report-{{report_schedule.id}}" rel="{{report_schedule.id}}">
-											<div class="schedule"><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.due_date|abbr_date}}</a></div>
+											<div class="schedule"><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.schedule_date|abbr_date}}</a></div>
 											<div class="report_approval">
 												{% if report_schedule.need_approval %}<button class="approve-report">รับรองรายงาน</button><button class="reject-report">ตีกลับรายงาน</button>{% endif %}
 												{% ifequal report_schedule.state 3 %}<div><span class="rejected_on">ตีกลับเมื่อวันที่ {{report_schedule.approval_on|abbr_datetime}}</span></div>{% endifequal %}
 											</div>
 											<div class="report_details">
-												{% if report_schedule.overdue %}<span class="due_date overdue_date">เลยกำหนดมาแล้ว {{report_schedule.due_date|elapse}}</span>{% endif %}
+												{% if report_schedule.overdue %}<span class="due_date overdue_date">เลยกำหนดมาแล้ว {{report_schedule.schedule_date|elapse}}</span>{% endif %}
 												{% if report_schedule.submitted_on %}<span class="due_date">ส่งรายงานเมื่อวันที่ {{report_schedule.submitted_on|abbr_datetime}}</span>{% endif %}
 												<span class="comment">[ <a href="{% url view_report_comments report_schedule.id %}" class="comment_count">{% get_comment_count user 'report' report_schedule.id %} ความคิดเห็น</a> ] <a href="#" class="post-report-comment" rel="report/{{report_schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon"/></a></span>
 											</div>

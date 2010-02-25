@@ -40,8 +40,8 @@
 				{% for schedule in report.schedules %}
 				<li>
 					<div class="schedule">
-						{{schedule.due_date|abbr_date}}
-						{% if schedule.overdue %}<span class="overdue">เลยกำหนดส่งมาแล้ว {{schedule.due_date|elapse}}</span>{% endif %}
+						กำหนดส่งวันที่ {{schedule.schedule_date|abbr_date}}
+						{% if schedule.overdue %}<span class="overdue">เลยกำหนดส่งมาแล้ว {{schedule.schedule_date|elapse}}</span>{% endif %}
 						{% if schedule.waiting %}<span class="waiting">กำลังรอการตรวจสอบ</span>{% endif %}
 						{% if schedule.rejected %}<span class="rejected">รายงานถูกตีกลับ</span>{% endif %}
 					</div>

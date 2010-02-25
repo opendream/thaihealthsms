@@ -33,14 +33,21 @@
 			<div class="input LONG">{{form.name}}</div>
 			{{form.name.errors}}
 		</li>
-		<li>
-			<label for="id_need_approval">{{form.need_approval}} {{form.need_approval.label}}</label>
+		<li class="inline">
+			{{form.need_approval}}
+			<label for="id_need_approval">{{form.need_approval.label}}</label>
+			<div>{{form.need_approval.errors}}</div>
 		</li>
 		<li class="single_line">
 			<label for="id_schedule_cycle_length">ส่งรายงานทุกๆ:</label>
 			<span class="SHORT">{{form.schedule_cycle_length}}</span>
 			<label>เดือน</label>{% display_required %}
 			<div>{{form.schedule_cycle_length.errors}}</div>
+		</li>
+		<li class="inline sub_input">
+			{{form.start_now}}
+			<label for="id_start_now">{{form.start_now.label}}</label>
+			<div>{{form.start_now.errors}}</div>
 		</li>
 		<li class="single_line">
 			<label for="id_schedule_monthly_date">ในวันที่:</label>

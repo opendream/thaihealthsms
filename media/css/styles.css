@@ -113,6 +113,9 @@ h1.ss_sub_tab_header  {font-size:138.5%;margin-bottom:15px;}
 .ss_form .button_panel {margin:20px 0px 20px 30px;}
 .ss_form .button_panel button {padding:3px 25px;font-size:116%;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;color:#FFF;}
 
+.ss_form li.sub_input {padding-left:20px;margin:-5px 0px 15px 0px;}
+.ss_form li.sub_input label {font-size:100%;}
+
 .ss_form .single_line {margin:25px 0px;}
 .ss_form .single_line label {display:inline;}
 .ss_form .single_line select {margin:0px 10px;}

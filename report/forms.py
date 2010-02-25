@@ -27,33 +27,18 @@ class SectorReportForm(forms.Form):
 	name = forms.CharField(max_length=512, label='ชื่อรายงาน')
 	need_approval = forms.BooleanField(required=False, label='รายงานที่ส่งมา ต้องมีการรับรองรายงาน')
 	schedule_cycle_length = forms.ChoiceField(choices=month_cycle)
+	start_now = forms.BooleanField(required=False, label='เริ่มส่งรายงานในเดือนปัจจุบัน (ถ้าไม่เลือก หมายถึงเริ่มส่งรายงานในเดือนถัดไป)')
 	schedule_monthly_date = forms.ChoiceField(choices=date_cycle)
 	notify_days = forms.IntegerField(label='แจ้งเตือนก่อนถึงวันส่งรายงานล่วงหน้า', required=False)
 
-class AddProjectReportForm(forms.Form):
+class ProjectReportForm(forms.Form):
 	name = forms.CharField(max_length=512, label='ชื่อรายงาน')
 	need_checkup = forms.BooleanField(required=False, label='ส่งรายงานถึงผู้ประสานงานสำนัก')
 	need_approval = forms.BooleanField(required=False, label='ต้องรับรองรายงาน')
 	schedule_cycle_length = forms.ChoiceField(choices=month_cycle)
+	start_now = forms.BooleanField(required=False, label='เริ่มส่งรายงานในเดือนปัจจุบัน (ถ้าไม่เลือก หมายถึงเริ่มส่งรายงานในเดือนถัดไป)')
 	schedule_monthly_date = forms.ChoiceField(choices=date_cycle)
-	start_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_start_date'}), label='เริ่มตั้งแต่วันที่')
-	end_date = forms.DateField(widget=YUICalendar(attrs={'id':'id_end_date'}), label='ถึง')
-	
-	def clean(self):
-		cleaned_data = self.cleaned_data
-		start_date = cleaned_data.get('start_date')
-		end_date = cleaned_data.get('end_date')
-		
-		if start_date > end_date:
-			self._errors['start_date'] = ErrorList(['วันที่เริ่มต้นเกิดขึ้นหลังจากวันที่สิ้นสุด'])
-			del cleaned_data['start_date']
-		
-		return cleaned_data
-
-class EditProjectReportForm(forms.Form):
-	name = forms.CharField(max_length=512, label='ชื่อรายงาน')
-	need_checkup = forms.BooleanField(required=False, label='ส่งรายงานถึงผู้ประสานงานสำนัก')
-	need_approval = forms.BooleanField(required=False, label='ต้องรับรองรายงาน')
+	notify_days = forms.IntegerField(label='แจ้งเตือนก่อนถึงวันส่งรายงานล่วงหน้า', required=False)
 
 class MasterPlanProjectReportsForm(forms.Form):
 	def __init__(self, *args, **kwargs):

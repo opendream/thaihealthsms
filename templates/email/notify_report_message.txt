@@ -1,11 +1,16 @@
 {% load helper_tags %}
-{% if due_report_schedules %}
-คุณมีรายงานที่กำหนดส่งในวันนี้ดังต่อไปนี้
-{% for report_schedule in due_report_schedules %}
-{{report_schedule.report_project.report.name}} [http://{{site.name}}/report/{{report_schedule.id}}/]{% endfor %}
+{% if notify_schedules %}
+คุณมีรายงานที่ใกล้ถึงกำหนดส่งดังนี้
+{% for schedule in notify_schedules %}
+{{schedule.report_project.report.name}} -- กำหนดส่งวันที่ {{schedule.schedule.date|abbr_date}}
+[http://{{site.name}}/report/{{schedule.id}}/]
+{% endfor %}
 {% endif %}
-{% if nextdue_report_schedules %}
-คุณมีรายงานที่ต้องส่งดังต่อไปนี้
-{% for report_schedule in nextdue_report_schedules %}
-{{report_schedule.report_project.report.name}} - ส่งภายในวันที่ {{report_schedule.due_date|abbr_date}} [http://{{site.name}}/report/{{report_schedule.id}}/]{% endfor %}
+----------------------------------------
+{% if overdue_schedules %}
+คุณมีรายงานที่เลขกำหนดส่งแล้วดังนี้
+{% for schedule in overdue_schedules %}
+{{schedule.report_project.report.name}} - กำหนดส่งวันที่ {{schedule.schedule.date|abbr_date}}
+[http://{{site.name}}/report/{{schedule.id}}/]
+{% endfor %}
 {% endif %}

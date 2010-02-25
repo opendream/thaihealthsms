@@ -59,6 +59,7 @@
 		<tr>
 			<th class="controls"></th>
 			<th class="name">ชื่อรายงาน</th>
+			<th class="active">การส่งรายงาน</th>
 		</tr>
 		{% for report in project_reports %}
 		<tr>
@@ -66,6 +67,7 @@
 				<a href="{% url view_project_report_edit project.id report.id %}" title="แก้ไขรายงาน"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
 			</td>
 			<td class="name">{{report.name}}</td>
+			<td class="active">{% if report.is_active %}<img src="{{MEDIA_URL}}/images/icon_delete.png" class="icon"/> <a href="{% url view_project_set_report_inactive project.id report.id %}">หยุดการส่งรายงาน</a>{% else %}<div class="is_inactive">รายงานถูกหยุดการส่ง</div>{% endif %}</td>
 		</tr>
 		{% endfor %}
 	</table>

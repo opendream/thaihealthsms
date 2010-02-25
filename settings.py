@@ -81,6 +81,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'application.testbed@gmail.com'
 EMAIL_HOST_PASSWORD = 'opendream'
 EMAIL_PORT = 587
+EMAIL_SUBJECT_PREFIX = '[SMS] '
+
 
 SYSTEM_NOREPLY_EMAIL = EMAIL_HOST_USER
 

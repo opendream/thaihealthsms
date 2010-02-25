@@ -52,7 +52,7 @@ def _view_sector_manager_assistant_frontpage(request):
 	responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile(), role__name="sector_manager_assistant")
 	projects = responsibility.projects.all()
 	for project in projects:
-		project.reports = report_functions.get_submitted_and_overdue_reports(project)
+		project.reports = report_functions.get_checkup_reports(project)
 		
 	return render_response(request, "page_dashboard/dashboard_sector_assistant.html", {'projects':projects})
 

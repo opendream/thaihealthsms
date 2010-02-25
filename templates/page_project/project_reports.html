@@ -49,12 +49,12 @@ $(document).ready(function() {
 				<h3>ปี {{year|add:'543'}}</h3>
 				<ul class="schedules">
 					{% for schedule in report_project.schedules %}
-						{% ifequal schedule.due_date.year year %}<li><a href="{% url view_report_overview schedule.id %}">งวดวันที่ {{schedule.due_date|abbr_date}}</a><span class="status">{% display_report_status schedule %}</span></li>{% endifequal %}
+						{% ifequal schedule.schedule_date.year year %}<li><a href="{% url view_report_overview schedule.id %}">กำหนดส่งวันที่ {{schedule.schedule_date|abbr_date}}</a><span class="status">{% display_report_status schedule %}</span></li>{% endifequal %}
 					{% endfor %}
 				</ul>
 			{% endfor %}
 		{% else %}
-		<div class="ss_no_information">ไม่มีรายงาน</div>
+		<div class="ss_no_information">ไม่มีการส่งรายงาน</div>
 		{% endif %}
 	{% endfor %}
 	{% else %}

@@ -280,7 +280,7 @@ def view_project_overview(request, project_id):
 
 	if not project.parent_project:
 		current_projects = Project.objects.filter(parent_project=project, start_date__lte=current_date, end_date__gte=current_date)
-		report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_checkup=False))).order_by('-due_date')[:5]
+		report_schedules = ReportSchedule.objects.filter(report_project__project=project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_checkup=False))).order_by('-schedule_date')[:5]
 		finances = finance_functions.overview_project_finance(project)
 		return render_response(request, 'page_project/project_overview.html', {'project':project, 'current_projects':current_projects, 'report_schedules':report_schedules, 'finances':finances})
 

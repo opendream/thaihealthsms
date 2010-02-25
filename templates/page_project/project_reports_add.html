@@ -57,16 +57,21 @@
 				<label>เดือน</label>{% display_required %}
 				<div>{{form.schedule_cycle_length.errors}}</div>
 			</li>
+			<li class="inline sub_input">
+				{{form.start_now}}
+				<label for="id_start_now">{{form.start_now.label}}</label>
+				<div>{{form.start_now.errors}}</div>
+			</li>
 			<li class="single_line">
 				<label for="id_schedule_monthly_date">ในวันที่:</label>
 				<span class="SHORT">{{form.schedule_monthly_date}}</span>{% display_required %}
 				<div>{{form.schedule_monthly_date.errors}}</div>
 			</li>
-			<li class="date_period">
-				<label>{{form.start_date.label}}:</label>
-				<div class="input">{{form.start_date}}<span class="to">{{form.end_date.label}}</span> {{form.end_date}}</div>
-				{{form.start_date.errors}}
-				{{form.end_date.errors}}
+			<li class="single_line">
+				<label for="id_notify_days">{{form.notify_days.label}}</label>
+				<span class="SHORT">{{form.notify_days}}</span>
+				<label>วัน</label>
+				<div>{{form.notify_days.errors}}</div>
 			</li>
 		</ul>
 		<div class="button_panel"><button>เพิ่มรายงาน</button></div>

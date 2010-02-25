@@ -45,7 +45,7 @@ $(document).ready(function() {
 		{% if report_schedules %}
 		<ul>
 			{% for report_schedule in report_schedules %}
-			<li><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.report_project.report.name}} งวดวันที่ {{report_schedule.due_date|abbr_date}}</a></li>
+			<li><a href="{% url view_report_overview report_schedule.id %}">{{report_schedule.report_project.report.name}} งวดวันที่ {{report_schedule.schedule_date|abbr_date}}</a></li>
 			{% endfor %}
 		</ul>
 		{% else %}
