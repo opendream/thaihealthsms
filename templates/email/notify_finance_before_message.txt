@@ -1,0 +1,4 @@
+{% load helper_tags %}
+การเบิกจ่ายของแผนงาน {{schedule.project.ref_no}} {{schedule.project.name}}
+งวดวันที่ {{schedule.target_on|abbr_date}} จำนวนเงิน {{schedule.target}} บาท
+[http://{{site.name}}/finance/{{schedule.id}}/]

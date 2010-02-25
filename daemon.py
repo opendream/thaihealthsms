@@ -204,6 +204,7 @@ get_apps()
 
 #your optimization starts here
 from report.functions import notify_overdue_schedule
+from finance.functions import notify_finance_schedule
 
 class MyCron(BaseCron):
 	def __init__(self,pid):
@@ -211,9 +212,13 @@ class MyCron(BaseCron):
 		
 		#self.add_event("notify_overdue_schedules_job",10,"second",round=True)
 		self.add_event("notify_overdue_schedules_job",1,"day",round=True)
+		self.add_event("notify_finance_schedule_job",1,"day",round=True)
 		
 	def notify_overdue_schedules_job(self):
 		notify_overdue_schedule()
+	
+	def notify_finance_schedule_job(self):
+		notify_finance_schedule()
 
 """
 you can directly use your project name as we
