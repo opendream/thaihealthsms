@@ -93,7 +93,6 @@ def view_project_finance(request, project_id):
 	schedules = ProjectBudgetSchedule.objects.filter(project=project).order_by('-target_on')
 	
 	for schedule in schedules:
-		schedule.comments = Comment.objects.filter(object_name='finance', object_id=schedule.id).count()
 		schedule.revisions = ProjectBudgetScheduleRevision.objects.filter(schedule=schedule).order_by('-revised_on')
 	
 	return render_response(request, 'page_project/project_finance.html', {'project':project, 'schedules':schedules})

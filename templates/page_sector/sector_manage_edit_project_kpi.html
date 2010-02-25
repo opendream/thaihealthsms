@@ -95,12 +95,16 @@ $(document).ready(function() {
 			if(target == "") {
 				validated = false;
 				$(this).find("input[name='schedule_target']").addClass("invalid");
+			} else {
+				$(this).find("input[name='schedule_target']").removeClass("invalid");
 			}
 			
 			var target_on = $(this).find("input[name='target_on']").val();
 			if(target_on == "") {
 				validated = false;
 				$(this).find("input[name='target_on']").addClass("invalid");
+			} else {
+				$(this).find("input[name='target_on']").removeClass("invalid");
 			}
 			
 			if(validated) {

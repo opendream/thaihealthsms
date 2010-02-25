@@ -1,11 +1,16 @@
 from models import *
 
+def comment_count(object_name, object_id):
+	comments = Comment.objects.filter(object_name=object_name, object_id=object_id)
+	reply_count = CommentReply.objects.filter(comment__in=comments).count()
+	return reply_count + comments.count()
+
 def retrieve_visible_comments(request, object_name, object_id):
 	user_account = request.user.get_profile()
 	received_comments = CommentReceiver.objects.filter(\
 		receiver=request.user.get_profile(),\
 		comment__object_name=object_name, \
-		comment__object_id=object_id).order_by('-comment__sent_on')
+		comment__object_id=object_id).order_by('comment__sent_on')
 	
 	comments = list()
 	for received_comment in received_comments:

@@ -28,6 +28,7 @@ class ReportProject(models.Model):
 
 class ReportSchedule(models.Model):
 	report_project = models.ForeignKey('ReportProject')
+	#schedule_date = models.DateField()
 	due_date = models.DateField(null=True)
 	submitted_on = models.DateTimeField(null=True)
 	state = models.IntegerField(default=NO_ACTIVITY)

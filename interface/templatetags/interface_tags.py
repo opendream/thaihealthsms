@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from domain.constants import PROJECT_TYPE_TEXT
 from accounts.models import UserAccount, UserRoleResponsibility
-from comments.models import CommentReceiver, CommentReplyReceiver
+from comments.models import Comment, CommentReceiver, CommentReply, CommentReplyReceiver
 from domain.models import Project
 
 from thaihealthsms.helper import utilities
@@ -26,6 +26,10 @@ def get_unread_comments(user_account_id):
 		 + CommentReplyReceiver.objects.filter(receiver=user_account, is_read=False).count()
 	
 	return unread_count
+
+@register.simple_tag
+def get_comment_count(user, object_name, object_id):
+	return CommentReceiver.objects.filter(receiver=user.get_profile(), comment__object_name=object_name, comment__object_id=object_id).count() + CommentReplyReceiver.objects.filter(receiver=user.get_profile(), reply__comment__object_name=object_name, reply__comment__object_id=object_id).count()
 
 #
 # TEMPLATE HEADER TAGS

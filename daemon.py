@@ -209,6 +209,7 @@ class MyCron(BaseCron):
 	def __init__(self,pid):
 		BaseCron.__init__(self,pid)
 		
+		#self.add_event("notify_overdue_schedules_job",10,"second",round=True)
 		self.add_event("notify_overdue_schedules_job",1,"day",round=True)
 		
 	def notify_overdue_schedules_job(self):

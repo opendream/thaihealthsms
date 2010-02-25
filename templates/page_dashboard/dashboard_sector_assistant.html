@@ -89,7 +89,7 @@ function onPostCommentCallback(data, sender, target) {
 											<div class="report_details">
 												{% if report_schedule.overdue %}<span class="due_date overdue_date">เลยกำหนดมาแล้ว {{report_schedule.due_date|elapse}}</span>{% endif %}
 												{% if report_schedule.submitted_on %}<span class="due_date">ส่งรายงานเมื่อวันที่ {{report_schedule.submitted_on|abbr_datetime}}</span>{% endif %}
-												<span class="comment">[ <a href="{% url view_report_comments report_schedule.id %}" class="comment_count">{% if report_schedule.comment_count %}{{report_schedule.comment_count}}{% else %}0{% endif %} ความคิดเห็น</a> ] <a href="#" class="post-report-comment" rel="report/{{report_schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon"/></a></span>
+												<span class="comment">[ <a href="{% url view_report_comments report_schedule.id %}" class="comment_count">{% get_comment_count user 'report' report_schedule.id %} ความคิดเห็น</a> ] <a href="#" class="post-report-comment" rel="report/{{report_schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon"/></a></span>
 											</div>
 										</li>
 									{% endfor %}

@@ -53,7 +53,7 @@ $(document).ready(function() {
 
 function onPostCommentCallback(data, sender, target) {
 	if(sender.hasClass('post-schedule-comment')) {
-		$("#schedule-" + data.object_id + " .comment_count").text(data.count + " ความคิดเห็น");
+		$("#schedule-" + data.object_id + " .comment_count a").text(data.count + " ความคิดเห็น");
 	}
 }
 </script>
@@ -118,7 +118,7 @@ function onPostCommentCallback(data, sender, target) {
 						{% responsible user 'sector_manager_assistant,project_manager,project_manager_assistant' project %}
 						<button class="update-kpi" rel="{{schedule.id}}">บันทึกข้อมูล</button>
 						{% endresponsible %}
-						<span class="comment_count">{{schedule.comments}} ความคิดเห็น</span> {% ifadmin user %}{% else %}<a href="#" class="post-schedule-comment" rel="kpi/{{schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon" /></a>{% endifadmin %}
+						<span class="comment_count">[ <a href="{% url view_kpi_overview schedule.id %}#comments">{% get_comment_count user 'kpi' schedule.id %} ความคิดเห็น</a> ]</span> {% ifadmin user %}{% else %}<a href="#" class="post-schedule-comment" rel="kpi/{{schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon" /></a>{% endifadmin %}
 					</td>
 				</tr>
 				<tr class="revision">

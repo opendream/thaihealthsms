@@ -9,7 +9,7 @@ from django.http import HttpResponse, Http404
 from django.template.loader import render_to_string
 from django.utils import simplejson
 
-from functions import get_comment_object
+from functions import get_comment_object, comment_count
 from models import *
 
 from accounts.models import UserAccount, UserRoleResponsibility
@@ -59,8 +59,9 @@ def ajax_post_object_comment(request, object_name, object_id):
 			email_recipient_list = list()
 			
 			for r in role_resps:
-				CommentReceiver.objects.create(comment=comment, receiver=r.user)
-				email_recipient_list.append(r.user.user.email)
+				if r.user != request.get_profile():
+					CommentReceiver.objects.create(comment=comment, receiver=r.user)
+					email_recipient_list.append(r.user.user.email)
 			
 			CommentReceiver.objects.create(comment=comment, receiver=request.user.get_profile(), is_read=True) # Create receiver record for sender
 			
@@ -74,9 +75,7 @@ def ajax_post_object_comment(request, object_name, object_id):
 			
 			send_mass_mail(datatuple, fail_silently=True)
 			
-			updated_comment_count = Comment.objects.filter(object_id=object_id, object_name=object_name).count()
-			
-			return HttpResponse(simplejson.dumps({'id':comment.id, 'object_id':object_id, 'object_name':object_name, 'count':updated_comment_count}))
+			return HttpResponse(simplejson.dumps({'id':comment.id, 'object_id':object_id, 'object_name':object_name, 'count':comment_count(object_name, object_id)}))
 		
 	else:
 		raise Http404

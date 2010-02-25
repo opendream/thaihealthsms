@@ -270,7 +270,6 @@ def view_project_kpi(request, project_id):
 			kpi.schedules = KPISchedule.objects.filter(kpi=kpi, project=project).order_by('-target_on')
 			
 			for schedule in kpi.schedules:
-				schedule.comments = Comment.objects.filter(object_name='kpi', object_id=schedule.id).count()
 				schedule.revisions = KPIScheduleRevision.objects.filter(schedule=schedule).order_by('-revised_on')
 			
 			kpi_category.append(kpi)

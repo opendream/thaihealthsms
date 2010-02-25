@@ -319,7 +319,7 @@
 
 .project_kpi_page table td.controls button {margin-right:10px;padding:2px 15px;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 .project_kpi_page table td.controls img {margin-left:6px;}
-.project_kpi_page table td.controls a:hover {background:none !important;}
+.project_kpi_page table td.controls a.post-schedule-comment:hover {background:none !important;}
 
 .project_kpi_page table tr.revision {background-color:#FFF;}
 .project_kpi_page table tr.revision td {padding:10px 0px 10px 30px;}
@@ -346,7 +346,7 @@
 
 .project_finance_page table td.controls button {margin-right:20px;padding:2px 15px;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 .project_finance_page table td.controls img {margin-left:6px;}
-.project_finance_page table td.controls a:hover {background:none !important;}
+.project_finance_page table td.controls a.post-schedule-comment:hover {background:none !important;}
 
 .project_finance_page table tr.revision {background-color:#FFF;}
 .project_finance_page table tr.revision td {padding:10px 0px 10px 30px;}
@@ -389,6 +389,8 @@
 
 .report_page .content {margin-top:15px;}
 .report_page .content h3 {font-size:138.5%;margin:5px 0px 15px;color:#2D8659;}
+.report_page .content .text_content {margin-left:15px;}
+.report_page .content .text_content p {margin-bottom:8px;}
 
 .report_page .edit_content {display:none;}
 .report_page .edit_content .button_panel {margin:15px 0px;}

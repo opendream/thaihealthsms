@@ -6,6 +6,7 @@ from accounts.models import UserRoleResponsibility
 from comments.models import Comment
 from domain.models import MasterPlan, Project
 
+from comments import functions as comment_functions
 from report import functions as report_functions
 
 from helper import utilities
@@ -53,10 +54,6 @@ def _view_sector_manager_assistant_frontpage(request):
 	for project in projects:
 		project.reports = report_functions.get_submitted_and_overdue_reports(project)
 		
-		for report in project.reports:
-			for schedule in report.schedules:
-				schedule.comment_count = Comment.objects.filter(object_name='report', object_id=schedule.id).count()
-
 	return render_response(request, "page_dashboard/dashboard_sector_assistant.html", {'projects':projects})
 
 def _view_project_manager_frontpage(request):
