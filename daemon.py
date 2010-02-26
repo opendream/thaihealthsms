@@ -211,10 +211,10 @@ class MyCron(BaseCron):
 		BaseCron.__init__(self,pid)
 		
 		#self.add_event("notify_overdue_schedules_job",10,"second",round=True)
-		#self.add_event("notify_overdue_schedules_job",1,"day",round=True)
+		self.add_event("notify_overdue_schedules_job",1,"day",round=True)
 		
-		self.add_event("notify_finance_schedule_job",5,"second",round=False)
-		#self.add_event("notify_finance_schedule_job",1,"day",round=True)
+		#self.add_event("notify_finance_schedule_job",5,"second",round=False)
+		self.add_event("notify_finance_schedule_job",1,"day",round=True)
 		
 	def notify_overdue_schedules_job(self):
 		notify_overdue_schedule()
