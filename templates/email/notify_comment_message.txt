@@ -9,9 +9,19 @@ http://{{site.name}}/project/{{object.id}}/comments/
 "{{comment.message}}"
 
 http://{{site.name}}/activity/{{object.id}}/comments/
-{% endifequal %}{% ifequal comment.object_name 'report' %}รายงาน{{object.report_project.report.name}} งวดวันที่ {{object.due_date|abbr_date}}
+{% endifequal %}{% ifequal comment.object_name 'report' %}รายงาน{{object.report_project.report.name}} กำหนดส่งวันที่ {{object.schedule_date|abbr_date}}
 
 "{{comment.message}}"
 
 http://{{site.name}}/report/{{object.id}}/comments/
+{% endifequal %}{% ifequal comment.object_name 'kpi' %}ตัวชี้วัด{{object.kpi.name}} งวดวันที่ {{object.target_on|abbr_date}}
+
+"{{comment.message}}"
+
+http://{{site.name}}/kpi/{{object.id}}/comments/
+{% endifequal %}{% ifequal comment.object_name 'finance' %}กำหนดการเบิกจ่าย งวดวันที่ {{object.target_on|abbr_date}}
+
+"{{comment.message}}"
+
+http://{{site.name}}/finance/{{object.id}}/comments/
 {% endifequal %}

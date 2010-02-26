@@ -26,7 +26,7 @@ function onPostCommentCallback(data, sender, target) {
 		<ul>
 			<li><a href="{% url view_activity_overview activity.id %}">ภาพรวม</a></li>
 			{% responsible user 'project_manager,project_manager_assistant' activity.project.parent_project %}
-			<li><a href="{% url view_activity_edit activity.id %}">แก้ไขกิจกรรม</a></li>
+			<li><img src="{{MEDIA_URL}}/images/pencil.png" /><a href="{% url view_activity_edit activity.id %}">แก้ไขกิจกรรม</a></li>
 			{% endresponsible %}
 			<li class="selected"><img src="{{MEDIA_URL}}/images/icon_comments.png" />ความคิดเห็น</li>
 		</ul>

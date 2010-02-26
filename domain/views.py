@@ -157,7 +157,7 @@ def view_sector_add_project(request, sector_id):
 		return access_denied(request)
 	
 	if request.method == 'POST':
-		form = AddMasterPlanProjectForm(request.POST, sector=sector)
+		form = MasterPlanProjectForm(request.POST, sector=sector)
 		if form.is_valid():
 			project = Project.objects.create(
 				master_plan=form.cleaned_data['plan'].master_plan,
@@ -173,7 +173,7 @@ def view_sector_add_project(request, sector_id):
 			return redirect('view_sector_edit_project', (project.id))
 		
 	else:
-		form = AddMasterPlanProjectForm(sector=sector)
+		form = MasterPlanProjectForm(sector=sector)
 	
 	has_plans = Plan.objects.filter(master_plan__sector=sector).count() > 0
 	return render_response(request, 'page_sector/sector_manage_add_project.html', {'sector':sector, 'form':form, 'has_plans':has_plans})
@@ -189,18 +189,20 @@ def view_sector_edit_project(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 	
 	if request.method == 'POST':
-		form = EditMasterPlanProjectForm(request.POST)
+		form = MasterPlanProjectForm(request.POST, sector=sector)
 		if form.is_valid():
 			project.plan = form.cleaned_data['plan']
 			project.ref_no = form.cleaned_data['ref_no']
 			project.name = form.cleaned_data['name']
+			project.start_date = form.cleaned_data['start_date']
+			project.end_date = form.cleaned_data['end_date']
 			project.save()
 			
 			set_message(request, u'แก้ไขแผนงานเรียบร้อย')
 			return redirect('view_sector_edit_project', (project.id))
 		
 	else:
-		form = EditMasterPlanProjectForm(initial={'plan':project.plan.id, 'ref_no':project.ref_no, 'name':project.name, 'description':project.description})
+		form = MasterPlanProjectForm(sector=sector, initial={'project_id':project.id, 'plan':project.plan.id, 'ref_no':project.ref_no, 'name':project.name, 'description':project.description, 'start_date':project.start_date, 'end_date':project.end_date})
 	
 	return render_response(request, 'page_sector/sector_manage_edit_project.html', {'sector':sector, 'project':project, 'form':form})
 
@@ -428,14 +430,14 @@ def view_activity_add(request, project_id):
 		if request.method == 'POST':
 			form = ActivityForm(request.POST)
 			if form.is_valid():
-				activity = Activity.objects.create(project=project,\
-					name=form.cleaned_data['name'],\
-					start_date=form.cleaned_data['start_date'],\
-					end_date=form.cleaned_data['end_date'],\
-					description=form.cleaned_data['description'],\
-					location=form.cleaned_data['location'],\
-					result_goal=form.cleaned_data['result_goal'],\
-					result_real=form.cleaned_data['result_real'],\
+				activity = Activity.objects.create(project=project,
+					name=form.cleaned_data['name'],
+					start_date=form.cleaned_data['start_date'],
+					end_date=form.cleaned_data['end_date'],
+					description=form.cleaned_data['description'],
+					location=form.cleaned_data['location'],
+					result_goal=form.cleaned_data['result_goal'],
+					result_real=form.cleaned_data['result_real'],
 					)
 
 				set_message(request, u'สร้างกิจกรรมเรียบร้อย')

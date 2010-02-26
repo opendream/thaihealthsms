@@ -118,6 +118,7 @@
 .overview_page .kpi_overview th.year {font-size:123.1%;color:#333;padding:5px 10px;}
 .overview_page .kpi_overview td {padding:5px 10px 15px;vertical-align:top;}
 .overview_page .kpi_overview td.category {color:#C60;font-size:116%;}
+.overview_page .kpi_overview td .organization_kpi {color:#666;font-size:0.9em;margin-top:3px;}
 .overview_page .kpi_overview .ss_bar_graph {width:250px;}
 .overview_page .kpi_overview .graph_value {font-size:123.1%;margin:5px 0px 10px;}
 .overview_page .kpi_overview .graph_value_disabled {color:#666;font-size:116%;}
@@ -239,6 +240,7 @@
 /* Master Plan KPI Page */
 .masterplan_kpi_page h2 {font-size:138.5%;margin:5px 0px 10px;color:#FFF;padding:5px 10px;background-color:#588;border-bottom:2px solid #CCC;}
 .masterplan_kpi_page h2 span {color:#CCC;}
+.masterplan_kpi_page h2 .organization_kpi {font-size:0.8em;}
 
 .masterplan_kpi_page table {margin:0px 0px 20px 0px;}
 .masterplan_kpi_page tr.kpi_name td {color:#C60;font-size:123.1%;}
@@ -285,8 +287,6 @@
 .project_manage_reports_page table .is_inactive {background-color:#FCC;}
 
 /* Project Report Modify */
-.project_report_modify .inline label {display:inline;}
-.project_report_modify .inline select {margin:0px 10px;}
 .project_report_modify .month_cycle {margin-top:30px;}
 .project_report_modify .radio_choice {margin-bottom:30px;}
 .project_report_modify .radio_choice div {margin-bottom:10px;}
@@ -387,6 +387,7 @@
 .report_page .report_status .approved {color:#2D8659;}
 .report_page .report_status .rejected {color:#C30;}
 
+.report_page .report_status .no_data {color:#666;margin-top:8px;font-style:italic;font-size:0.8em;}
 .report_page .report_status .buttons {margin-top:10px;font-size:0.75em;}
 .report_page .report_status .buttons button {padding:3px 25px;font-size:116%;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 .report_page .report_status .buttons span {margin-left:15px;color:#333;background-color:#FFC;padding:0px 5px;}

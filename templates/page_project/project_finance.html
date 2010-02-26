@@ -179,7 +179,7 @@ function onPostCommentCallback(data, sender, target) {
 				{% endresponsible %}
 			</td>
 			<td class="controls">
-				{% responsible user 'sector_manager_assistant,project_manager,project_manager_assistant' project %}
+				{% responsible user 'sector_manager_assistant' project %}
 				<button class="update-finance" rel="{{schedule.id}}">บันทึกข้อมูล</button>
 				{% endresponsible %}
 				<span class="comment_count">[ <a href="{% url view_finance_overview schedule.id %}#comments">{% get_comment_count user 'finance' schedule.id %} ความคิดเห็น</a> ]</span> {% ifadmin user %}{% else %}<a href="#" class="post-schedule-comment" rel="finance/{{schedule.id}}" title="เขียนความคิดเห็น"><img src="{{MEDIA_URL}}/images/comment_add.png" class="icon" /></a>{% endifadmin %}

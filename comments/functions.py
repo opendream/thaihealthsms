@@ -1,9 +1,8 @@
 from models import *
 
-def comment_count(object_name, object_id):
-	comments = Comment.objects.filter(object_name=object_name, object_id=object_id)
-	reply_count = CommentReply.objects.filter(comment__in=comments).count()
-	return reply_count + comments.count()
+def comment_count(user, object_name, object_id):
+	user_account = user.get_profile()
+	return CommentReceiver.objects.filter(receiver=user_account, comment__object_name=object_name, comment__object_id=object_id).count() + CommentReplyReceiver.objects.filter(receiver=user_account, reply__comment__object_name=object_name, reply__comment__object_id=object_id).count()
 
 def retrieve_visible_comments(request, object_name, object_id):
 	user_account = request.user.get_profile()

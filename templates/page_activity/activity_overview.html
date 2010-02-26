@@ -30,7 +30,7 @@
 		<ul>
 			<li class="selected">ภาพรวม</li>
 			{% responsible user 'project_manager,project_manager_assistant' activity.project.parent_project %}
-			<li><a href="{% url view_activity_edit activity.id %}">แก้ไขกิจกรรม</a></li>
+			<li><img src="{{MEDIA_URL}}/images/pencil.png" /><a href="{% url view_activity_edit activity.id %}">แก้ไขกิจกรรม</a></li>
 			{% endresponsible %}
 			<li><img src="{{MEDIA_URL}}/images/icon_comments.png" /><a href="{% url view_activity_comments activity.id %}">ความคิดเห็น</a></li>
 		</ul>

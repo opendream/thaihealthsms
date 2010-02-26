@@ -102,19 +102,27 @@ $(document).ready(function() {
 			{% ifequal report_schedule.status_code 'overdue' %}
 				<span class="overdue">รายงานยังไม่ถูกส่ง และเลยกำหนดส่งมาแล้ว {{report_schedule.schedule_date|elapse}}</span>
 				{% responsible user 'project_manager,project_manager_assistant' report_schedule.report_project.project %}
+				{% if not report_schedule.files and not report_schedule.text_response.text %}
+				<div class="no_data">ไม่มีเนื้อหาหรือไฟล์รายงาน</div>
+				{% else %}
 				<form method="post" action=".">
 					<input type="hidden" name="schedule_id" value="{{report_schedule.id}}" />
-					<div class="buttons"><button {% if not report_schedule.files and not report_schedule.text_response.text %}disabled="disabled"{% endif %} name="submit" value="submit-report">ส่งรายงาน</button>{% if not report_schedule.files and not report_schedule.text_response.text %}<span>ยังไม่มีไฟล์หรือเนื้อหาอยู่ในรายงาน</span>{% endif %}</div>
+					<div class="buttons"><button name="submit" value="submit-report">ส่งรายงาน</button>{% if not report_schedule.files and not report_schedule.text_response.text %}<span>ยังไม่มีไฟล์หรือเนื้อหาอยู่ในรายงาน</span>{% endif %}</div>
 				</form>
+				{% endif %}
 				{% endresponsible %}
 			{% endifequal %}
 			{% ifequal report_schedule.status_code 'not_submitted' %}
 				<span class="not_submitted">รายงานยังไม่ถูกส่ง</span>
 				{% responsible user 'project_manager,project_manager_assistant' report_schedule.report_project.project %}
+				{% if not report_schedule.files and not report_schedule.text_response.text %}
+				<div class="no_data">ไม่มีเนื้อหาหรือไฟล์รายงาน</div>
+				{% else %}
 				<form method="post" action=".">
 					<input type="hidden" name="schedule_id" value="{{report_schedule.id}}" />
 					<div class="buttons"><button {% if not report_schedule.files and not report_schedule.text_response %}disabled="disabled"{% endif %} name="submit" value="submit-report">ส่งรายงาน</button></div>
 				</form>
+				{% endif %}
 				{% endresponsible %}
 			{% endifequal %}
 			{% ifequal report_schedule.status_code 'submitted' %}<span class="submitted">ส่งเมื่อวันที่ {{report_schedule.submitted_on|abbr_datetime}}</span>{% endifequal %}

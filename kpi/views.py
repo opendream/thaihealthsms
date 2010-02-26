@@ -238,11 +238,13 @@ def view_master_plan_kpi(request, master_plan_id):
 	kpi_categories = list()
 	for category in KPISchedule.objects.filter(kpi__master_plan=None, project__master_plan=master_plan).values('kpi__category').distinct():
 		kpi_category = KPICategory.objects.get(pk=category['kpi__category'])
+		kpi_category.is_organization_kpi = True
 		kpi_category.kpis = get_kpi_project_by_category(kpi_category, master_plan, True)
 		kpi_categories.append(kpi_category)
 
 	for category in KPI.objects.filter(master_plan=master_plan).values('category').distinct():
 		kpi_category = KPICategory.objects.get(pk=category['category'])
+		kpi_category.is_organization_kpi = False
 		kpi_category.kpis = get_kpi_project_by_category(kpi_category, master_plan, False)
 		kpi_categories.append(kpi_category)
 	
@@ -256,7 +258,10 @@ def view_master_plan_kpi(request, master_plan_id):
 def view_project_kpi(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 	
-	categories = KPISchedule.objects.filter(project=project, kpi__is_visible_to_project=True).values('kpi__category').distinct()
+	if utilities.responsible(request.user, 'sector_manager,sector_manager_assistant', project):
+		categories = KPISchedule.objects.filter(project=project).values('kpi__category').distinct()
+	else:
+		categories = KPISchedule.objects.filter(project=project, kpi__is_visible_to_project=True).values('kpi__category').distinct()
 	
 	kpi_categories = list()
 	for category in categories:

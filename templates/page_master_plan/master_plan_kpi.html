@@ -27,7 +27,7 @@
 <div class="masterplan_kpi_page">
 	{% if master_plan.categories %}
 	{% for category in master_plan.categories %}
-		<h2><span>กลุ่มตัวชี้วัด</span> {{category.name}}</h2>	
+		<h2><span>กลุ่มตัวชี้วัด</span> {{category.name}}{% if category.is_organization_kpi %} <span class="organization_kpi">(ตัวชี้วัดระดับองค์กร)</span>{% endif %}</h2>	
 		<table>
 			<tr>
 				<th></th>

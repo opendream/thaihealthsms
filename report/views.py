@@ -170,8 +170,6 @@ def view_project_reports(request, project_id):
 		else:
 			report_project.schedules = ReportSchedule.objects.filter(report_project=report_project).filter(Q(state=APPROVE_ACTIVITY) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_approval=False)) | (Q(state=SUBMIT_ACTIVITY) & Q(report_project__report__need_checkup=False))).order_by('-schedule_date')
 		
-		print report_project.schedules
-		
 		year_list = set()
 		for schedule in report_project.schedules: year_list.add(schedule.schedule_date.year)
 		year_list = sorted(year_list, reverse=True)

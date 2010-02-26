@@ -71,13 +71,14 @@ def view_dashboard_my_projects(request):
 	if utilities.user_has_role(request.user, 'sector_manager_assistant'):
 		if request.method == 'POST':
 			projects = request.POST.getlist('project')
-
+			
 			responsibility = UserRoleResponsibility.objects.get(user=request.user.get_profile())
-
+			
+			responsibility.projects.clear()
 			for project_id in projects:
 				project = Project.objects.get(pk=project_id)
 				responsibility.projects.add(project)
-
+			
 			return redirect('view_frontpage')
 
 		else:

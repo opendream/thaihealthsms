@@ -45,7 +45,7 @@
 						{% if schedule.waiting %}<span class="waiting">กำลังรอการตรวจสอบ</span>{% endif %}
 						{% if schedule.rejected %}<span class="rejected">รายงานถูกตีกลับ</span>{% endif %}
 					</div>
-					<div class="links"><img src="{{MEDIA_URL}}/images/icon_report.png" class="icon"/> <a href="/report/{{schedule.id}}/">เปิดหน้ารายงาน</a> <img src="{{MEDIA_URL}}/images/icon_comments.png" class="icon"/> <a href="/report/{{schedule.id}}/comments/">{{schedule.comment_count}} ความคิดเห็น</a> </div>
+					<div class="links"><img src="{{MEDIA_URL}}/images/icon_report.png" class="icon"/> <a href="/report/{{schedule.id}}/">เปิดหน้ารายงาน</a></div>
 				</li>
 				{% endfor %}
 			</ul>

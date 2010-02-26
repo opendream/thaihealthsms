@@ -51,6 +51,7 @@ def get_kpi_summary_by_category(kpi_category, master_plan, is_organization_kpi):
 	else:
 		schedules = KPISchedule.objects.filter(kpi__in=kpis, target_on__gte=masterplan_start, target_on__lte=masterplan_end)
 	
+	kpi_category.is_organization_kpi = is_organization_kpi
 	kpi_category.previous_year = _schedules_percentage(schedules)
 	
 	return kpi_category

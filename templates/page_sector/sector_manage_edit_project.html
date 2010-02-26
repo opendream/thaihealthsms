@@ -55,6 +55,13 @@
 				<div class="input LONG">{{form.name}}</div>
 				{{form.name.errors}}
 			</li>
+			<li class="date_period">
+				<label>{{form.start_date.label}}</label>
+				<div class="input">{{form.start_date}} <span class="to">{{form.end_date.label}}</span> {{form.end_date}}</div>
+				{{form.start_date.errors}}
+				{{form.end_date.errors}}
+			</li>
+			{{form.project_id}}
 		</ul>
 		<div class="button_panel"><button type="submit">แก้ไขแผนงาน</button></div>
 	</form>

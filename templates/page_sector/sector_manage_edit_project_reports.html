@@ -42,7 +42,7 @@
 		<ul>
 			<li><label for="id_reports">{{form.reports.label}}</label><div class="input">{{form.reports}}</div>{{form.reports.errors}}</li>
 		</ul>
-		<div class="button_panel"><button type="submit">แก้ไขตัวเลือกรายงาน</button></div>
+		<div class="button_panel"><button type="submit">บันทึกการแก้ไข</button></div>
 	</form>
 	{% else %}
 	<div class="prerequisite">ยังไม่มีการสร้างรายงานที่จะใช้ภายในสำนัก คุณสามารถสร้างรายงานได้ที่หน้า <a href="{% url view_sector_add_report sector.id %}">สร้างรายงาน</a></div>

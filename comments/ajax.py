@@ -59,7 +59,7 @@ def ajax_post_object_comment(request, object_name, object_id):
 			email_recipient_list = list()
 			
 			for r in role_resps:
-				if r.user != request.get_profile():
+				if r.user != request.user.get_profile():
 					CommentReceiver.objects.create(comment=comment, receiver=r.user)
 					email_recipient_list.append(r.user.user.email)
 			
@@ -75,7 +75,7 @@ def ajax_post_object_comment(request, object_name, object_id):
 			
 			send_mass_mail(datatuple, fail_silently=True)
 			
-			return HttpResponse(simplejson.dumps({'id':comment.id, 'object_id':object_id, 'object_name':object_name, 'count':comment_count(object_name, object_id)}))
+			return HttpResponse(simplejson.dumps({'id':comment.id, 'object_id':object_id, 'object_name':object_name, 'count':comment_count(request.user, object_name, object_id)}))
 		
 	else:
 		raise Http404

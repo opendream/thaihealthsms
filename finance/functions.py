@@ -1,9 +1,14 @@
 from datetime import date, timedelta
 
+from django.conf import settings
+from django.contrib.sites.models import Site
+from django.core.mail import send_mass_mail
 from django.db.models import F
+from django.template.loader import render_to_string
 
 from models import ProjectBudgetSchedule, ProjectBudgetScheduleRevision
 
+from accounts.models import UserRoleResponsibility
 from domain.models import Project
 
 from helper import utilities
@@ -79,24 +84,24 @@ def notify_finance_schedule():
 	
 	for schedule in ProjectBudgetSchedule.objects.all():
 		
-		if schedule.target_on + timedelta(days=settings.FINANCE_ALERT_BEFORE) == current_date and not schedule.claimed_on:
+		if schedule.target_on - timedelta(days=settings.FINANCE_ALERT_BEFORE) == current_date and not schedule.claimed_on:
 			
 			recipient_list = list()
-			for user_role_responsibility in UserRoleResponsibility.objects.filter(projects=report_project.project, role__name__in=('project_manager', 'project_manager_assistant')):
+			for user_role_responsibility in UserRoleResponsibility.objects.filter(projects=schedule.project, role__name__in=('project_manager', 'project_manager_assistant')):
 				recipient_list.append(user_role_responsibility.user.user.email)
 			
-			email_subject = render_to_string('email/notify_finance_before_subject.txt', {site:site, schedule:schedule}).strip(' \n\t')
-			email_message = render_to_string('email/notify_finance_before_message.txt', {site:site, schedule:schedule}).strip(' \n\t')
+			email_subject = render_to_string('email/notify_finance_before_subject.txt', {'site':site, 'schedule':schedule}).strip(' \n\t')
+			email_message = render_to_string('email/notify_finance_before_message.txt', {'site':site, 'schedule':schedule}).strip(' \n\t')
 			
 			email_datatuple.append((email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, recipient_list))
 		
 		if schedule.target_on + timedelta(days=-settings.FINANCE_ALERT_AFTER) == current_date and not schedule.claimed_on:
 			recipient_list = list()
-			for user_role_responsibility in UserRoleResponsibility.objects.filter(projects=report_project.project, role__name__in=('project_manager', 'project_manager_assistant')):
+			for user_role_responsibility in UserRoleResponsibility.objects.filter(projects=schedule.project, role__name__in=('project_manager', 'project_manager_assistant')):
 				recipient_list.append(user_role_responsibility.user.user.email)
 			
-			email_subject = render_to_string('email/notify_finance_after_subject.txt', {site:site, schedule:schedule}).strip(' \n\t')
-			email_message = render_to_string('email/notify_finance_after_message.txt', {site:site, schedule:schedule}).strip(' \n\t')
+			email_subject = render_to_string('email/notify_finance_after_subject.txt', {'site':site, 'schedule':schedule}).strip(' \n\t')
+			email_message = render_to_string('email/notify_finance_after_message.txt', {'site':site, 'schedule':schedule}).strip(' \n\t')
 			
 			email_datatuple.append((email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, recipient_list))
 	

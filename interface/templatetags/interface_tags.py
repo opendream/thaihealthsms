@@ -8,6 +8,7 @@ from django.utils.translation import ugettext as _
 
 from domain.constants import PROJECT_TYPE_TEXT
 from accounts.models import UserAccount, UserRoleResponsibility
+from comments.functions import comment_count
 from comments.models import Comment, CommentReceiver, CommentReply, CommentReplyReceiver
 from domain.models import Project
 
@@ -29,7 +30,7 @@ def get_unread_comments(user_account_id):
 
 @register.simple_tag
 def get_comment_count(user, object_name, object_id):
-	return CommentReceiver.objects.filter(receiver=user.get_profile(), comment__object_name=object_name, comment__object_id=object_id).count() + CommentReplyReceiver.objects.filter(receiver=user.get_profile(), reply__comment__object_name=object_name, reply__comment__object_id=object_id).count()
+	return comment_count(user, object_name, object_id)
 
 #
 # TEMPLATE HEADER TAGS
@@ -181,7 +182,7 @@ def display_project_comment_button(user, project):
 
 @register.simple_tag
 def display_activity_comment_button(user, activity):
-	if not utilities.responsible(user, 'project_manager,project_manager_assistant', activity.project) and not user.is_superuser and utilities.who_responsible(activity.project.parent_project):
+	if not utilities.responsible(user, 'project_manager,project_manager_assistant', activity.project.parent_project) and not user.is_superuser and utilities.who_responsible(activity.project.parent_project):
 		return unicode('<div class="comment"><a href="#" class="post-activity-comment" rel="activity/%d"><img src="%s/images/comment_add.png" class="icon"/> เขียนความคิดเห็น</a></div>', 'utf-8') % (activity.id, settings.MEDIA_URL)
 	return ''
 

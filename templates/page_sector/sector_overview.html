@@ -46,7 +46,7 @@
 			</tr>
 			{% for category in master_plan.categories %}
 			<tr>
-				<td class="category">{{category.name}}</td>
+				<td class="category">{{category.name}}{% if category.is_organization_kpi %}<div class="organization_kpi">(ตัวชี้วัดระดับองค์กร)</div>{% endif %}</td>
 				
 				<td>
 					{% ifequal category.previous_year -1 %}

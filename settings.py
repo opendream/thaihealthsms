@@ -113,6 +113,9 @@ SYSTEM_NAME = 'Thai Health Strategy Management Systems'
 REPORT_SUBMIT_FILE_PATH = os.path.join(_base, "media/report")
 REPORT_SUBMIT_FILE_URL = "/m/report/"
 
-# Finance Schedule
-FINANCE_ALERT_BEFORE = 30
+# Report Notification
+REPORT_ALERT_AFTER = 3
+
+# Finance Schedule Notification
+FINANCE_ALERT_BEFORE = 1
 FINANCE_ALERT_AFTER = 7

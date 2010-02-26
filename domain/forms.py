@@ -67,7 +67,7 @@ class ModifyPlanForm(forms.Form):
 		
 		return cleaned_data
 
-class AddMasterPlanProjectForm(forms.Form):
+class MasterPlanProjectForm(forms.Form):
 	def __init__(self, *args, **kwargs):
 		sector = kwargs.pop('sector', None)
 		forms.Form.__init__(self, *args, **kwargs)
@@ -76,6 +76,7 @@ class AddMasterPlanProjectForm(forms.Form):
 			self.fields["plan"].queryset = Plan.objects.filter(master_plan__sector=sector).order_by('master_plan__ref_no', 'ref_no')
 			self.sector = sector
 	
+	project_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 	plan = PlanChoiceField(label="กลุ่มแผนงาน")
 	ref_no = forms.CharField(max_length=64, label='เลขที่แผนงาน')
 	name = forms.CharField(max_length=512, label='ชื่อแผนงาน')
@@ -92,26 +93,16 @@ class AddMasterPlanProjectForm(forms.Form):
 			del cleaned_data['start_date']
 		
 		ref_no = cleaned_data.get('ref_no')
+		project_id = cleaned_data.get('project_id')
 		
-		existing = Project.objects.filter(ref_no=ref_no, parent_project=None, master_plan__sector=self.sector).count()
+		if project_id: existing = Project.objects.filter(ref_no=ref_no, parent_project=None, master_plan__sector=self.sector).exclude(id=project_id).count()
+		else: existing = Project.objects.filter(ref_no=ref_no, parent_project=None, master_plan__sector=self.sector).count()
 		
 		if existing:
 			self._errors['ref_no'] = ErrorList(['เลขที่แผนงานนี้ซ้ำกับแผนงานอื่นในสำนัก'])
 			del cleaned_data['ref_no']
 		
 		return cleaned_data
-
-class EditMasterPlanProjectForm(forms.Form):
-	def __init__(self, *args, **kwargs):
-		sector = kwargs.pop('sector', None)
-		forms.Form.__init__(self, *args, **kwargs)
-		
-		if sector:
-			self.fields["plan"].queryset = Plan.objects.filter(master_plan__sector=sector).order_by('master_plan__ref_no', 'ref_no')
-	
-	plan = PlanChoiceField(label="กลุ่มแผนงาน")
-	ref_no = forms.CharField(max_length=64, label='เลขที่แผนงาน')
-	name = forms.CharField(max_length=512, label='ชื่อแผนงาน')
 
 class ModifyProjectForm(forms.Form):
 	parent_project_id = forms.IntegerField(widget=forms.HiddenInput())
@@ -134,15 +125,16 @@ class ModifyProjectForm(forms.Form):
 		project_id = cleaned_data.get('project_id')
 		ref_no = cleaned_data.get('ref_no')
 		
-		parent_project = Project.objects.get(pk=parent_project_id)
-		
-		if project_id: existing = Project.objects.filter(ref_no=ref_no, parent_project=parent_project).exclude(parent_project=None, id=project_id).count()
-		else: existing = Project.objects.filter(ref_no=ref_no, parent_project=parent_project).exclude(parent_project=None).count()
-		
-		if existing:
-			self._errors['ref_no'] = ErrorList(['เลขที่โครงการนี้ซ้ำกับโครงการอื่นในแผนงาน'])
-			del cleaned_data['ref_no']
-		
+		if ref_no:
+			parent_project = Project.objects.get(pk=parent_project_id)
+			
+			if project_id: existing = Project.objects.filter(ref_no=ref_no, parent_project=parent_project).exclude(parent_project=None, id=project_id).count()
+			else: existing = Project.objects.filter(ref_no=ref_no, parent_project=parent_project).exclude(parent_project=None).count()
+			
+			if existing:
+				self._errors['ref_no'] = ErrorList(['เลขที่โครงการนี้ซ้ำกับโครงการอื่นในแผนงาน'])
+				del cleaned_data['ref_no']
+			
 		return cleaned_data
 
 class ActivityForm(forms.Form):
