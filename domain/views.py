@@ -120,6 +120,7 @@ def view_sector_edit_plan(request, plan_id):
 		form = ModifyPlanForm(request.POST, sector=sector)
 		if form.is_valid():
 			cleaned_data = form.cleaned_data
+			plan.master_plan = cleaned_data['master_plan']
 			plan.ref_no = cleaned_data['ref_no']
 			plan.name = cleaned_data['name']
 			plan.save()
