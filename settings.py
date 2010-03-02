@@ -34,7 +34,7 @@ USE_I18N = True
 
 MEDIA_ROOT = os.path.join(_base, "media") + "/"
 MEDIA_URL = '/m'
-ADMIN_MEDIA_PREFIX = '/m/'
+
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'q398#=4j6xnjd_0v1r1lvi!5yae5@pst)-&q7r*1o#wq9hy#74'
