@@ -140,9 +140,9 @@ def view_administer_organization_edit_masterplan(request, master_plan_id):
 			return redirect('view_administer_organization')
 
 	else:
-		
 		form = ModifyMasterPlanForm(initial={'master_plan_id':master_plan.id, 'sector':master_plan.sector.id, 'ref_no':master_plan.ref_no, 'name':master_plan.name})
-
+	
+	has_sectors = Sector.objects.all().count() > 0
 	return render_response(request, 'page_admin/administer_organization_masterplan_modify.html', {'master_plan':master_plan, 'form':form, 'has_sectors':has_sectors})
 
 @login_required

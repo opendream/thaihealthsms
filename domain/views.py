@@ -128,7 +128,7 @@ def view_sector_edit_plan(request, plan_id):
 			set_message(request, u'แก้ไขกลุ่มแผนงานเรียบร้อย')
 			return redirect('view_sector_manage_organization', (sector.id))
 	else:
-		form = ModifyPlanForm(sector=sector, initial={'plan_id':plan.id, 'ref_no':plan.ref_no, 'name':plan.name})
+		form = ModifyPlanForm(sector=sector, initial={'plan_id':plan.id, 'master_plan':plan.master_plan.id, 'ref_no':plan.ref_no, 'name':plan.name})
 	
 	return render_response(request, 'page_sector/sector_manage_modify_plan.html', {'sector':sector, 'plan':plan, 'form':form})
 
