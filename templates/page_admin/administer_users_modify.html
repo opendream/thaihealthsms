@@ -27,7 +27,7 @@
 		$("#responsible_master_plan").change(function() {
 			var master_plan_id = $(this).find("option:selected").val();
 			
-			if(master_plan_id != "") {
+			if(master_plan_id) {
 				$.getJSON("{% url ajax_list_projects %}", {master_plan_id:master_plan_id}, function(data) {
 					var options = "";
 					

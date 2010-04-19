@@ -41,20 +41,20 @@
 			<th class="project">หน่วยงานที่ดูแล</th>
 			<th class="status">สถานะผู้ใช้</th>
 		</tr>
-		{% for user in users %}
+		{% for user_account in users %}
 	    <tr>
 			<td class="controls">
-				<a href="{% url view_administer_users_edit user.id %}" title="แก้ไขข้อมูลผู้ใช้"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
+				<a href="{% url view_administer_users_edit user_account.user.id %}" title="แก้ไขข้อมูลผู้ใช้"><img src="{{MEDIA_URL}}/images/icon_edit.png" class="icon" /></a>
 			</td>
-			<td class="fullname">{{user.get_profile.first_name}} {{user.get_profile.last_name}}</td>
-			<td class="sector">{{user.get_profile.sector.ref_no}}</td>
-			<td class="role">{{user.role}}</td>
-			<td class="project">{% for project in user.projects %}{% ifnotequal forloop.counter 1 %}, {% endifnotequal %}<span title="{{project.name}}">แผนงาน {{project.ref_no}}</span>{% endfor %}</td>
+			<td class="fullname">{{user_account.first_name}} {{user_account.last_name}}</td>
+			<td class="sector">{{user_account.sector.ref_no}}</td>
+			<td class="role">{{user_account.role}}</td>
+			<td class="project">{% for project in user_account.projects %}{% ifnotequal forloop.counter 1 %}, {% endifnotequal %}<span title="{{project.name}}">แผนงาน {{project.ref_no}}</span>{% endfor %}</td>
 			<td class="status">
-				{% if user.get_profile.random_password %}
-					ยังไม่เข้าใช้งาน (<a href="{% url view_administer_users_password user.id %}">รหัสผ่าน</a>)
+				{% if user_account.random_password %}
+					ยังไม่เข้าใช้งาน (<a href="{% url view_administer_users_password user_account.user.id %}">รหัสผ่าน</a>)
 				{% else %}
-					{% if user.is_active %}
+					{% if user_account.user.is_active %}
 					ปกติ
 					{% else %}
 					ระงับการใช้งาน

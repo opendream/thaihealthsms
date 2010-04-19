@@ -120,8 +120,7 @@ def after_syncdb(sender, **kwargs):
 	BELOW CODE IS FOR PROTOTYPE-PURPOSE ONLY
 	"""
 	
-	"""
-	if not Sector.objects.all():
+	if not Project.objects.all():
 
 		# Users ##################
 		
@@ -313,7 +312,7 @@ def after_syncdb(sender, **kwargs):
 		ProjectBudgetSchedule.objects.create(project=project1201_1, target=3000, result=0, target_on=date(2010,12,1))
 		
 		ProjectBudgetScheduleRevision.objects.create(schedule=finance_schedule, org_target=1000, org_result=0, org_target_on=date(2010,1,1), new_target=1000, new_result=500, new_target_on=date(2010,1,1), revised_by=sector_manager_assistant_account1)
-	"""
+	
 
 from django.db.models.signals import post_syncdb
 post_syncdb.connect(after_syncdb, dispatch_uid="domain.management")

@@ -166,14 +166,15 @@ def view_administer_organization_delete_masterplan(request, master_plan_id):
 @login_required
 def view_administer_users(request):
 	if not request.user.is_superuser: return access_denied(request)
-
-	users = User.objects.filter(is_superuser=False).order_by('id')
-	for user in users:
-		responsibility = UserRoleResponsibility.objects.filter(user=user.get_profile())[0]
-		user.role = GroupName.objects.get(group=responsibility.role).name
+	
+	users = UserAccount.objects.filter(user__is_superuser=False).order_by('first_name')
+	
+	for user_account in users:
+		responsibility = UserRoleResponsibility.objects.filter(user=user_account)[0]
+		user_account.role = GroupName.objects.get(group=responsibility.role).name
 		
 		if responsibility.role.name == 'project_manager' or responsibility.role.name == 'project_manager_assistant':
-			user.projects = responsibility.projects.all()
+			user_account.projects = responsibility.projects.all()
 	
 	return render_response(request, "page_admin/administer_users.html", {'users': users})
 

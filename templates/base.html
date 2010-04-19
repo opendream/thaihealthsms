@@ -39,7 +39,7 @@ var activeCommentTarget = null;
 function postComment() {
 	var message = $("#post-comment-dialog textarea").val();
 	
-	if(message != "") {
+	if(message) {
 		$("#post-comment-dialog .loading").show();
 		$.post("/ajax/comment/post/" + activeCommentTarget + "/", {'message': message}, function(data) {
 			$("#post-comment-dialog .loading").hide();
@@ -80,7 +80,7 @@ function initReplyCommentBox(jqueryObject) {
 		var message = $("#reply-comment-dialog textarea").val();
 		var comment_id = $("#reply-comment-dialog #comment-id").val();
 		
-		if(message != "") {
+		if(message) {
 			$("#reply-comment-dialog .loading").show();
 			$.post("/ajax/comment/reply/" + comment_id + "/", {'message': message}, function(data) {
 				$("#reply-comment-dialog .loading").hide();

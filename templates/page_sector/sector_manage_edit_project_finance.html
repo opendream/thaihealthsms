@@ -32,7 +32,7 @@ $(document).ready(function() {
 		
 		$(".schedule-record").each(function() {
 			var schedule_id = $(this).attr("id");
-			if(schedule_id != "") {
+			if(schedule_id) {
 				schedule_id = $(this).attr("id").split("-")[1];
 			} else {
 				schedule_id = 'None';

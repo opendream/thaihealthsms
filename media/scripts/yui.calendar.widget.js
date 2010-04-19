@@ -25,7 +25,7 @@ YAHOO.util.Event.onDOMReady(function(){
 function triggerYUICalendar() {
 	var date_value = YAHOO.util.Dom.get(activeCalendarInputID + '_value').getAttribute('value');
 	
-	if(date_value != '') {
+	if(date_value) {
 		var date_array = date_value.split('-');
 		
 		calendarWidget.select(date_array[1] + '/' + date_array[2] + '/' + (parseInt(date_array[0]) + 543));
