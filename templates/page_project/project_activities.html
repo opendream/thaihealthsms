@@ -48,24 +48,26 @@ $(document).ready(function() {
 
 function bind_qtip(result) {
 	for(var i=0; i<result.length; i++) {
-		var start_date = new Date(result[i]['sy'], result[i]['sm']-1, result[i]['sd']);
-		var end_date = new Date(result[i]['ey'], result[i]['em']-1, result[i]['ed']);
-		
-		while(start_date <= end_date) {
-			if($("#activity-calendar .y" + (start_date.getFullYear() + 543)).size() != 0) {
-				if($("#activity-calendar .y" + (start_date.getFullYear() + 543) + " .m" + (start_date.getMonth() + 1)).size() != 0) {
-					$("#activity-calendar .y" + (start_date.getFullYear() + 543) + " .m" + (start_date.getMonth() + 1) + " .d" + start_date.getDate()).addClass("has_activity").append('<div class="item" style="display:none;"><a href="/activity/' + result[i]['id'] + '/">' + result[i]['name'] +'</a></div>');
-					start_date = new Date(start_date.getTime() + 86400000);
-				} else {
-					if(start_date.getMonth() == 11) {
-						start_date.setFullYear(start_date.getYear() + 1, 0, 1);
+		if(result[i]['sy'] != 0 && result[i]['sm'] != 0 && result[i]['sd'] != 0 && result[i]['ey'] != 0 && result[i]['em'] != 0 && result[i]['ed'] != 0) {
+			var start_date = new Date(result[i]['sy'], result[i]['sm']-1, result[i]['sd']);
+			var end_date = new Date(result[i]['ey'], result[i]['em']-1, result[i]['ed']);
+			
+			while(start_date <= end_date) {
+				if($("#activity-calendar .y" + (start_date.getFullYear() + 543)).size() != 0) {
+					if($("#activity-calendar .y" + (start_date.getFullYear() + 543) + " .m" + (start_date.getMonth() + 1)).size() != 0) {
+						$("#activity-calendar .y" + (start_date.getFullYear() + 543) + " .m" + (start_date.getMonth() + 1) + " .d" + start_date.getDate()).addClass("has_activity").append('<div class="item" style="display:none;"><a href="/activity/' + result[i]['id'] + '/">' + result[i]['name'] +'</a></div>');
+						start_date = new Date(start_date.getTime() + 86400000);
 					} else {
-						start_date.setMonth(start_date.getMonth() + 1);
-						start_date.setDate(1);
+						if(start_date.getMonth() == 11) {
+							start_date.setFullYear(start_date.getYear() + 1, 0, 1);
+						} else {
+							start_date.setMonth(start_date.getMonth() + 1);
+							start_date.setDate(1);
+						}
 					}
+				} else {
+					start_date.setFullYear(start_date.getFullYear() + 1, 0, 1);
 				}
-			} else {
-				start_date.setFullYear(start_date.getFullYear() + 1, 0, 1);
 			}
 		}
 	}

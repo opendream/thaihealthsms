@@ -38,7 +38,10 @@ def ajax_list_project_activities(request):
 	
 	activity_list = []
 	for activity in activities:
-		activity_list.append({'id':activity.id, 'name':activity.name, 'sy':activity.start_date.year, 'sm':activity.start_date.month, 'sd':activity.start_date.day, 'ey':activity.end_date.year, 'em':activity.end_date.month, 'ed':activity.end_date.day})
+		if activity.start_date and activity.end_date:
+			activity_list.append({'id':activity.id, 'name':activity.name, 'sy':activity.start_date.year, 'sm':activity.start_date.month, 'sd':activity.start_date.day, 'ey':activity.end_date.year, 'em':activity.end_date.month, 'ed':activity.end_date.day})
+		else:
+			activity_list.append({'id':activity.id, 'name':activity.name, 'sy':0, 'sm':0, 'sd':0, 'ey':0, 'em':0, 'ed':0})
 	
 	return HttpResponse(simplejson.dumps(activity_list))
 	
