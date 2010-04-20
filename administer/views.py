@@ -167,7 +167,7 @@ def view_administer_organization_delete_masterplan(request, master_plan_id):
 def view_administer_users(request):
 	if not request.user.is_superuser: return access_denied(request)
 	
-	users = UserAccount.objects.filter(user__is_superuser=False).order_by('first_name')
+	users = UserAccount.objects.filter(user__is_superuser=False).order_by('sector__ref_no')
 	
 	for user_account in users:
 		responsibility = UserRoleResponsibility.objects.filter(user=user_account)[0]
