@@ -29,7 +29,6 @@ urlpatterns = patterns('domain.views',
 	url(r'^project/(?P<project_id>\d+)/delete/$', 'view_project_delete', name='view_project_delete'),
 	url(r'^project/(?P<project_id>\d+)/edit/$', 'view_project_edit', name='view_project_edit'),
 	url(r'^project/(?P<project_id>\d+)/activities/$', 'view_project_activities', name='view_project_activities'),
-	url(r'^project/(?P<project_id>\d+)/activities/(?P<yearmonth>\d{4}\d{2})$', 'view_project_activities_ajax', name="view_project_activities_ajax"),
 	url(r'^project/(?P<project_id>\d+)/activities/add/$', 'view_activity_add', name='view_activity_add'),
 
 	# Activity
@@ -41,4 +40,5 @@ urlpatterns = patterns('domain.views',
 urlpatterns += patterns('domain.ajax',
 	url(r'^ajax/list/master_plans/$', 'ajax_list_master_plans', name='ajax_list_master_plans'),
 	url(r'^ajax/list/projects/$', 'ajax_list_projects', name='ajax_list_projects'),
+	url(r'^ajax/list/project/activities/$', 'ajax_list_project_activities', name='ajax_list_project_activities'),
 )

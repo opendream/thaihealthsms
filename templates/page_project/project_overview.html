@@ -87,6 +87,7 @@ $(document).ready(function() {
 		</div>
 	{% endif %}
 	
+	{% if not project.parent_project %}
 	<h2>ภาพรวมการเบิกจ่าย</h2>
 	<div class="finance_overview">
 		{% if finances %}
@@ -111,5 +112,6 @@ $(document).ready(function() {
 		<div class="ss_no_information">การเบิกจ่ายปกติ</div>
 		{% endif %}
 	</div>
+	{% endif %}
 </div>
 {% endblock %}

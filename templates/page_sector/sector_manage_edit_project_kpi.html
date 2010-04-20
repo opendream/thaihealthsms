@@ -22,7 +22,7 @@ $(document).ready(function() {
 		var kpi_name = optionElement.text();
 		var unit_name = optionElement.attr("rel");
 		
-		var new_kpi = $('<li id="kpi-' + kpi_id + '"><div id="kpi-' + kpi_id + '-unit_name" class="' + unit_name + '"></div><div class="kpi_name"><h2>' + kpi_name + '</h2><span>[ <a href="#" class="remove-kpi">ยกเลิกการวัดด้วยตัวนี้วัดนี้</a> ]</span></div><table><tr><th>คาดการณ์</th><th>วันที่ประเมินผล</th><th></th></tr>' + 
+		var new_kpi = $('<li id="kpi-' + kpi_id + '"><div id="kpi-' + kpi_id + '-unit_name" class="' + unit_name + '"></div><div class="kpi_name"><h2>' + kpi_name + '</h2><span>[ <a href="#" class="remove-kpi">ยกเลิกการวัดด้วยตัวนี้วัดนี้</a> ]</span></div><table><tr><th>ตัวเลขคาดการณ์</th><th>วันที่ประเมินผล</th><th></th></tr>' + 
 			create_schedule_template(unit_name) + 
 			'<tr><td colspan="3"><img src="{{MEDIA_URL}}/images/icon_create.png" class="icon"/> <a href="#" class="new-schedule">เพิ่มรายการ</a></td></tr></table></li>');
 		
@@ -85,7 +85,7 @@ $(document).ready(function() {
 			var kpi_id = $(this).closest("li").attr("id").split("-")[1];
 			
 			var schedule_id = $(this).attr("id");
-			if(schedule_i) {
+			if(schedule_id) {
 				schedule_id = $(this).attr("id").split("-")[1];
 			} else {
 				schedule_id = 'None';
@@ -160,7 +160,6 @@ function remove_kpi(click_element) {
 		
 		$("#kpi_selector").append('<option value="' + kpi_id + '" rel="' + kpi_unit_name + '">' + kpi_name + '</option>');
 		
-		console.log("here");
 		$("li.add_kpi").show();
 	}
 }

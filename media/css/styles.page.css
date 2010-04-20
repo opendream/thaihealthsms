@@ -370,6 +370,11 @@
 .project_finance_page .adding_claim button {padding:1px 15px;margin-left:20px;border-top:1px solid #CCC;border-left:1px solid #CCC;border-bottom:1px solid #999;border-right:1px solid #999;background-color:#369;cursor:pointer;color:#FFF;}
 
 /* Project Activities */
+.project_activities_page .activity_calendar .loading {margin:20px 0px;font-size:116%;}
+.project_activities_page .activity_calendar .loading img {vertical-align:middle;}
+
+.project_activities_page .activity_calendar .has_activity a {background-color:#FF9 !important;}
+
 .project_activities_page table .name {}
 .project_activities_page table .start_date {width:120px;text-align:center;}
 .project_activities_page table .end_date {width:120px;text-align:center;}

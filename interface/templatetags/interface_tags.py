@@ -45,7 +45,7 @@ def print_sector_header(sector):
 	managers = ', '.join([manager.first_name + ' ' + manager.last_name for manager in utilities.who_responsible(sector)])
 	if not managers: managers = unicode('(ไม่มีผู้รับผิดชอบ)', 'utf-8')
 	
-	html += unicode('<div class="info">ผู้จัดการสำนัก: %s</div>', 'utf-8') % managers
+	html += unicode('<div class="info">ผู้อำนวยการสำนัก: %s</div>', 'utf-8') % managers
 	return html
 
 @register.simple_tag

@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.utils import simplejson
 
-from domain.models import Sector, MasterPlan, Project
+from domain.models import Sector, MasterPlan, Project, Activity
 
 @login_required
 def ajax_list_master_plans(request):
@@ -28,3 +28,23 @@ def ajax_list_projects(request):
 		return HttpResponse(simplejson.dumps(object_list))
 	else:
 		return HttpResponse('')
+
+@login_required
+def ajax_list_project_activities(request):
+	project_id = request.GET.get('project_id')
+	project = Project.objects.get(pk=project_id)
+	
+	activities = Activity.objects.filter(project=project)
+	
+	activity_list = []
+	for activity in activities:
+		if activity.start_date and activity.end_date:
+			activity_list.append({'id':activity.id, 'name':activity.name, 'sy':activity.start_date.year, 'sm':activity.start_date.month, 'sd':activity.start_date.day, 'ey':activity.end_date.year, 'em':activity.end_date.month, 'ed':activity.end_date.day})
+		else:
+			activity_list.append({'id':activity.id, 'name':activity.name, 'sy':0, 'sm':0, 'sd':0, 'ey':0, 'em':0, 'ed':0})
+	
+	return HttpResponse(simplejson.dumps(activity_list))
+	
+		
+	
+	
