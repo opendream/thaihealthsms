@@ -156,7 +156,9 @@ POST COMMENT DIALOG
 #activity-calendar {margin-bottom:20px;}
 #activity-calendar .calheader {color:#096;}
 #activity-calendar .calweekdaycell {background:none;color:#666;font-weight:normal;}
-#activity-calendar .calbody td.selected a:link,#activity-calendar .calbody td.selected a:visited ,#activity-calendar .calbody td.selected a:active {background-color:#096;color:#FFF;}
+.yui-calendar td.calcellhover {background-color:#FFF !important;color:#06C !important;}
+.yui-calendar td.calcellhover a {background-color:#FFF !important;color:#06C !important;}
+#activity-calendar .calbody td.selected a:link,#activity-calendar .calbody td.selected a:visited ,#activity-calendar .calbody td.selected a:active {background-color:transparent;color:#06C;}
 
 .qtip-content ul li a:link, .qtip-content ul li a:visited, .qtip-content ul li a:active {color:#FFC;}
 .qtip-content ul li a:hover {background:none;color:#9CF;}

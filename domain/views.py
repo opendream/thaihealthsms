@@ -397,31 +397,6 @@ def view_project_activities(request, project_id):
 	return render_response(request, 'page_project/project_activities.html', {'project':project, 'activities':activities, 'recent_activities':recent_activities,'prev_month':prev_month_,'next_month':next_month_})
 
 @login_required
-def view_project_activities_ajax(request, project_id, yearmonth):
-	project = get_object_or_404(Project, pk=project_id)
-
-	year = int(yearmonth[:4])
-	month = int(yearmonth[4:])
-
-	# Find activities in past month, current month and future month.
-	num = 3
-	prev_month_ = utilities.get_prev_month(year, month, num)
-	next_month_ = utilities.get_next_month(year, month, num)
-	
-	start = date(prev_month_[0], prev_month_[1], day=1)
-	end = date(next_month_[0], next_month_[1], day=calendar.monthrange(next_month_[0], next_month_[1])[1])
-
-	prev_month_ = '%04d%02d' % utilities.get_prev_month(year, month)
-	next_month_ = '%04d%02d' % utilities.get_next_month(year, month)
-
-	recent_activities = Activity.objects.filter(project=project).filter( \
-		Q(start_date__lte=start) & Q(end_date__gte=end) | \
-		Q(start_date__lte=end) & Q(start_date__gte=start) | \
-		Q(end_date__lte=end) & Q(end_date__gte=start))
-
-	return render_response(request, 'page_project/project_activities_ajax.html', {'recent_activities':recent_activities,'prev_month':prev_month_,'next_month':next_month_})
-
-@login_required
 def view_activity_add(request, project_id):
 	project = get_object_or_404(Project, pk=project_id)
 
