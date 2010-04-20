@@ -240,10 +240,62 @@ def view_master_plan_overview(request, master_plan_id):
 		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
 
 	master_plan.plans = plans
-	
 	master_plan = finance_functions.overview_master_plan_finance(master_plan)
+	return render_response(request, 'page_master_plan/master_plan_overview.html', {'master_plan': master_plan})
 
-	return render_response(request, 'page_master_plan/master_plan_overview.html', {'master_plan':master_plan})
+@login_required
+def view_master_plan_report(request, master_plan_id):
+	master_plan = get_object_or_404(MasterPlan, pk=master_plan_id)
+	year_span = utilities.master_plan_current_year_span(master_plan)
+	current_date = date.today()
+
+	# Plans
+	plans = Plan.objects.filter(master_plan=master_plan)
+	for plan in plans:
+		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
+		for project in plan.current_projects:
+			budgets = ProjectBudgetSchedule.objects.filter(project=project.id, target_on__range=year_span)
+			sum_budget = 0
+			for b in budgets:
+				sum_budget += b.target
+			project.budget = sum_budget
+
+			quarters = []
+			start_month = year_span[0].month
+			start_year = year_span[0].year
+			for i in range(4):
+				end_month = start_month + 2
+				end_year = start_year
+				if end_month > 12:
+					end_month = end_month - 12
+					end_year = start_year + 1
+				
+				start = date(start_year, start_month, 1)
+				end = date(end_year, end_month, calendar.monthrange(end_year, end_month)[1])
+
+				kpis = KPISchedule.objects.filter(project=project, target_on__range=(start, end)).values('kpi').distinct()
+				kpi_list = []
+				for kpi in kpis:
+					kpi_object = KPI.objects.get(id=kpi['kpi'])
+					sum_target = KPISchedule.objects.filter(project=project, target_on__range=(start, end), \
+															kpi=kpi_object) \
+									.aggregate(Sum('target'))['target__sum']
+					sum_result = KPISchedule.objects.filter(project=project, target_on__range=(start, end), \
+															kpi=kpi_object) \
+									.aggregate(Sum('result'))['result__sum']
+					kpi_list.append({'kpi': kpi_object, 'sum_target': sum_target, 'sum_result': sum_result})
+
+				start_month = start_month + 3
+				if start_month > 12:
+					start_month = start_month - 12
+					start_year = start_year + 1
+
+				quarters.append({'start': start, 'end': end, 'kpi_list': kpi_list})
+			project.quarters = quarters
+
+	master_plan.plans = plans
+	master_plan = finance_functions.overview_master_plan_finance(master_plan)
+	return render_response(request, 'page_master_plan/master_plan_report.html', {'master_plan': master_plan})
 
 @login_required
 def view_master_plan_plans(request, master_plan_id):

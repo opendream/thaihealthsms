@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+import re
+
 from datetime import date
 
 from django import template
@@ -228,3 +230,32 @@ def generate_comment_html(comment):
 	html += '</ul></li>'
 	
 	return html
+
+@register.simple_tag
+def generate_month_span_td(start_month=0, display_month=True):
+	cells = ''
+	for i in range(12):
+		month = start_month + i
+		if month > 12:
+			month -= 12
+
+		if start_month == 0:
+			cells += '<td></td>'
+		elif display_month:
+			cells += '<td width="15" class="m'+ str(month) +'">'+ str(month) +'</td>'
+		else:
+			cells += '<td class="m'+ str(month) +'"></td>'
+	return cells
+
+@register.simple_tag
+def generate_project_budget_schedule(project):
+	from thaihealthsms.finance.models import ProjectBudgetSchedule
+
+	cells = generate_month_span_td(project.plan.master_plan.month_span.start_month, False)
+	year_span = utilities.master_plan_current_year_span(project.plan.master_plan)
+	budgets = ProjectBudgetSchedule.objects.filter(project=project.id, target_on__range=year_span)
+	for b in budgets:
+		cls = r'm' + str(b.target_on.month)
+		p = re.compile(cls + '"')
+		cells = p.sub(cls + ' hl"', cells)
+	return ''.join(cells)

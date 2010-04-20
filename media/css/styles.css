@@ -6,6 +6,13 @@ a:hover {background-color:#369;color:#FFF;}
 
 html, body {background-color:#F3F3F3;}
 
+strong {font-weight:bold;}
+
+table.border th {background-color:#CCC;text-align:center;}
+table.border th, table.border td {border:1px solid;padding:5px;font-size:108%;}
+table td.hl {background-color: #999;}
+table.border ul {margin-left:0 !important;}
+
 .calendarbox {border:1px solid #999;}
 
 /*

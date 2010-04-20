@@ -8,7 +8,7 @@ TEMPLATE_DEBUG = DEBUG
 # (every user will have 'Administration' as their firstname, without lastname.
 # This firstname and lastname can be changed later)
 ADMINS = (
-	#('admin', 'application.testbed@gmail.com'),
+	('admin', 'application.testbed@gmail.com'),
 	('panuta', 'panuta@gmail.com'),
 )
 
@@ -90,6 +90,7 @@ INSTALLED_APPS = (
 	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
+	'django.contrib.humanize',
 	'django.contrib.sessions',
 	'django.contrib.sites',
 	'registration',
