@@ -20,6 +20,7 @@ urlpatterns = patterns('domain.views',
 	url(r'^master_plan/(?P<master_plan_id>\d+)/$', 'view_master_plan_overview', name='view_master_plan_overview'),
 	url(r'^master_plan/(?P<master_plan_id>\d+)/plans/$', 'view_master_plan_plans', name='view_master_plan_plans'),
 	url(r'^master_plan/(?P<master_plan_id>\d+)/organization/$', 'view_master_plan_organization', name='view_master_plan_organization'),
+	url(r'^master_plan/(?P<master_plan_id>\d+)/report/$', 'view_master_plan_report', name='view_master_plan_report'),
 	
 	# Project
 	url(r'^project/(?P<project_id>\d+)/$', 'view_project_overview', name='view_project_overview'),
