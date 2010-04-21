@@ -22,7 +22,7 @@
 </div>
 <div class="ss_sub_tab_navi">
 	<ul>
-		<li class="selected">ตัวชี้วัดระดับองค์กร</li>
+		<li class="selected">ตัวชี้วัดระดับแผนงาน</li>
 		<li><a href="{% url view_administer_kpi_category %}">ประเภทตัวชี้วัด</a></li>
 	</ul>
 	<div class="clear"></div>
@@ -30,7 +30,7 @@
 {% endblock %}
 
 {% block body_content %}
-<div class="ss_child_page_header">{% if kpi %}แก้ไขตัวชี้วัด{% else %}สร้างตัวชี้วัด{% endif %} <a href="{% url view_administer_kpi %}">กลับไปหน้าตัวชี้วัดระดับองค์กร &#187;</a></div>
+<div class="ss_child_page_header">{% if kpi %}แก้ไขตัวชี้วัด{% else %}สร้างตัวชี้วัด{% endif %} <a href="{% url view_administer_kpi %}">กลับไปหน้าตัวชี้วัดระดับแผนงาน &#187;</a></div>
 
 <form action="" method="POST" class="ss_form">
 	{% if has_categories %}

@@ -237,7 +237,7 @@ def view_master_plan_overview(request, master_plan_id):
 	# Plans
 	plans = Plan.objects.filter(master_plan=master_plan)
 	for plan in plans:
-		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
+		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date).order_by('ref_no')
 
 	master_plan.plans = plans
 	master_plan = finance_functions.overview_master_plan_finance(master_plan)
@@ -252,7 +252,7 @@ def view_master_plan_report(request, master_plan_id):
 	# Plans
 	plans = Plan.objects.filter(master_plan=master_plan)
 	for plan in plans:
-		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date)
+		plan.current_projects = Project.objects.filter(plan=plan, start_date__lte=current_date, end_date__gte=current_date).order_by('ref_no')
 		for project in plan.current_projects:
 			budgets = ProjectBudgetSchedule.objects.filter(project=project.id, target_on__range=year_span)
 			sum_budget = 0
@@ -304,7 +304,7 @@ def view_master_plan_plans(request, master_plan_id):
 	plans = Plan.objects.filter(master_plan=master_plan)
 
 	for plan in plans:
-		plan.projects = Project.objects.filter(plan=plan).order_by('-start_date')
+		plan.projects = Project.objects.filter(plan=plan).order_by('ref_no')
 
 	return render_response(request, 'page_master_plan/master_plan_plans.html', {'master_plan':master_plan, 'plans':plans})
 
