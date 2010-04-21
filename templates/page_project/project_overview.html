@@ -98,7 +98,7 @@ $(document).ready(function() {
 				
 				{% ifequal finance.type 'late' %}
 				<a href="{% url view_project_overview finance.data.project.id %}">แผนงาน {{finance.data.project.ref_no}}</a>
-				เลยงวดการเบิกจ่ายมาแล้ว {{finance.data.target_on|elapse}} วัน
+				เลยงวดการเบิกจ่ายมาแล้ว {{finance.data.target_on|elapse}}
 				{% endifequal %}
 				
 				{% ifequal finance.type 'postpone' %}
