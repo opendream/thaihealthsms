@@ -1,0 +1,49 @@
+{% extends 'page_base.html' %}
+{% load helper_tags page_tags core_tags %}
+
+{% block html_head %}
+{% endblock %}
+
+{% block body_title %}{% display_master_plan_header user master_plan %}{% endblock %}
+{% block body_tabs %}{% tabs_for_master_plan page user master_plan %}{% endblock %}
+
+{% block body_content %}
+<div class="master_plan_kpi_page">
+	<div class="kpi">
+		<table class="ss_table">
+			<th rowspan="2" class="center">แผนงาน</th>
+			{% generate_quarter_table_header quarter_year %}
+			<tr>
+				{% for i in 4|get_range %}
+					<th>คาดการณ์</th>
+					<th>ผลที่เกิด</th>
+				{% endfor %}
+			</tr>
+			{% for plan in master_plan.plan_set.all %}
+				<tr>
+					<td class="plan" colspan="9">
+							กลุ่มแผนงาน: ({{ plan.ref_no }}) {{ plan.name }}
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<ul>
+							{% for program in plan.program_set.all %}
+								<li><a href="{% url view_program_kpi program.id %}" title="{{ program.name }}">แผนงานเลขที่ {{ program.ref_no }}</a> {% print_program_kpis program %}</li>
+							{% endfor %}
+						</ul>
+					</td>
+					{% for quarter_no in 4|get_range %}
+						<td class="target_kpi">
+							{% print_master_plan_quarter_kpi 'target' plan quarter_year quarter_no %}
+						</td>
+						<td class="result_kpi">
+							{% print_master_plan_quarter_kpi 'result' plan quarter_year quarter_no %}
+						</td>
+					{% endfor %}
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+</div>
+{% endblock %}

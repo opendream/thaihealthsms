@@ -1,0 +1,92 @@
+{% extends 'page_base.html' %}
+{% load helper_tags page_tags core_tags %}
+
+{% block html_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+	$(".delete-kpi").click(function(e) {
+        if(!window.confirm("ยืนยันการลบตัวชี้วัด?")) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}
+
+{% block body_title %}{% display_master_plan_management_header user master_plan %}{% endblock %}
+{% block body_tabs %}{% tabs_for_manage_master_plan page master_plan %}{% endblock %}
+
+{% block body_content %}
+<div class="ss_control_panel">
+    <ul>
+        <li><img src="{{MEDIA_URL}}/images/icons/create.png" class="icon"/><a href="{% url view_master_plan_manage_kpi_add_kpi master_plan.ref_no %}">เพิ่มตัวชี้วัดแผนหลัก</a></li>
+    </ul>
+</div>
+
+<div class="master_plan_manage master_plan_manage_kpi">
+	<div class="year_select">
+		ตัวชี้วัดสำหรับปี
+		<a href="{% url view_master_plan_manage_kpi_year master_plan.ref_no kpi_year|add:-1 %}">{{kpi_year|add:542}}</a> | <span>{{kpi_year|add:543}}</span> | <a href="{% url view_master_plan_manage_kpi_year master_plan.ref_no kpi_year|add:1 %}">{{kpi_year|add:544}}</a>
+	</div>
+	
+	{% if kpi_categories or no_category_kpis %}
+	
+	{% for kpi_category in kpi_categories %}
+	<h3>{{kpi_category.name}}</h3>
+	<table class="ss_table">
+        <tr>
+            <th class="controls"></th>
+			<th class="ref_no">รหัส</th>
+			<th class="name">ชื่อตัวชี้วัด</th>
+			<th class="unit_name">หน่วย</th>
+        </tr>
+        {% for kpi in kpi_category.kpis %}
+        <tr>
+            <td class="controls">
+                <a href="{% url view_master_plan_manage_kpi_edit_kpi kpi.id %}" title="แก้ไขตัวชี้วัด"><img src="{{MEDIA_URL}}/images/icons/edit.png" class="icon" /></a>
+                {% if kpi.removable %}
+                <a href="{% url view_master_plan_manage_kpi_delete_kpi kpi.id %}" title="ลบตัวชี้วัด" class="delete-kpi"><img src="{{MEDIA_URL}}/images/icons/delete.png" class="icon" /></a>
+                {% else %}
+                <img src="{{MEDIA_URL}}/images/icons/delete_disabled.png" class="icon" title="ตัวชี้วัดนี้ยังผูกอยู่กับแผนงาน"/>
+                {% endif %}
+            </td>
+            <td class="ref_no">{{kpi.ref_no}}</td>
+            <td class="name">{{kpi.name}}</td>
+            <td class="unit_name">{{kpi.unit_name}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+	{% endfor %}
+	
+	{% if no_category_kpis %}
+	<h3 class="no_category">[ ตัวชี้วัดที่ไม่มีประเภท ]</h3>
+	<table class="ss_table">
+        <tr>
+            <th class="controls"></th>
+            <th class="ref_no">รหัส</th>
+            <th class="name">ชื่อตัวชี้วัด</th>
+            <th class="unit_name">หน่วย</th>
+        </tr>
+        {% for kpi in no_category_kpis %}
+        <tr>
+            <td class="controls">
+                <a href="{% url view_master_plan_manage_kpi_edit_kpi kpi.id %}" title="แก้ไขตัวชี้วัด"><img src="{{MEDIA_URL}}/images/icons/edit.png" class="icon" /></a>
+                {% if kpi.removable %}
+                <a href="{% url view_master_plan_manage_kpi_delete_kpi kpi.id %}" title="ลบตัวชี้วัด" class="delete-kpi"><img src="{{MEDIA_URL}}/images/icons/delete.png" class="icon" /></a>
+                {% else %}
+                <img src="{{MEDIA_URL}}/images/icons/delete_disabled.png" class="icon" title="ตัวชี้วัดนี้ยังผูกอยู่กับแผนงาน"/>
+                {% endif %}
+            </td>
+            <td class="ref_no">{{kpi.ref_no}}</td>
+            <td class="name">{{kpi.name}}</td>
+            <td class="unit_name">{{kpi.unit_name}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+	{% endif %}
+	
+	{% else %}
+	<div class="ss_no_information">ไม่มีตัวชี้วัดแผนหลักในปีนี้</div>
+	{% endif %}
+</div>
+{% endblock %}

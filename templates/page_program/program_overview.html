@@ -1,0 +1,79 @@
+{% extends 'page_base.html' %}
+{% load helper_tags page_tags core_tags %}
+
+{% block html_head %}
+
+{% endblock %}
+
+{% block body_title %}{% display_program_header user program %}{% endblock %}
+{% block body_tabs %}{% tabs_for_program page user program %}{% endblock %}
+
+{% block body_content %}
+
+{% role user 'program_manager,program_manager_assistant' program %}
+{% if first_time_login %}
+<div class="help_content">
+	<div class="title">ยินดีต้อนรับเข้าสู่ระบบ</div>
+	<p>ในหน้านี้จะแสดงภาพรวมของแผนงาน เช่น โครงการที่ดำเนินอยู่ ผู้ใช้สามารถใส่ข้อมูลต่างๆสำหรับแผนงานได้โดยการไปที่แท็บต่างๆด้านบน ซึ่งจะมี "โครงการ" "แผนผลลัพธ์" "แผนการเงิน" "รายงาน"</p>
+	<p><em>แท็บโครงการสำหรับ</em> สร้างโครงการย่อยของแผนงาน</p>
+	<p><em>แท็บแผนผลลัพธ์สำหรับ</em> ตรวจสอบตัวชี้วัด และใส่ตัวเลขตัวชี้วัดของสำนัก</p>
+	<p><em>แท็บแผนการเงินสำหรับ</em> ตรวจสอบตารางการเบิกจ่าย ที่สำนักเป็นคนใส่ข้อมูล</p>
+	<p><em>แท็บรายงานสำหรับ</em> ส่งรายงานและสร้างหัวเรื่องรายงานใหม่</p>
+</div>
+{% endif %}
+{% endrole %}
+
+<div class="program_overview_page">
+	
+	{% if late_budget_schedules %}
+	{% for schedule in late_budget_schedules %}
+	<div class="notice_panel">
+		<div class="headline">เลยกำหนดการเบิกจ่ายงวดวันที่ {{schedule.schedule_on|abbr_date}} มาแล้ว {{schedule.schedule_on|week_elapse}} [ <a href="{% url view_budget_overview schedule.id %}">หน้างวดเบิกจ่าย</a> ]</div>
+	</div>
+	{% endfor %}
+	{% endif %}
+	
+	{% if late_report_count %}
+    <div class="notice_panel">
+        <div class="headline">มีรายงานเลยกำหนดส่ง {{late_report_count}} รายงาน [ <a href="{% url view_program_reports program.id %}">ดูรายละเอียดที่หน้ารายงาน</a> ]</div>
+    </div>
+    {% endif %}
+	
+	{% if rejected_report_count %}
+    <div class="notice_panel">
+        <div class="headline">มีรายงานถูกตีกลับ {{rejected_report_count}} รายงาน [ <a href="{% url view_program_reports program.id %}">ดูรายละเอียดที่หน้ารายงาน</a> ]</div>
+    </div>
+    {% endif %}
+	
+	
+	<h2 class="h2">โครงการที่ดำเนินอยู่</h2>
+	<div class="projects">
+		{% if current_projects %}
+		<ul>
+			{% for project in current_projects %}
+			<li><a href="{% url view_project_overview project.id %}">{{project.name}}</a></li>
+			{% endfor %}
+		</ul>
+		{% else %}
+		<div class="ss_no_information">ไม่มีโครงการที่ดำเนินอยู่</div>
+		{% endif %}
+	</div>
+	
+	<h2 class="h2">รายงานล่าสุด</h2>
+	<div class="reports">
+		{% if recent_reports %}
+        <ul class="ss_report_submission">
+            {% for submission in recent_reports %}
+            <li>
+            	<div class="report_name"><a href="{% url view_report_overview program.id submission.report.id submission.schedule_date|dateid %}">{{submission.report.name}}</a></div>
+				<div class="date">ฉบับวันที่ {{submission.schedule_date|full_date}}</div>
+				<div class="details">ส่งเมื่อวันที่ {{submission.submitted_on|full_datetime}}</div>
+			</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="ss_no_information">ไม่มีรายงาน</div>
+        {% endif %}
+	</div>
+</div>
+{% endblock %}

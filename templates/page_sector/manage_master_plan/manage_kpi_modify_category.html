@@ -1,0 +1,28 @@
+{% extends 'page_base.html' %}
+{% load helper_tags page_tags core_tags %}
+
+{% block html_head %}
+{% endblock %}
+
+{% block body_title %}{% display_master_plan_management_header user master_plan %}{% endblock %}
+{% block body_tabs %}{% tabs_for_manage_master_plan page master_plan %}{% endblock %}
+
+{% block body_content %}
+<div class="ss_breadcrumbs">
+    <div class="breadcrumbs"><a href="{% url view_master_plan_manage_kpi_category master_plan.ref_no %}">หน้าประเภทตัวชี้วัด</a> &#187;</div>
+    <h2>{% if kpi_category %}แก้ไขประเภทตัวชี้วัด{% else %}เพิ่มประเภทตัวชี้วัด{% endif %}</h2>
+</div>
+
+<form action="." method="post" class="ss_form">
+    {% csrf_token %}
+    <ul>
+        <li>
+            <label for="id_name" class="caption">{{form.name.label}}{% display_required %}</label>
+            <div class="input LONG">{{form.name}}</div>
+            {{form.name.errors}}
+        </li>
+    </ul>
+    {{form.plan_id}}
+    <div class="button_panel"><button type="submit">ตกลง</button></div>
+</form>
+{% endblock %}
