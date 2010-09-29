@@ -83,7 +83,8 @@ function initializeYUICalendar() {
 		calendarWidget = new YAHOO.widget.Calendar("cal", {
 			iframe:false,
 			hide_blank_weeks:false,
-			year_offset:543
+			year_offset:543,
+			navigator:true
 		});
 	
 		var months = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"]; 

@@ -1,15 +1,17 @@
-{% extends 'entrance_base.html' %}
+{% extends 'front_base.html' %}
 
-{% block entrance_title %}{{block.super}} - เข้าสู่ระบบ{% endblock %}
+{% block title %}{{block.super}} - เข้าสู่ระบบ{% endblock %}
 
-{% block entrance_content %}
+{% block front_content %}
 <form action="." method="post">
+	{% csrf_token %}
+	
 	{% if form.errors %}<div class="errors">กรุณาใส่ชื่อผู้ใช้และรหัสผ่านให้ถูกต้อง</div>{% endif %}
 	<ul>
 		<li><label for="id_username">ชื่อผู้ใช้:</label> {{form.username}}{{form.username.errors}}</li>
 		<li><label for="id_password">รหัสผ่าน:</label> {{form.password}}{{form.password.errors}}</li>
 	</ul>
-	<div class="button_panel"><button type="submit">เข้าสู่ระบบ</button> <span>[<a href="/accounts/change_password/">เปลี่ยนรหัสผ่าน</a>] [<a href="/accounts/password/reset/">ลืมรหัสผ่าน?</a>]</span></div>
+	<div class="button_panel"><button type="submit">เข้าสู่ระบบ</button> <span>[<a href="/accounts/password/reset/">ลืมรหัสผ่าน?</a>]</span></div>
 	{% if next %}<input type="hidden" name="next" value="{{next}}" />{% else %}<input type="hidden" name="next" value="" />{% endif %}
 </form>
 {% endblock %}

@@ -1,101 +1,92 @@
-{% extends 'base.html' %}
-{% load helper_tags i18n interface_tags %}
+{% extends 'page_base.html' %}
+{% load helper_tags page_tags core_tags humanize %}
 
 {% block html_head %}
+{% access user 'program kpi remark edit' schedule.program %}
 <script type="text/javascript">
 $(document).ready(function() {
-	$(".modify-remark").click(function(e) {
+    $(".modify-remark").click(function(e) {
+        e.preventDefault();
+        $(this).closest(".remark").hide();
+        $("#remarkForm").show();
+    });
+    
+    $(".cancel-remark-button").click(function(e) {
 		e.preventDefault();
-		$(this).closest(".remark").hide();
-		$("#remarkForm").show();
-	});
-	
-	$(".cancel-remark-button").click(function(e) {
-		var remarkPanel = $(this).closest(".remark_panel");
-		remarkPanel.find(".remark").show();
-		$("#remarkForm").hide();
-	});
-	
-	bindCommentBox($(".post-kpi-comment"));
-	initReplyCommentBox();
+        var remarkPanel = $(this).closest(".remark_panel");
+        remarkPanel.find(".remark").show();
+        $("#remarkForm").hide();
+    });
 });
-
-function onPostCommentCallback(data, sender, target) {
-	window.location.reload();
-}
 </script>
+{% endaccess %}
 {% endblock %}
 
-{% block body_title %}
-<div class="ss_header">
-<div class="container">
-	{% print_kpi_header user kpi_schedule %}
-</div>
-</div>
-<div class="ss_tab_navi">
-	{% display_kpi_comment_button user kpi_schedule %}
-	<div class="tabs">
-		<ul>
-			<li class="selected">ภาพรวม</li>
-		</ul>
-		<div class="clear"></div>
-	</div>
-</div>
-{% endblock %}
+{% block body_title %}{% display_kpi_header user schedule %}{% endblock %}
+{% block body_tabs %}{% tabs_for_kpi page user schedule %}{% endblock %}
 
 {% block body_content %}
 <div class="kpi_page">
-	{% if finance_schedule.claimed_on %}
-	<div class="claimed">เบิกจ่ายไปเมื่อวันที่ {{kpi_schedule.claimed_on|abbr_date}} เป็นจำนวนเงิน {{finance_schedule.result}} บาท</div>
-	{% endif %}
+    <div class="kpi_value">
+    	<div><span>ช่วงเวลา:</span> ไตรมาสที่ {{schedule.quarter}} ปี {{schedule.quarter_year|add:543}}</div>
+        <div><span>คาดการณ์:</span> {{schedule.target|intcomma}} {{schedule.kpi.unit_name}}</div>
+        <div><span>ผลที่เกิด:</span> {{schedule.result|intcomma}} {{schedule.kpi.unit_name}}</div>
+    </div>
 	
-	<div class="details">
-		<div><span>คาดการณ์:</span> {{kpi_schedule.target}} {{kpi_schedule.kpi.unit_name}}</div>
-		<div><span>ผลที่เกิดขึ้น:</span> {{kpi_schedule.result}} {{kpi_schedule.kpi.unit_name}}</div>
+    <h2 class="h2">หมายเหตุ</h2>
+    <div class="remark_panel">
+    	<div class="remark">
+            {% if schedule.remark %}
+            <p>{{schedule.remark}}</p>
+            {% else %}
+            <div class="ss_no_information">ไม่มีหมายเหตุ</div>
+            {% endif %}
+            
+            {% access user 'program kpi remark edit' schedule.program %}
+            <a href="#" class="modify-remark">แก้ไขหมายเหตุ</a>
+            {% endaccess %}
+        </div>
+        
+        <form action="." method="post" id="remarkForm">
+            {% csrf_token %}
+            {{form.remark}}
+            <div class="button_panel"><button class="save-remark-button" type="submit">บันทึก</button><button class="cancel-remark-button">ยกเลิก</button></div>
+        </form>
 	</div>
+    
+	<div class="reference_section">
+    <h2 class="h2">ข้อมูลประกอบ</h2>
 	
-	<h2>หมายเหตุ</h2>
-	<div class="remark_panel">
-		{% if kpi_schedule.remark %}
-		<div class="remark">
-			<p>{{kpi_schedule.remark}}</p>
-			<div class="actions"><a href="#" class="modify-remark">แก้ไขหมายเหตุ</a></div>
-		</div>
-		{% else %}
-		<div class="remark">
-			<a href="#" class="modify-remark">เพิ่มหมายเหตุ</a>
-		</div>
-		{% endif %}
-		<form action="." method="post" id="remarkForm">
-			{{form.remark}}
-			<div class="button_panel"><button class="save-remark-button" type="submit">บันทึก</button><button class="cancel-remark-button">ยกเลิก</button></div>
-		</form>
-	</div>
-	
-	{% if comments %}
-	<a name="comments"></a>
-	<h2>ความคิดเห็น</h2>
-	<ul class="ss_comments">
-		{% for comment in comments %}
-			{% generate_comment_html comment %}
-		{% endfor %}
-	</ul>
-	{% endif %}
-	
-	{% if revisions %}
-	<h2>ประวัติการแก้ไข</h2>
-	<ul class="revisions">
-		{% for revision in revisions %}
-		<li>
-			<div class="date">{{revision.revised_on|abbr_datetime}}</div>
-			<ul>
-				{% for revision_html in revision.list %}
-				<li>{{revision_html}}</li>
-				{% endfor %}
-			</ul>
-		</li>
-		{% endfor %}
-	</ul>
-	{% endif %}
+	{% access user 'program kpi reference edit' schedule.program %}
+    <div class="ss_sub_control_panel">
+        <ul>
+            <li><img src="{{MEDIA_URL}}/images/toolbar/edit_reference.png" class="icon"/><a href="{% url view_kpi_overview_edit_reference schedule.id %}">แก้ไขข้อมูลประกอบ</a></li>
+        </ul>
+    </div>
+	{% endaccess %}
+    
+    {% if ref_projects or ref_report_submissions %}
+    <ul class="ss_reference_list">
+        {% for reference in ref_projects %}
+        <li>
+            <div class="project_name"><a href="{% url view_project_overview reference.project.id %}">{{reference.project.name}}</a></div>
+            {% if reference.description %}<div class="description">{{reference.description}}</div>{% endif %}
+        </li>
+        {% endfor %}
+        
+        {% for reference in ref_report_submissions %}
+        <li>
+            <div>
+                <div class="report_name"><a href="{% url view_report_overview reference.report_submission.program.id reference.report_submission.report.id reference.report_submission.schedule_date|dateid %}">{{reference.report_submission.report.name}}</a></div>
+                <div class="report_date">ฉบับวันที่ {{reference.report_submission.schedule_date|abbr_date}}</div>
+            </div>
+            {% if reference.description %}<div class="description">{{reference.description}}</div>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="ss_no_information">ไม่มีข้อมูลประกอบ</div>
+    {% endif %}
+    </div>
 </div>
 {% endblock %}

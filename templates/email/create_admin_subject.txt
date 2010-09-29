@@ -1,1 +1,0 @@
-บัญชีผู้ดูแลระบบ {{settings.SYSTEM_NAME}}

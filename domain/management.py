@@ -11,308 +11,369 @@ from django.template.loader import render_to_string
 
 from accounts.models import *
 from domain.models import *
-from finance.models import *
+from budget.models import *
 from kpi.models import *
-from report.models import *
-from comments.models import *
 
 import calendar
 import random
 
 def after_syncdb(sender, **kwargs):
 
-	"""
-	THIS IS REAL PRODUCTION CODE
-	"""
-	
-	# Site Information ###############
-	Site.objects.all().update(domain=settings.WEBSITE_ADDRESS, name=settings.WEBSITE_ADDRESS)
-	
-	# User Roles ##################
-	#sector_admin_role, created = Group.objects.get_or_create(name='sector_admin')
-	#GroupName.objects.get_or_create(group=sector_admin_role, name='ผู้ดูแลระบบของสำนัก')
+    """
+    THIS IS REAL PRODUCTION CODE
+    """
+    
+    # Site Information ###############
+    Site.objects.all().update(domain=settings.WEBSITE_ADDRESS, name=settings.WEBSITE_ADDRESS)
+    
+    # User Roles ##################
+    sector_manager_role, created = Group.objects.get_or_create(name='sector_manager')
+    RoleDetails.objects.get_or_create(role=sector_manager_role, name='ผู้อำนวยการสำนัก', level=RoleDetails.SECTOR_LEVEL)
+    
+    sector_manager_assistant_role, created = Group.objects.get_or_create(name='sector_manager_assistant')
+    RoleDetails.objects.get_or_create(role=sector_manager_assistant_role, name='ผู้ช่วยผู้อำนวยการสำนัก', level=RoleDetails.SECTOR_LEVEL)
+    
+    sector_specialist_role, created = Group.objects.get_or_create(name='sector_specialist')
+    RoleDetails.objects.get_or_create(role=sector_specialist_role, name='นักวิชาการบริหารแผนงาน', level=RoleDetails.SECTOR_LEVEL)
+    
+    program_manager_role, created = Group.objects.get_or_create(name='program_manager')
+    RoleDetails.objects.get_or_create(role=program_manager_role, name='ผู้จัดการแผนงาน', level=RoleDetails.PROGRAM_LEVEL)
+    
+    program_manager_assistant_role, created = Group.objects.get_or_create(name='program_manager_assistant')
+    RoleDetails.objects.get_or_create(role=program_manager_assistant_role, name='ผู้ช่วยผู้จัดการแผนงาน', level=RoleDetails.PROGRAM_LEVEL)
+    
+    # Administrator ##################
+    admins = settings.ADMINS
+    
+    from django.core.mail import send_mail
+    
+    for admin in admins:
+        try:
+            User.objects.get(username=admin[0])
+            
+        except User.DoesNotExist:
+            #random_password = User.objects.make_random_password()
+            random_password = '1q2w3e4r'
+            admin_user = User.objects.create_user(admin[0], admin[1], random_password)
+            admin_user.is_superuser = True
+            admin_user.is_staff = True
+            admin_user.save()
+            
+            #email_render_dict = {'username':admin[0], 'password':random_password, 'settings':settings, 'site_name':settings.WEBSITE_ADDRESS}
+            #email_subject = render_to_string('email/create_admin_subject.txt', email_render_dict)
+            #email_message = render_to_string('email/create_admin_message.txt', email_render_dict)
+            
+            #send_mail(email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, [admin[1]])
+            
+            admin_account = admin_user.get_profile()
+            admin_account.firstname = admin[0]
+            admin_account.lastname = ''
+            admin_account.save()
+    
+    # Sector ##################
+    sector1, created = Sector.objects.get_or_create(ref_no=1, name='สำนักสนับสนุนการสร้างสุขภาวะและลดปัจจัยเสี่ยงหลัก')
+    sector2, created = Sector.objects.get_or_create(ref_no=2, name='สำนักสนับสนุนการสร้างสุขภาวะและลดปัจจัยเสี่ยงรอง')
+    sector3, created = Sector.objects.get_or_create(ref_no=3, name='สำนักสนับสนุนการสร้างสุขภาวะในพื้นที่ชุมชน')
+    sector4, created = Sector.objects.get_or_create(ref_no=4, name='สำนักสนับสนุนการเรียนรู้และสุขภาวะองค์กร')
+    sector5, created = Sector.objects.get_or_create(ref_no=5, name='สำนักรณรงค์สื่อสารสาธารณะและสังคม')
+    sector6, created = Sector.objects.get_or_create(ref_no=6, name='สำนักสนับสนุนโครงการเปิดรับทั่วไป')
+    sector7, created = Sector.objects.get_or_create(ref_no=7, name='สำนักสนับสนุนการพัฒนาระบบสุขภาพและบริการสุขภาพ')
+    sector8, created = Sector.objects.get_or_create(ref_no=8, name='สำนักพัฒนายุทธศาสตร์ แผนและสมรรถนะ')
+    sector9, created = Sector.objects.get_or_create(ref_no=9, name='สำนักพัฒนาวิชาการ')
+    
+    # Master Plan ##################
+    master_plan1, created  = MasterPlan.objects.get_or_create(ref_no=1, name="แผนควบคุมการบริโภคยาสูบ")
+    master_plan2, created  = MasterPlan.objects.get_or_create(ref_no=2, name="แผนควบคุมการบริโภคเครื่องดื่มแอลกอฮอล์")
+    master_plan3, created  = MasterPlan.objects.get_or_create(ref_no=3, name="แผนสนับสนุนการป้องกันอุบัตเหตุทางถนนและอุบัติภัย")
+    master_plan4, created  = MasterPlan.objects.get_or_create(ref_no=4, name="แผนควบคุมปัจจัยเสี่ยงทางสุขภาพ")
+    master_plan5, created  = MasterPlan.objects.get_or_create(ref_no=5, name="แผนสุขภาวะประชากรกลุ่มเฉพาะ")
+    master_plan6, created  = MasterPlan.objects.get_or_create(ref_no=6, name="แผนสุขภาวะชุมชน")
+    master_plan7, created  = MasterPlan.objects.get_or_create(ref_no=7, name="แผนสุขภาวะเด็ก เยาวชน และครอบครัว")
+    master_plan8, created  = MasterPlan.objects.get_or_create(ref_no=8, name="แผนสร้างเสริมสุขภาวะในองค์กร")
+    master_plan9, created  = MasterPlan.objects.get_or_create(ref_no=9, name="แผนส่งเสริมการออกกำลังกายและกีฬาเพื่อสุขภาพ")
+    master_plan10, created  = MasterPlan.objects.get_or_create(ref_no=10, name="แผนสื่อสารการตลาดเพื่อสังคม")
+    master_plan11, created  = MasterPlan.objects.get_or_create(ref_no=11, name="แผนสนับสนุนโครงสร้างทั่วไปและนวัตกรรม")
+    master_plan12, created  = MasterPlan.objects.get_or_create(ref_no=12, name="แผนสนับสนุนการสร้างเสริมสุขภาพผ่านระบบบริการสุขภาพ")
+    master_plan13, created  = MasterPlan.objects.get_or_create(ref_no=13, name="แผนพัฒนาระบบและกลไกสนับสนุนเพื่อการสร้างเสริมสุขภาพ")
+    
+    SectorMasterPlan.objects.get_or_create(sector=sector1, master_plan=master_plan1)
+    SectorMasterPlan.objects.get_or_create(sector=sector1, master_plan=master_plan2)
+    SectorMasterPlan.objects.get_or_create(sector=sector1, master_plan=master_plan3)
+    SectorMasterPlan.objects.get_or_create(sector=sector2, master_plan=master_plan4)
+    SectorMasterPlan.objects.get_or_create(sector=sector2, master_plan=master_plan5)
+    SectorMasterPlan.objects.get_or_create(sector=sector3, master_plan=master_plan6)
+    SectorMasterPlan.objects.get_or_create(sector=sector4, master_plan=master_plan7)
+    SectorMasterPlan.objects.get_or_create(sector=sector4, master_plan=master_plan8)
+    SectorMasterPlan.objects.get_or_create(sector=sector5, master_plan=master_plan9)
+    SectorMasterPlan.objects.get_or_create(sector=sector5, master_plan=master_plan10)
+    SectorMasterPlan.objects.get_or_create(sector=sector6, master_plan=master_plan11)
+    SectorMasterPlan.objects.get_or_create(sector=sector7, master_plan=master_plan12)
+    SectorMasterPlan.objects.get_or_create(sector=sector7, master_plan=master_plan13)
+    SectorMasterPlan.objects.get_or_create(sector=sector8, master_plan=master_plan13)
+    SectorMasterPlan.objects.get_or_create(sector=sector9, master_plan=master_plan13)
+    
+    #
+    # Permission ##################
+    #
+    
+    PermissionName.objects.get_or_create(permission='master_plan manage', name='จัดการแผนหลัก')
+    
+    # DOMAIN
+    PermissionName.objects.get_or_create(permission='program project add', name='เพิ่มโครงการของแผนงาน')
+    PermissionName.objects.get_or_create(permission='program project edit', name='แก้ไขโครงการของแผนงาน')
+    PermissionName.objects.get_or_create(permission='program project delete', name='ลบโครงการของแผนงาน')
+    
+    PermissionName.objects.get_or_create(permission='program activity add', name='เพิ่มกิจกรรมของแผนงาน')
+    PermissionName.objects.get_or_create(permission='program activity edit', name='แก้ไขกิจกรรมของแผนงาน')
+    PermissionName.objects.get_or_create(permission='program activity delete', name='ลบกิจกรรมของแผนงาน')
+    
+    # REPORT
+    PermissionName.objects.get_or_create(permission='program report schedule add', name='เพิ่มหัวเรื่องรายงานของแผนงาน')
+    PermissionName.objects.get_or_create(permission='program report schedule edit', name='แก้ไขหัวเรื่องรายงานของแผนงาน')
+    PermissionName.objects.get_or_create(permission='program report schedule delete', name='ลบหัวเรื่องรายงานของแผนงาน')
+    
+    PermissionName.objects.get_or_create(permission='program report submission warning', name='ดูการแจ้งเตือนการส่งรายงาน')
+    PermissionName.objects.get_or_create(permission='program report submission edit', name='เขียนรายงานสำหรับแผนงาน')
+    PermissionName.objects.get_or_create(permission='program report submission submit', name='ส่งรายงานสำหรับแผนงาน')
+    PermissionName.objects.get_or_create(permission='program report submission approve', name='รับรองรายงานสำหรับแผนงาน')
+    PermissionName.objects.get_or_create(permission='program report submission reference edit', name='แก้ไขข้อมูลประกอบรายงานสำหรับแผนงาน')
+    
+    # KPI
+    PermissionName.objects.get_or_create(permission='program kpi remark edit', name='แก้ไขหมายเหตุตัวชี้วัด')
+    PermissionName.objects.get_or_create(permission='program kpi target edit', name='แก้ไขตัวเลขคาดการณ์ตัวชี้วัด')
+    PermissionName.objects.get_or_create(permission='program kpi result edit', name='แก้ไขตัวเลขผลที่เกิดของตัวชี้วัด')
+    PermissionName.objects.get_or_create(permission='program kpi reference edit', name='แก้ไขข้อมูลประกอบตัวชี้วัด')
+    
+    # BUDGET
+    PermissionName.objects.get_or_create(permission='program budget remark edit', name='แก้ไขหมายเหตุการเบิกจ่าย')
+    PermissionName.objects.get_or_create(permission='program budget grant edit', name='แก้ไขตัวเลขคาดการณ์การเบิกจ่าย')
+    PermissionName.objects.get_or_create(permission='program budget claim edit', name='แก้ไขตัวเลขเบิกจ่ายจริง')
+    PermissionName.objects.get_or_create(permission='program budget reference edit', name='แก้ไขข้อมูลประกอบการเบิกจ่าย')
+    
+    # ADMIN PERMISSIONS #########################################################
+    
+    AdminPermission.objects.get_or_create(permission='master_plan manage')
+    
+    AdminPermission.objects.get_or_create(permission='program project add')
+    AdminPermission.objects.get_or_create(permission='program project edit')
+    AdminPermission.objects.get_or_create(permission='program project delete')
+    
+    AdminPermission.objects.get_or_create(permission='program activity add')
+    AdminPermission.objects.get_or_create(permission='program activity edit')
+    AdminPermission.objects.get_or_create(permission='program activity delete')
+    
+    AdminPermission.objects.get_or_create(permission='program report schedule add')
+    AdminPermission.objects.get_or_create(permission='program report schedule edit')
+    AdminPermission.objects.get_or_create(permission='program report schedule delete')
+    
+    AdminPermission.objects.get_or_create(permission='program report submission warning')
+    AdminPermission.objects.get_or_create(permission='program report submission edit')
+    AdminPermission.objects.get_or_create(permission='program report submission reference edit')
+    
+    AdminPermission.objects.get_or_create(permission='program kpi remark edit')
+    AdminPermission.objects.get_or_create(permission='program kpi target edit')
+    AdminPermission.objects.get_or_create(permission='program kpi result edit')
+    AdminPermission.objects.get_or_create(permission='program kpi reference edit')
+    
+    AdminPermission.objects.get_or_create(permission='program budget remark edit')
+    AdminPermission.objects.get_or_create(permission='program budget grant edit')
+    AdminPermission.objects.get_or_create(permission='program budget claim edit')
+    AdminPermission.objects.get_or_create(permission='program budget reference edit')
+    
+    # SECTOR MANAGER PERMISSIONS #########################################################
+    
+    UserPermission.objects.get_or_create(permission='master_plan manage', role=sector_manager_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program report submission warning', role=sector_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission approve', role=sector_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission reference edit', role=sector_manager_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program kpi remark edit', role=sector_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi target edit', role=sector_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi result edit', role=sector_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi reference edit', role=sector_manager_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program budget remark edit', role=sector_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program budget grant edit', role=sector_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program budget claim edit', role=sector_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program budget reference edit', role=sector_manager_role, only_responsible=True)
+    
+    # SECTOR MANAGER ASSISTANT PERMISSIONS #########################################################
+    
+    UserPermission.objects.get_or_create(permission='master_plan manage', role=sector_manager_assistant_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program report submission warning', role=sector_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission approve', role=sector_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission reference edit', role=sector_manager_assistant_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program kpi remark edit', role=sector_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi target edit', role=sector_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi result edit', role=sector_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi reference edit', role=sector_manager_assistant_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program budget remark edit', role=sector_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program budget grant edit', role=sector_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program budget claim edit', role=sector_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program budget reference edit', role=sector_manager_assistant_role, only_responsible=True)
+    
+    # SECTOR SPECIALIST PERMISSIONS #########################################################
+    
+    UserPermission.objects.get_or_create(permission='master_plan manage', role=sector_specialist_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program report submission warning', role=sector_specialist_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission approve', role=sector_specialist_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission reference edit', role=sector_specialist_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program kpi remark edit', role=sector_specialist_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi target edit', role=sector_specialist_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi result edit', role=sector_specialist_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi reference edit', role=sector_specialist_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program budget remark edit', role=sector_specialist_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program budget grant edit', role=sector_specialist_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program budget claim edit', role=sector_specialist_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program budget reference edit', role=sector_specialist_role, only_responsible=True)
+    
+    # PROGRAM MANAGER PERMISSIONS #########################################################
+    
+    UserPermission.objects.get_or_create(permission='program project add', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program project edit', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program project delete', role=program_manager_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program activity add', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program activity edit', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program activity delete', role=program_manager_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program report schedule add', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report schedule edit', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report schedule delete', role=program_manager_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program report submission warning', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission edit', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission submit', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission reference edit', role=program_manager_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program kpi remark edit', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi target edit', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi result edit', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi reference edit', role=program_manager_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program budget remark edit', role=program_manager_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program budget reference edit', role=program_manager_role, only_responsible=True)
+    
+    # PROGRAM MANAGER ASSISTANT PERMISSIONS #########################################################
+    
+    UserPermission.objects.get_or_create(permission='program project add', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program project edit', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program project delete', role=program_manager_assistant_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program activity add', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program activity edit', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program activity delete', role=program_manager_assistant_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program report schedule add', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report schedule edit', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report schedule delete', role=program_manager_assistant_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program report submission warning', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission edit', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission submit', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program report submission reference edit', role=program_manager_assistant_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program kpi remark edit', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi target edit', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi result edit', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program kpi reference edit', role=program_manager_assistant_role, only_responsible=True)
+    
+    UserPermission.objects.get_or_create(permission='program budget remark edit', role=program_manager_assistant_role, only_responsible=True)
+    UserPermission.objects.get_or_create(permission='program budget reference edit', role=program_manager_assistant_role, only_responsible=True)
+    
+    """
+    END HERE
+    """
 
-	sector_manager_role, created = Group.objects.get_or_create(name='sector_manager')
-	GroupName.objects.get_or_create(group=sector_manager_role, name='ผู้อำนวยการสำนัก')
-	sector_manager_assistant_role, created = Group.objects.get_or_create(name='sector_manager_assistant')
-	GroupName.objects.get_or_create(group=sector_manager_assistant_role, name='ผู้ช่วยผู้อำนวยการสำนัก')
+    """
+    BELOW CODE IS FOR PROTOTYPE-PURPOSE ONLY
 
-	project_manager_role, created = Group.objects.get_or_create(name='project_manager')
-	GroupName.objects.get_or_create(group=project_manager_role, name='ผู้จัดการแผนงาน')
-	project_manager_assistant_role, created = Group.objects.get_or_create(name='project_manager_assistant')
-	GroupName.objects.get_or_create(group=project_manager_assistant_role, name='ผู้ช่วยผู้จัดการแผนงาน')
+    
+    plan1, created = Plan.objects.get_or_create(master_plan=master_plan1, ref_no="101", name="Sample Plan 1")
+    plan2, created = Plan.objects.get_or_create(master_plan=master_plan1, ref_no="102", name="Sample Plan 2")
+    
+    program101_01, created = Program.objects.get_or_create(plan=plan1, ref_no="101-01", name="Sample Program 1")
+    program101_02, created = Program.objects.get_or_create(plan=plan1, ref_no="101-02", name="Sample Program 2")
+    program102_01, created = Program.objects.get_or_create(plan=plan2, ref_no="102-01", name="Sample Program 3")
+    program102_02, created = Program.objects.get_or_create(plan=plan2, ref_no="102-02", name="Sample Program 4")
+    
+    # INITIAL USER LIST
+    try:
+        sector_manager_user = User.objects.get(username='sector')
+        sector_manager_user_account = sector_manager_user.get_profile()
+    except User.DoesNotExist:
+        sector_manager_user = User.objects.create_user('sector', 'panuta@gmail.com', 'password')
+        sector_manager_user.save()
+        
+        sector_manager_user_account = sector_manager_user.get_profile()
+        sector_manager_user_account.firstname = 'Sector'
+        sector_manager_user_account.lastname = 'Manager'
+        sector_manager_user_account.save()
+        
+        sector_manager_user.groups.add(sector_manager_role)
+        responsibility = UserRoleResponsibility.objects.create(user=sector_manager_user_account, role=sector_manager_role)
+        responsibility.sectors.add(sector1)
+    
+    try:
+        User.objects.get(username='assistant')
+    except User.DoesNotExist:
+        user = User.objects.create_user('assistant', 'panuta@gmail.com', 'password')
+        user.save()
+        
+        user_account = user.get_profile()
+        user_account.firstname = 'Manager'
+        user_account.lastname = 'Assistant'
+        user_account.save()
+        
+        user.groups.add(sector_manager_assistant_role)
+        responsibility = UserRoleResponsibility.objects.create(user=user_account, role=sector_manager_assistant_role)
+        responsibility.sectors.add(sector1)
+        responsibility.programs.add(program101_01)
+        responsibility.programs.add(program102_01)
+    
+    try:
+        User.objects.get(username='program')
+    except User.DoesNotExist:
+        user = User.objects.create_user('program', 'panuta@gmail.com', 'password')
+        user.save()
+        
+        user_account = user.get_profile()
+        user_account.firstname = 'Project'
+        user_account.lastname = 'Manager'
+        user_account.save()
+        
+        user.groups.add(program_manager_role)
+        responsibility = UserRoleResponsibility.objects.create(user=user_account, role=program_manager_role)
+        responsibility.programs.add(program101_01)
+    
+    try:
+        User.objects.get(username='program_assistant')
+    except User.DoesNotExist:
+        user = User.objects.create_user('program_assistant', 'panuta@gmail.com', 'password')
+        user.save()
+        
+        user_account = user.get_profile()
+        user_account.firstname = 'Project'
+        user_account.lastname = 'Assistant'
+        user_account.save()
+        
+        user.groups.add(program_manager_assistant_role)
+        responsibility = UserRoleResponsibility.objects.create(user=user_account, role=program_manager_assistant_role)
+        responsibility.programs.add(program101_01)
+    
+    
+    
+    project_001, created = Project.objects.get_or_create(program=program101_01, ref_no='001', contract_no='REF001', name='Project 001', abbr_name='PRJ001', created_by=sector_manager_user_account)
 
-	# Permission ##################
-	# Permission.objects.get_or_create(name='View other projects reports', content_type=ContentType.objects.get_for_model(ReportSchedule), codename='view_others_project_report')
-
-	# Administrator ##################
-	admins = settings.ADMINS
-	
-	from django.core.mail import send_mail
-	
-	for admin in admins:
-		try:
-			User.objects.get(username=admin[0])
-
-		except User.DoesNotExist:
-			random_password = User.objects.make_random_password()
-			#random_password = 'password'
-			admin_user = User.objects.create_user(admin[0], admin[1], random_password)
-			admin_user.is_superuser = True
-			admin_user.is_staff = True
-			admin_user.save()
-			
-			email_render_dict = {'username':admin[0], 'password':random_password, 'settings':settings, 'site_name':settings.WEBSITE_ADDRESS}
-			email_subject = render_to_string('email/create_admin_subject.txt', email_render_dict)
-			email_message = render_to_string('email/create_admin_message.txt', email_render_dict)
-			
-			send_mail(email_subject, email_message, settings.SYSTEM_NOREPLY_EMAIL, [admin[1]])
-
-			admin_account = admin_user.get_profile()
-			admin_account.first_name = admin[0]
-			admin_account.last_name = ''
-			admin_account.save()
-
-	# Master Plan
-	default_month_span, created = MonthSpan.objects.get_or_create(start_month=10, is_default=True)
-	
-	# Comment Receiver by Role
-	CommentReceiverRole.objects.create(object_name='project', role=project_manager_role)
-	CommentReceiverRole.objects.create(object_name='project', role=project_manager_assistant_role)
-	CommentReceiverRole.objects.create(object_name='activity', role=project_manager_role)
-	CommentReceiverRole.objects.create(object_name='activity', role=project_manager_assistant_role)
-	CommentReceiverRole.objects.create(object_name='report', role=project_manager_role)
-	CommentReceiverRole.objects.create(object_name='report', role=project_manager_assistant_role)
-	CommentReceiverRole.objects.create(object_name='kpi', role=project_manager_role)
-	CommentReceiverRole.objects.create(object_name='kpi', role=project_manager_assistant_role)
-	CommentReceiverRole.objects.create(object_name='finance', role=project_manager_role)
-	CommentReceiverRole.objects.create(object_name='finance', role=project_manager_assistant_role)
-
-	# Sector ##################
-	sector1, created = Sector.objects.get_or_create(ref_no=1, name='สำนักสนับสนุนการสร้างสุขภาวะและลดปัจจัยเสี่ยงหลัก')
-	sector2, created = Sector.objects.get_or_create(ref_no=2, name='สำนักสนับสนุนการสร้างสุขภาวะและลดปัจจัยเสี่ยงรอง')
-	sector3, created = Sector.objects.get_or_create(ref_no=3, name='สำนักสนับสนุนการสร้างสุขภาวะในพื้นที่ชุมชน')
-	sector4, created = Sector.objects.get_or_create(ref_no=4, name='สำนักสนับสนุนการเรียนรู้และสุขภาวะองค์กร')
-	sector5, created = Sector.objects.get_or_create(ref_no=5, name='สำนักรณรงค์สื่อสารสาธารณะและสังคม')
-	sector6, created = Sector.objects.get_or_create(ref_no=6, name='สำนักสนับสนุนโครงการเปิดรับทั่วไป')
-	sector7, created = Sector.objects.get_or_create(ref_no=7, name='สำนักสนับสนุนการพัฒนาระบบสุขภาพและบริการสุขภาพ')
-
-	# Master Plan ##################
-	master_plan1, created  = MasterPlan.objects.get_or_create(sector=sector1, ref_no=1, name="แผนควบคุมการบริโภคยาสูบ", month_span=default_month_span)
-	master_plan2, created  = MasterPlan.objects.get_or_create(sector=sector1, ref_no=2, name="แผนควบคุมการบริโภคเครื่องดื่มแอลกอฮอล์", month_span=default_month_span)
-	master_plan3, created  = MasterPlan.objects.get_or_create(sector=sector1, ref_no=3, name="แผนสนับสนุนการป้องกันอุบัตเหตุทางถนนและอุบัติภัย", month_span=default_month_span)
-	master_plan4, created  = MasterPlan.objects.get_or_create(sector=sector2, ref_no=4, name="แผนควบคุมปัจจัยเสี่ยงทางสุขภาพ", month_span=default_month_span)
-	master_plan5, created  = MasterPlan.objects.get_or_create(sector=sector2, ref_no=5, name="แผนสุขภาวะประชากรกลุ่มเฉพาะ", month_span=default_month_span)
-	master_plan6, created  = MasterPlan.objects.get_or_create(sector=sector3, ref_no=6, name="แผนสุขภาวะชุมชน", month_span=default_month_span)
-	master_plan7, created  = MasterPlan.objects.get_or_create(sector=sector4, ref_no=7, name="แผนสุขภาวะเด็ก เยาวชน และครอบครัว", month_span=default_month_span)
-	master_plan8, created  = MasterPlan.objects.get_or_create(sector=sector4, ref_no=8, name="แผนสร้างเสริมสุขภาวะในองค์กร", month_span=default_month_span)
-	master_plan9, created  = MasterPlan.objects.get_or_create(sector=sector5, ref_no=9, name="แผนส่งเสริมการออกกำลังกายและกีฬาเพื่อสุขภาพ", month_span=default_month_span)
-	master_plan10, created  = MasterPlan.objects.get_or_create(sector=sector5, ref_no=10, name="แผนสื่อสารการตลาดเพื่อสังคม", month_span=default_month_span)
-	master_plan11, created  = MasterPlan.objects.get_or_create(sector=sector6, ref_no=11, name="แผนสนับสนุนโครงสร้างทั่วไปและนวัตกรรม", month_span=default_month_span)
-	master_plan12, created  = MasterPlan.objects.get_or_create(sector=sector7, ref_no=12, name="แผนสนับสนุนการสร้างเสริมสุขภาพผ่านระบบบริการสุขภาพ", month_span=default_month_span)
-	master_plan13, created  = MasterPlan.objects.get_or_create(sector=sector7, ref_no=13, name="แผนพัฒนาระบบและกลไกสนับสนุนเพื่อการสร้างเสริมสุขภาพ", month_span=default_month_span)
-
-	"""
-	END HERE
-	"""
-
-	"""
-	BELOW CODE IS FOR PROTOTYPE-PURPOSE ONLY
-	"""
-	
-	if not Project.objects.all():
-
-		# Users ##################
-		
-		# Sector Managers
-		sector_manager1 = User.objects.create_user("sector7", "sector1@example.com", "password")
-		sector_manager1.groups.add(sector_manager_role)
-		
-		sector_manager_account1 = sector_manager1.get_profile()
-		sector_manager_account1.sector = sector7
-		sector_manager_account1.first_name = "เบญจมาภรณ์"
-		sector_manager_account1.last_name = "จันทรพัฒน์"
-		sector_manager_account1.save()
-		
-		user_responsibility = UserRoleResponsibility.objects.create(user=sector_manager_account1, role=sector_manager_role)
-		user_responsibility.sectors.add(sector7)
-
-		# Sector Manager Assistants
-		sector_manager_assistant1 = User.objects.create_user("pakchuda", "assistant1@example.com", "password")
-		sector_manager_assistant1.groups.add(sector_manager_assistant_role)
-
-		sector_manager_assistant_account1 = sector_manager_assistant1.get_profile()
-		sector_manager_assistant_account1.sector = sector7
-		sector_manager_assistant_account1.first_name = "ภัคชุดา"
-		sector_manager_assistant_account1.last_name = "วสุวัต"
-		sector_manager_assistant_account1.save()
-
-		# Project Managers
-		project_manager1 = User.objects.create_user("project1", "project1@example.com", "password")
-		project_manager1.groups.add(project_manager_role)
-
-		project_manager2 = User.objects.create_user("project2", "project2@example.com", "password")
-		project_manager2.groups.add(project_manager_role)
-
-		project_manager3 = User.objects.create_user("project3", "project3@example.com", "password")
-		project_manager3.groups.add(project_manager_role)
-
-		project_manager_account1 = project_manager1.get_profile()
-		project_manager_account1.sector = sector7
-		project_manager_account1.first_name = "อภินันท์"
-		project_manager_account1.last_name = "อร่ามรัตน์"
-		project_manager_account1.save()
-
-		project_manager_account2 = project_manager2.get_profile()
-		project_manager_account2.sector = sector7
-		project_manager_account2.first_name = "ดร. ยาใจ"
-		project_manager_account2.last_name = "สิทธิมงคล"
-		project_manager_account2.save()
-
-		project_manager_account3 = project_manager3.get_profile()
-		project_manager_account3.sector = sector7
-		project_manager_account3.first_name = "จรินทร์"
-		project_manager_account3.last_name = "ปภังกรกิจ"
-		project_manager_account3.save()
-
-		# Project Manager Assistants
-		project_manager_assistant1 = User.objects.create_user("project_assistant1", "project_assistant1@example.com", "password")
-		project_manager_assistant1.groups.add(project_manager_assistant_role)
-
-		project_manager_assistant_account1 = project_manager_assistant1.get_profile()
-		project_manager_assistant_account1.sector = sector7
-		project_manager_assistant_account1.first_name = "Project1"
-		project_manager_assistant_account1.last_name = "Assistant"
-		project_manager_assistant_account1.save()
-
-		project_manager_assistant2 = User.objects.create_user("project_assistant2", "project_assistant2@example.com", "password")
-		project_manager_assistant2.groups.add(project_manager_assistant_role)
-
-		project_manager_assistant_account2 = project_manager_assistant2.get_profile()
-		project_manager_assistant_account2.sector = sector7
-		project_manager_assistant_account2.first_name = "Project2"
-		project_manager_assistant_account2.last_name = "Assistant"
-		project_manager_assistant_account2.save()
-
-		# Plan ##################
-		plan1201 = Plan.objects.create(master_plan=master_plan12, ref_no="1201", name="กลุ่มแผนงานพัฒนาระบบบริการสุชภาพระดับชุมชน")
-		plan1202 = Plan.objects.create(master_plan=master_plan12, ref_no="1202", name="กลุ่มแผนงานพัฒนาระบบกำลังคน")
-		plan1203 = Plan.objects.create(master_plan=master_plan12, ref_no="1203", name="กลุ่มแผนงานพัฒนาระบบการสร้างและจัดการความรู้")
-		plan1204 = Plan.objects.create(master_plan=master_plan12, ref_no="1204", name="กลุ่มแผนงานการสร้างเสริมสุขภาพและการป้องกันโรค")
-
-		# Project ##################
-		project1201_1 = Project.objects.create(master_plan=master_plan12, plan=plan1201, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="21-00001", name="แผนงานที่หนึ่ง", start_date=date(2008,12,16), end_date=date(2011,12,15))
-		project1201_2 = Project.objects.create(master_plan=master_plan12, plan=plan1201, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="21-00002", name="แผนงานที่สอง", start_date=date(2009,12,16), end_date=date(2011,12,15))
-		project1201_3 = Project.objects.create(master_plan=master_plan12, plan=plan1201, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="21-00003", name="แผนงานที่สาม", start_date=date(2008,12,16), end_date=date(2009,12,15))
-		project1201_4 = Project.objects.create(master_plan=master_plan12, plan=plan1201, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="21-00004", name="แผนงานที่สี่", start_date=date(2008,12,16), end_date=date(2009,12,15))
-		project1201_5 = Project.objects.create(master_plan=master_plan12, plan=plan1201, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="21-00005", name="แผนงานที่ห้า", start_date=date(2010,12,16), end_date=date(2011,12,15))
-
-		project1202_1 = Project.objects.create(master_plan=master_plan12, plan=plan1202, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="22-00001", name="แผนงานที่หก", start_date=date(2008,12,16), end_date=date(2011,12,15))
-		project1202_2 = Project.objects.create(master_plan=master_plan12, plan=plan1202, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="22-00002", name="แผนงานที่เจ็ด", start_date=date(2008,12,16), end_date=date(2011,12,15))
-
-		project1203_1 = Project.objects.create(master_plan=master_plan12, plan=plan1203, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="23-00001", name="แผนงานที่แปด", start_date=date(2008,12,16), end_date=date(2011,12,15))
-		project1203_2 = Project.objects.create(master_plan=master_plan12, plan=plan1203, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="23-00002", name="แผนงานที่เก้า", start_date=date(2008,12,16), end_date=date(2011,12,15))
-
-		project1204_1 = Project.objects.create(master_plan=master_plan12, plan=plan1204, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="24-00001", name="แผนงานที่สิบ", start_date=date(2008,12,16), end_date=date(2011,12,15))
-		project1204_2 = Project.objects.create(master_plan=master_plan12, plan=plan1204, prefix_name=Project.PROJECT_IS_PROGRAM, ref_no="24-00002", name="แผนงานที่สิบเอ็ด", start_date=date(2008,12,16), end_date=date(2011,12,15))
-
-		user_responsibility = UserRoleResponsibility.objects.create(user=project_manager_account1, role=project_manager_role)
-		user_responsibility.projects.add(project1201_1)
-		user_responsibility.projects.add(project1202_1)
-		user_responsibility.projects.add(project1204_1)
-		user_responsibility.projects.add(project1204_2)
-
-		user_responsibility = UserRoleResponsibility.objects.create(user=project_manager_account2, role=project_manager_role)
-		user_responsibility.projects.add(project1201_2)
-		user_responsibility.projects.add(project1201_4)
-		user_responsibility.projects.add(project1201_5)
-		user_responsibility.projects.add(project1203_1)
-
-		user_responsibility = UserRoleResponsibility.objects.create(user=project_manager_account3, role=project_manager_role)
-		user_responsibility.projects.add(project1201_3)
-		user_responsibility.projects.add(project1202_2)
-		user_responsibility.projects.add(project1203_2)
-
-		user_responsibility = UserRoleResponsibility.objects.create(user=project_manager_assistant_account1, role=project_manager_assistant_role)
-		user_responsibility.projects.add(project1201_1)
-		user_responsibility.projects.add(project1201_3)
-		user_responsibility.projects.add(project1202_1)
-		user_responsibility.projects.add(project1202_2)
-		user_responsibility.projects.add(project1204_1)
-		user_responsibility.projects.add(project1204_2)
-
-		user_responsibility = UserRoleResponsibility.objects.create(user=project_manager_assistant_account2, role=project_manager_assistant_role)
-		user_responsibility.projects.add(project1201_2)
-		user_responsibility.projects.add(project1201_4)
-		user_responsibility.projects.add(project1201_5)
-		user_responsibility.projects.add(project1203_1)
-		user_responsibility.projects.add(project1203_2)
-
-		user_responsibility = UserRoleResponsibility.objects.create(user=sector_manager_assistant_account1, role=sector_manager_assistant_role)
-		user_responsibility.projects.add(project1201_1)
-		user_responsibility.projects.add(project1201_2)
-		user_responsibility.projects.add(project1201_3)
-
-		# Project ##################
-		project1201_1_001 = Project.objects.create(master_plan=master_plan12, parent_project=project1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-001", name="โครงการทดลองที่หนึ่ง", start_date=date(2008,12,16), end_date=date(2009,4,1))
-		project1201_1_002 = Project.objects.create(master_plan=master_plan12, parent_project=project1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-002", name="โครงการทดลองทีสอง", start_date=date(2009,4,1), end_date=date(2009,8,1))
-		project1201_1_003 = Project.objects.create(master_plan=master_plan12, parent_project=project1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-003", name="โครงการทดลองที่สาม", start_date=date(2009,8,1), end_date=date(2009,12,1))
-		project1201_1_004 = Project.objects.create(master_plan=master_plan12, parent_project=project1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-004", name="โครงการทดลองที่สี่", start_date=date(2009,12,1), end_date=date(2010,4,1))
-		project1201_1_005 = Project.objects.create(master_plan=master_plan12, parent_project=project1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-005", name="โครงการทดลองที่ห้า", start_date=date(2010,4,1), end_date=date(2010,8,1))
-		project1201_1_006 = Project.objects.create(master_plan=master_plan12, parent_project=project1201_1, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-006", name="โครงการทดลองที่หก", start_date=date(2010,8,1), end_date=date(2010,12,1))
-
-		project1201_1_005 = Project.objects.create(master_plan=master_plan12, parent_project=None, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-007", name="โครงการทดลองที่เจ็ด", start_date=date(2010,9,1), end_date=date(2010,10,1))
-		project1201_1_006 = Project.objects.create(master_plan=master_plan12, parent_project=None, prefix_name=Project.PROJECT_IS_PROJECT, ref_no="21-00001-008", name="โครงการทดลองที่แปด", start_date=date(2010,8,1), end_date=date(2010,10,1))
-
-		# Activity ##################
-		activity1 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่หนึ่ง", start_date=date(2008,12,16), end_date=date(2009,3,15))
-		activity2 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สอง", start_date=date(2009,3,1), end_date=date(2009,3,16))
-		activity3 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สาม", start_date=date(2009,11,16), end_date=date(2009,12,1))
-		activity4 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่สี่", start_date=date(2010,6,15), end_date=date(2010, 6,16))
-		activity5 = Activity.objects.create(project=project1201_1_001, name="กิจกรรมทดลองที่ห้า", start_date=date(2011,6,14), end_date=date(2011,8,16))
-
-		# KPI ##################		
-		opt_category = KPICategory.objects.create(name='Operation')
-		opdc_category = KPICategory.objects.create(name='OPDC')
-		
-		kpi1 = KPI.objects.create(ref_no='1', name='kpi1', category=opt_category, unit_name='unit', master_plan=master_plan12, created_by=sector_manager_assistant_account1)
-		kpi2 = KPI.objects.create(ref_no='2', name='kpi2', category=opt_category, unit_name='unit', master_plan=master_plan12, created_by=sector_manager_assistant_account1)
-		kpi3 = KPI.objects.create(ref_no='3', name='kpi3', category=opt_category, unit_name='unit', master_plan=master_plan12, created_by=sector_manager_assistant_account1)
-		
-		kpi101 = KPI.objects.create(ref_no='101', name='kpi101', category=opdc_category, unit_name='unit', created_by=sector_manager_assistant_account1)
-		kpi102 = KPI.objects.create(ref_no='102', name='kpi102', category=opdc_category, unit_name='unit', created_by=sector_manager_assistant_account1)
-		
-		schedule1 = KPISchedule.objects.create(kpi=kpi1, project=project1201_1, target=100, result=30, target_on=date(2010,02,01))
-		KPISchedule.objects.create(kpi=kpi1, project=project1201_1, target=100, result= 0, target_on=date(2010,04,01))
-		KPISchedule.objects.create(kpi=kpi1, project=project1201_1, target=100, result= 0, target_on=date(2010,06,01))
-		
-		KPISchedule.objects.create(kpi=kpi2, project=project1201_1, target=100, result=30, target_on=date(2010,02,01))
-		KPISchedule.objects.create(kpi=kpi2, project=project1201_1, target=100, result= 0, target_on=date(2010,04,01))
-		KPISchedule.objects.create(kpi=kpi2, project=project1201_1, target=100, result= 0, target_on=date(2010,06,01))
-		
-		KPISchedule.objects.create(kpi=kpi3, project=project1201_1, target=100, result=30, target_on=date(2010,02,01))
-		KPISchedule.objects.create(kpi=kpi3, project=project1201_1, target=100, result= 0, target_on=date(2010,04,01))
-		KPISchedule.objects.create(kpi=kpi3, project=project1201_1, target=100, result= 0, target_on=date(2010,06,01))
-		
-		KPISchedule.objects.create(kpi=kpi101, project=project1201_1, target=100, result=30, target_on=date(2010,02,01))
-		KPISchedule.objects.create(kpi=kpi101, project=project1201_1, target=100, result= 0, target_on=date(2010,04,01))
-		KPISchedule.objects.create(kpi=kpi101, project=project1201_1, target=100, result= 0, target_on=date(2010,06,01))
-		
-		KPISchedule.objects.create(kpi=kpi102, project=project1201_1, target=100, result=30, target_on=date(2010,02,01))
-		KPISchedule.objects.create(kpi=kpi102, project=project1201_1, target=100, result= 0, target_on=date(2010,04,01))
-		KPISchedule.objects.create(kpi=kpi102, project=project1201_1, target=100, result= 0, target_on=date(2010,06,01))
-		
-		KPIScheduleRevision.objects.create(schedule=schedule1, org_target=100, org_result= 0, org_target_on=date(2010,02,01), new_target=100, new_result= 30, new_target_on=date(2010,02,01), revised_on=datetime(2010,01,15,12,00,00), revised_by=sector_manager_assistant_account1)
-		#KPIScheduleRevision.objects.create(schedule=schedule1, target=100, result=10, target_on=date(2010,02,01), revised_on=datetime(2010,01,31,12,00,00), revised_by=sector_manager_assistant_account1)
-		
-		# Finance ##################
-		
-		finance_schedule = ProjectBudgetSchedule.objects.create(project=project1201_1, target=1000, result=1000, target_on=date(2010,1,1), claimed_on=date(2010,1,1))
-		ProjectBudgetSchedule.objects.create(project=project1201_1, target=2000, result=0, target_on=date(2010,6,1))
-		ProjectBudgetSchedule.objects.create(project=project1201_1, target=3000, result=0, target_on=date(2010,12,1))
-		
-		ProjectBudgetScheduleRevision.objects.create(schedule=finance_schedule, org_target=1000, org_result=0, org_target_on=date(2010,1,1), new_target=1000, new_result=500, new_target_on=date(2010,1,1), revised_by=sector_manager_assistant_account1)
-	
-
+    """
+    
 from django.db.models.signals import post_syncdb
 post_syncdb.connect(after_syncdb, dispatch_uid="domain.management")
+
